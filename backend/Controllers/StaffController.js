@@ -1,4 +1,4 @@
-const Employee = require('../Model/EmployeeModel');
+const Employee = require('../Model/StaffModel');
 
 // Generate employee ID with leading zeros
 const generateEmployeeId = async () => {
