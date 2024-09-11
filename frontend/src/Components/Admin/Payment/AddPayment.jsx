@@ -5,9 +5,9 @@ import axios from 'axios';
 import { Box, Button, TextField, Typography } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 
-const URL = "http://localhost:4000/inventory";
+const URL = "http://localhost:4000/Payment";
 
-function AddInventory({ onBack }) {
+function AddPayment({ onBack }) {
   const [ItemName, setItemName] = useState('');
   const [type, setType] = useState('');
   const [OrderID, setOrderID] = useState('');
@@ -25,8 +25,8 @@ function AddInventory({ onBack }) {
     try {
       const response = await axios.post(URL, { ItemName, type, OrderID, Cost, Date, Note });
       if (response.status === 201) {
-        alert('Inventory added successfully');
-        navigate('/admindashboard/inventory-management');
+        alert('Payment added successfully');
+        navigate('/admindashboard/Payment-management');
       }
     } catch (error) {
       setError(error.response ? error.response.data.message : 'An error occurred');
@@ -36,7 +36,7 @@ function AddInventory({ onBack }) {
   return (
     <Box sx={{ padding: 3, backgroundColor: 'white', borderRadius: 1 }}>
       <Typography variant="h5" gutterBottom>
-        Add New Inventory
+        Add New Payment
       </Typography>
       <form onSubmit={handleSubmit}>
         <TextField
@@ -95,7 +95,7 @@ function AddInventory({ onBack }) {
           color="primary"
           sx={{ marginTop: 2 }}
         >
-          Add Inventory
+          Add Payment
         </Button>
         <Button
           variant="outlined"
@@ -115,4 +115,4 @@ function AddInventory({ onBack }) {
   );
 }
 
-export default AddInventory;
+export default AddPayment;

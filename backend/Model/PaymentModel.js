@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
-// Define the Inventory Schema
-const inventorySchema = new mongoose.Schema({
+// Define the Payment Schema
+const PaymentSchema = new mongoose.Schema({
     InvID: {
         type: String,
         required: true,
@@ -33,7 +33,7 @@ const inventorySchema = new mongoose.Schema({
     }
 });
 
-// Create the Inventory model
-const Inventory = mongoose.model('Inventory', inventorySchema);
+// Create the Payment model
+const Payment = mongoose.model('Payment', PaymentSchema);
 
-module.exports = Inventory;
+module.exports = Payment;

@@ -5,12 +5,12 @@ import { Box, Button, Table, TableBody, TableCell, TableContainer, TableHead, Ta
 import { Edit, Delete, Print, Add } from '@mui/icons-material';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
-import AddInventory from './AddInventory';
+import AddPayment from './AddPayment';
 import { useNavigate } from 'react-router-dom';
 
-const URL = "http://localhost:4000/inventory";
+const URL = "http://localhost:4000/Payment";
 
-const fetchInventory = async () => {
+const fetchPayment = async () => {
   try {
     const response = await axios.get(URL);
     return Array.isArray(response.data) ? response.data : [response.data];
@@ -20,55 +20,55 @@ const fetchInventory = async () => {
   }
 };
 
-function InventoryDetails() {
-  const [inventory, setInventory] = useState([]);
+function PaymentDetails() {
+  const [Payment, setPayment] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [noResults, setNoResults] = useState(false);
-  const [showAddInventoryForm, setShowAddInventoryForm] = useState(false);
+  const [showAddPaymentForm, setShowAddPaymentForm] = useState(false);
 
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetchInventory().then(data => {
-      setInventory(data);
+    fetchPayment().then(data => {
+      setPayment(data);
     }).catch(error => {
-      console.error("Error fetching inventory:", error);
+      console.error("Error fetching Payment:", error);
     });
   }, []);
 
   const handleEdit = (id) => {
-    navigate(`/admindashboard/update-inventory/${id}`);
+    navigate(`/admindashboard/update-Payment/${id}`);
   };
 
-  const deleteInventory = async (id) => {
+  const deletePayment = async (id) => {
     try {
-      console.log(`Attempting to delete inventory with ID: ${id}`);
+      console.log(`Attempting to delete Payment with ID: ${id}`);
       const response = await axios.delete(`${URL}/${id}`);
       
       console.log('Delete response:', response);
       
       if (response.status === 200) {
-        console.log(`Successfully deleted inventory with ID: ${id}`);
-        setInventory(prev => {
+        console.log(`Successfully deleted Payment with ID: ${id}`);
+        setPayment(prev => {
           const updatedList = prev.filter(item => item._id !== id);
-          console.log('Updated inventory list:', updatedList);
+          console.log('Updated Payment list:', updatedList);
           return updatedList;
         });
       } else {
         console.error("Unexpected response status:", response.status);
       }
     } catch (error) {
-      console.error("Error deleting inventory:", error.response ? error.response.data : error.message);
+      console.error("Error deleting Payment:", error.response ? error.response.data : error.message);
     }
   };
 
   const handlePDF = () => {
     const doc = new jsPDF();
-    doc.text("Inventory Details Report", 10, 10);
+    doc.text("Payment Details Report", 10, 10);
 
     doc.autoTable({
       head: [['ID', 'Item Name', 'Type', 'Order ID', 'Cost', 'Date', 'Note']],
-      body: inventory.map(item => [item.InvID, item.ItemName, item.type, item.OrderID, item.Cost, item.Date, item.Note || 'No Note']),
+      body: Payment.map(item => [item.InvID, item.ItemName, item.type, item.OrderID, item.Cost, item.Date, item.Note || 'No Note']),
       startY: 20,
       margin: { top: 20 },
       styles: {
@@ -81,42 +81,42 @@ function InventoryDetails() {
       },
     });
 
-    doc.save('inventory-details.pdf');
+    doc.save('Payment-details.pdf');
   };
 
   const handleSearch = () => {
     if (searchQuery.trim() === "") {
-      fetchInventory().then(data => {
-        setInventory(data);
+      fetchPayment().then(data => {
+        setPayment(data);
         setNoResults(false);
       }).catch(error => {
-        console.error("Error fetching inventory:", error);
+        console.error("Error fetching Payment:", error);
       });
       return;
     }
 
-    const filteredInventory = inventory.filter(item =>
+    const filteredPayment = Payment.filter(item =>
       Object.values(item).some(field =>
         field && field.toString().toLowerCase().includes(searchQuery.toLowerCase())
       )
     );
-    setInventory(filteredInventory);
-    setNoResults(filteredInventory.length === 0);
+    setPayment(filteredPayment);
+    setNoResults(filteredPayment.length === 0);
   };
 
-  const handleAddInventory = () => {
-    setShowAddInventoryForm(true);
+  const handleAddPayment = () => {
+    setShowAddPaymentForm(true);
   };
 
   const handleBack = () => {
-    setShowAddInventoryForm(false);
+    setShowAddPaymentForm(false);
   };
 
   return (
     <Box>
-      {showAddInventoryForm ? (
+      {showAddPaymentForm ? (
         <Box>
-          <AddInventory onBack={handleBack} />
+          <AddPayment onBack={handleBack} />
         </Box>
       ) : (
         <>
@@ -155,11 +155,11 @@ function InventoryDetails() {
             <Button
               variant="contained"
               color="secondary"
-              onClick={handleAddInventory}
+              onClick={handleAddPayment}
               sx={{ borderRadius: 2, marginLeft: 'auto' }}
               startIcon={<Add />}
             >
-              Add Inventory
+              Add Payment
             </Button>
           </Box>
 
@@ -181,10 +181,10 @@ function InventoryDetails() {
                 <TableBody>
                   {noResults ? (
                     <TableRow>
-                      <TableCell colSpan={8} align="center">No inventory found.</TableCell>
+                      <TableCell colSpan={8} align="center">No Payment found.</TableCell>
                     </TableRow>
                   ) : (
-                    inventory.map((item) => (
+                    Payment.map((item) => (
                       <TableRow key={item._id}>
                         <TableCell>{item.InvID}</TableCell>
                         <TableCell>{item.ItemName}</TableCell>
@@ -197,7 +197,7 @@ function InventoryDetails() {
                           <IconButton onClick={() => handleEdit(item._id)} sx={{ color: 'primary.main' }}>
                             <Edit />
                           </IconButton>
-                          <IconButton onClick={() => deleteInventory(item._id)} sx={{ color: 'error.main' }}>
+                          <IconButton onClick={() => deletePayment(item._id)} sx={{ color: 'error.main' }}>
                             <Delete />
                           </IconButton>
                         </TableCell>
@@ -223,4 +223,4 @@ function InventoryDetails() {
   );
 }
 
-export default InventoryDetails;
+export default PaymentDetails;

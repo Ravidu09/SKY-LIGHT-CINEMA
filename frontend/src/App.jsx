@@ -20,13 +20,13 @@ import AddMovie from './Components/Admin/Movie/AddMovie';
 import UpdateMovie from './Components/Admin/Movie/UpdateMovie';
 
 
-import InventoryDetails from './Components/Admin/Payment/InventoryDetails'; 
-import AddInventory from './Components/Admin/Payment/AddInventory'; 
-import UpdateInventory from './Components/Admin/Payment/UpdateInventory'; 
-import Inventory from './Components/Admin/Payment/Inventory';
+import InventoryDetails from './Components/Admin/Payment/PaymentDetails'; 
+import AddInventory from './Components/Admin/Payment/AddPayment'; 
+import UpdateInventory from './Components/Admin/Payment/UpdatePayment'; 
+import Inventory from './Components/Admin/Payment/Payment';
 
 import StaffDetails from './Components/Admin/Staff/StaffDetails';
-import Addstaff from './Components/Admin/Staff/AddEmployee';
+import Addstaff from './Components/Admin/Staff/AddStaff';
 import Updatestaff from './Components/Admin/Staff/UpdateStaff';
 import Staff from './Components/Admin/Staff/Staff';
 

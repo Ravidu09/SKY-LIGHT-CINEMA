@@ -6,25 +6,25 @@ const app = express();
 
 // Import routes
 const userRoutes = require('./Routes/UserRoutes');
-const jewelleryRoutes = require('./Routes/JewelleryRoutes');
-const customerRoutes = require('./Routes/CustomerRoutes');
+const MoviesRoutes = require('./Routes/MoviesRoutes');
+const bookingRoutes = require('./Routes/BookingRoutes');
 const feedbackRoutes = require('./Routes/FeedbackRoutes');
-const employeeRoutes = require('./Routes/EmployeeRoutes');
-const salaryRoutes = require('./Routes/SalaryRoutes');
-const supplierRoutes = require('./Routes/SupplierRoutes');
-const inventoryRoutes = require('./Routes/InventoryRoutes');
+const maintananceRoutes = require('./Routes/MaintananceRoutes');
+const paymentRoutes = require('./Routes/PaymentRoutes');
+const promotionRoutes = require('./Routes/PromotionRoutes');
+const staffRoutes = require('./Routes/StaffRoutes');
 
 // Middleware
 app.use(express.json());
 app.use(cors());
 app.use('/users', userRoutes);
-app.use('/jewellery', jewelleryRoutes);
-app.use('/customers', customerRoutes);
+app.use('/movies', MoviesRoutes);
+app.use('/bookings', bookingRoutes);
 app.use('/feedback', feedbackRoutes);
-app.use('/employees', employeeRoutes);
-app.use('/salaries', salaryRoutes);
-app.use('/suppliers', supplierRoutes);
-app.use('/inventory', inventoryRoutes);
+app.use('/maintanance', maintananceRoutes);
+app.use('/payments', paymentRoutes);
+app.use('/promotions', promotionRoutes);
+app.use('/staff', staffRoutes);
 
 // Serve static files (uploaded images)
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));

@@ -11,7 +11,7 @@ function AddFeedback({ onBack }) {
   const [feedback, setFeedback] = useState({
     feedbackId: '',
     customerId: '',
-    jewelleryId: '',
+    MovieId: '',
     rating: 1,
     comment: ''
   });
@@ -52,9 +52,9 @@ function AddFeedback({ onBack }) {
           margin="normal"
         />
         <TextField
-          label="Jewellery ID"
-          name="jewelleryId"
-          value={feedback.jewelleryId}
+          label="MovieID"
+          name="MovieId"
+          value={feedback.MovieId}
           onChange={handleChange}
           fullWidth
           margin="normal"

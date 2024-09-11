@@ -1,89 +1,78 @@
-const Jewellery = require('../Model/JewelleryModel');
+const Movie = require('../Model/MovieModel'); // Adjust the path as needed
 
-// Generate jewellery ID with leading zeros
-const generateJewelleryId = async () => {
-    const lastJewellery = await Jewellery.findOne().sort({ JID: -1 }).limit(1);
-    const lastId = lastJewellery ? parseInt(lastJewellery.JID.replace('J', ''), 10) : 0;
-    const newId = `J${(lastId + 1).toString().padStart(3, '0')}`; // Adjust padding as needed
-    return newId;
-};
-
-// Create a new jewellery item
-exports.createJewellery = async (req, res) => {
+// Create a new movie
+exports.createMovie = async (req, res) => {
     try {
-        const { name, price, quantity, status, description } = req.body;
-        const image = req.file ? req.file.path : null; // Use uploaded image path if available
+        const { image, name, description } = req.body;
 
-        const JID = await generateJewelleryId(); // Generate new jewellery ID
-        const newJewellery = new Jewellery({ JID, name, price, quantity, status, image, description });
-        await newJewellery.save();
-
-        res.status(201).json({ message: 'Jewellery created successfully', jewellery: newJewellery });
-    } catch (error) {
-        res.status(500).json({ message: 'Error creating jewellery', error });
-    }
-};
-
-// Get all jewellery items
-exports.getAllJewellery = async (req, res) => {
-    try {
-        const jewellery = await Jewellery.find();
-        res.status(200).json(jewellery);
-    } catch (error) {
-        res.status(500).json({ message: 'Error retrieving jewellery', error });
-    }
-};
-
-// Get a single jewellery item by ID
-exports.getJewelleryById = async (req, res) => {
-    const id = req.params.id;
-
-    try {
-        const jewellery = await Jewellery.findById(id);
-        if (!jewellery) {
-            return res.status(404).json({ message: 'Jewellery not found' });
+        // Check if the movie already exists
+        const existingMovie = await Movie.findOne({ name });
+        if (existingMovie) {
+            return res.status(400).json({ message: 'Movie already exists' });
         }
-        res.status(200).json(jewellery);
+
+        const newMovie = new Movie({ image, name, description });
+        await newMovie.save();
+
+        res.status(201).json({ message: 'Movie created successfully', movie: newMovie });
     } catch (error) {
-        res.status(500).json({ message: 'Error retrieving jewellery', error });
+        res.status(500).json({ message: 'Error creating movie', error });
     }
 };
 
-// Update a jewellery item by ID
-exports.updateJewellery = async (req, res) => {
-    const id = req.params.id;
-    const { name, price, quantity, status, description } = req.body;
-    const image = req.file ? req.file.path : null; // Use uploaded image path if available
-
+// Get all movies
+exports.getAllMovies = async (req, res) => {
     try {
-        const updatedJewellery = await Jewellery.findByIdAndUpdate(
-            id,
-            { name, price, quantity, status, image, description },
-            { new: true } // Return the updated jewellery
+        const movies = await Movie.find();
+        res.status(200).json(movies);
+    } catch (error) {
+        res.status(500).json({ message: 'Error retrieving movies', error });
+    }
+};
+
+// Get a single movie by ID
+exports.getMovieById = async (req, res) => {
+    try {
+        const movie = await Movie.findById(req.params.id);
+        if (!movie) {
+            return res.status(404).json({ message: 'Movie not found' });
+        }
+        res.status(200).json(movie);
+    } catch (error) {
+        res.status(500).json({ message: 'Error retrieving movie', error });
+    }
+};
+
+// Update a movie by ID
+exports.updateMovie = async (req, res) => {
+    try {
+        const { image, name, description } = req.body;
+        const updatedMovie = await Movie.findByIdAndUpdate(
+            req.params.id,
+            { image, name, description },
+            { new: true } // Return the updated movie
         );
 
-        if (!updatedJewellery) {
-            return res.status(404).json({ message: 'Jewellery not found' });
+        if (!updatedMovie) {
+            return res.status(404).json({ message: 'Movie not found' });
         }
 
-        res.status(200).json({ message: 'Jewellery updated successfully', jewellery: updatedJewellery });
+        res.status(200).json({ message: 'Movie updated successfully', movie: updatedMovie });
     } catch (error) {
-        res.status(500).json({ message: 'Error updating jewellery', error });
+        res.status(500).json({ message: 'Error updating movie', error });
     }
 };
 
-// Delete a jewellery item by ID
-exports.deleteJewellery = async (req, res) => {
-    const id = req.params.id;
-
+// Delete a movie by ID
+exports.deleteMovie = async (req, res) => {
     try {
-        const deletedJewellery = await Jewellery.findByIdAndDelete(id);
-        if (!deletedJewellery) {
-            return res.status(404).json({ message: 'Jewellery not found' });
+        const deletedMovie = await Movie.findByIdAndDelete(req.params.id);
+        if (!deletedMovie) {
+            return res.status(404).json({ message: 'Movie not found' });
         }
 
-        res.status(200).json({ message: 'Jewellery deleted successfully' });
+        res.status(200).json({ message: 'Movie deleted successfully' });
     } catch (error) {
-        res.status(500).json({ message: 'Error deleting jewellery', error });
+        res.status(500).json({ message: 'Error deleting movie', error });
     }
 };

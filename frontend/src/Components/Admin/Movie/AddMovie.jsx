@@ -1,18 +1,14 @@
-/* eslint-disable no-unused-vars */
 import React, { useState } from 'react';
 import axios from 'axios';
 import { Box, Button, TextField, Typography } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 
-const URL = "http://localhost:4000/jewellery";
+const URL = "http://localhost:4000/Movie";
 
-// eslint-disable-next-line react/prop-types
-function AddJewellery({ onBack }) {
+function AddMovie({ onBack }) {
   const [image, setImage] = useState('');
   const [name, setName] = useState('');
-  const [price, setPrice] = useState('');
-  const [quantity, setQuantity] = useState('');
-  const [status, setStatus] = useState('available'); // Default to 'available'
+  const [description, setDescription] = useState(''); // Changed from price to description
   const [error, setError] = useState(null);
 
   const navigate = useNavigate();
@@ -22,10 +18,10 @@ function AddJewellery({ onBack }) {
     setError(null); // Reset error state
 
     try {
-      const response = await axios.post(URL, { image, name, price, quantity, status });
+      const response = await axios.post(URL, { image, name, description });
       if (response.status === 201) {
-        alert('Jewellery added successfully');
-        navigate('/admindashboard/jewellery-management');
+        alert('Movie added successfully');
+        navigate('/admindashboard/movie-management'); // Fixed route
       }
     } catch (error) {
       setError(error.response ? error.response.data.message : 'An error occurred');
@@ -33,9 +29,9 @@ function AddJewellery({ onBack }) {
   };
 
   return (
-    <Box sx={{ padding: 3, backgroundColor: 'white', borderRadius: 1 }}>
+    <Box sx={{ padding: 3, backgroundColor: 'white', borderRadius: 1, boxShadow: 1 }}>
       <Typography variant="h5" gutterBottom>
-        Add New Jewellery
+        Add New Movie
       </Typography>
       <form onSubmit={handleSubmit}>
         <TextField
@@ -55,43 +51,22 @@ function AddJewellery({ onBack }) {
           margin="normal"
         />
         <TextField
-          label="Price"
+          label="Description"
           variant="outlined"
-          type="number"
-          value={price}
-          onChange={(e) => setPrice(e.target.value)}
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
           fullWidth
+          multiline
+          rows={4} // Adjust based on expected content length
           margin="normal"
         />
-        <TextField
-          label="Quantity"
-          variant="outlined"
-          type="number"
-          value={quantity}
-          onChange={(e) => setQuantity(e.target.value)}
-          fullWidth
-          margin="normal"
-        />
-        <TextField
-          label="Status"
-          variant="outlined"
-          select
-          SelectProps={{ native: true }}
-          value={status}
-          onChange={(e) => setStatus(e.target.value)}
-          fullWidth
-          margin="normal"
-        >
-          <option value="available">Available</option>
-          <option value="out of stock">Out of Stock</option>
-        </TextField>
         <Button
           type="submit"
           variant="contained"
           color="primary"
           sx={{ marginTop: 2 }}
         >
-          Add Jewellery
+          Add Movie
         </Button>
         <Button
           variant="outlined"
@@ -111,4 +86,4 @@ function AddJewellery({ onBack }) {
   );
 }
 
-export default AddJewellery;
+export default AddMovie;

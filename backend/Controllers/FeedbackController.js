@@ -11,10 +11,10 @@ const generateFeedbackId = async () => {
 // Create a new feedback
 exports.createFeedback = async (req, res) => {
     try {
-        const { customerId, jewelleryId, rating, comment } = req.body;
-
+        const { customerId, MovieId, rating, comment } = req.body;
+        console.log(customerId,MovieId,rating,comment);
         const feedbackId = await generateFeedbackId(); // Generate new feedback ID
-        const newFeedback = new Feedback({ feedbackId, customerId, jewelleryId, rating, comment });
+        const newFeedback = new Feedback({ feedbackId, customerId, MovieId, rating, comment });
         await newFeedback.save();
 
         res.status(201).json({ message: 'Feedback created successfully', feedback: newFeedback });

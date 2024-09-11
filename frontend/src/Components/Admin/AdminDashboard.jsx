@@ -1,4 +1,3 @@
-// eslint-disable-next-line no-unused-vars
 import React, { useState, useEffect } from 'react';
 import { Drawer, List, ListItem, ListItemIcon, ListItemText, CssBaseline, Box, Toolbar, Typography } from '@mui/material';
 import { useNavigate, Outlet, useLocation } from 'react-router-dom';
@@ -19,7 +18,7 @@ function AdminDashboard() {
   const navigate = useNavigate();
   const location = useLocation();
   
-  const [currentTab, setCurrentTab] = useState('');
+  const [currentTab, setCurrentTab] = useState('Dashboard'); // Set default value
 
   const menuItems = [
     { text: 'Dashboard', icon: <DashboardIcon />, path: '/admindashboard' },
@@ -27,12 +26,11 @@ function AdminDashboard() {
     { text: 'Movie Management', icon: <AssignmentIcon />, path: '/admindashboard/movie-management' },
     { text: 'Payment Management', icon: <InventoryIcon />, path: '/admindashboard/payment-management' },
     { text: 'Staff Management', icon: <PeopleIcon />, path: '/admindashboard/staff-management' },
-    { text: 'Maintanance Management', icon: <BusinessIcon />, path: '/admindashboard/maintanance-management' },
+    { text: 'Maintenance Management', icon: <BusinessIcon />, path: '/admindashboard/maintenance-management' },
     { text: 'Booking Management', icon: <EventIcon />, path: '/admindashboard/booking-management' },
     { text: 'Promotion Management', icon: <ShoppingCartIcon />, path: '/admindashboard/promotion-management' },
     { text: 'Feedback Management', icon: <FeedbackIcon />, path: '/admindashboard/feedback-management' },
     { text: 'Support Management', icon: <SupportAgentIcon />, path: '/admindashboard/support-management' },
-
   ];
 
   useEffect(() => {
@@ -40,8 +38,9 @@ function AdminDashboard() {
     const currentItem = menuItems.find(item => item.path === currentPath);
     if (currentItem) {
       setCurrentTab(currentItem.text);
+    } else {
+      setCurrentTab('Dashboard'); // Default tab if no match
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [location.pathname]);
 
   const handleMenuClick = (path) => {
@@ -63,6 +62,8 @@ function AdminDashboard() {
           '& .MuiDrawer-paper': {
             width: drawerWidth,
             boxSizing: 'border-box',
+            backgroundColor: '#000', // Black
+            color: '#fff', // White text
           },
         }}
         variant="permanent"
@@ -71,7 +72,18 @@ function AdminDashboard() {
         <Toolbar />
         <List>
           {menuItems.map((item, index) => (
-            <ListItem button key={index} onClick={() => handleMenuClick(item.path)}>
+            <ListItem
+              button
+              key={index}
+              selected={location.pathname === item.path} // Highlight active item
+              onClick={() => handleMenuClick(item.path)}
+              sx={{ 
+                '&.Mui-selected': { 
+                  backgroundColor: '#f00', // Red for selected item
+                  color: '#fff', // White text
+                },
+              }}
+            >
               <ListItemIcon>{item.icon}</ListItemIcon>
               <ListItemText primary={item.text} />
             </ListItem>
@@ -88,12 +100,12 @@ function AdminDashboard() {
         sx={{
           flexGrow: 1,
           p: 3,
-          backgroundColor: '#f4f6f8',
+          backgroundColor: '#d3d3d3', // Light gray background for main content
           minHeight: '100vh',
         }}
       >
         <Toolbar />
-        <Typography variant="h5" sx={{ marginBottom: 2 }}>
+        <Typography variant="h5" sx={{ marginBottom: 2, color: '#f00' }}>
           {currentTab}
         </Typography>
         <Outlet /> {/* Render nested routes */}

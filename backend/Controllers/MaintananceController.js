@@ -1,98 +1,82 @@
-const Supplier = require('../Model/SupplierModel');
+const Maintanance = require('../Model/MaintananceModel');
 
-// Create a new supplier order
-
-const generateSalaryID = async () => {
-    const lastSalary = await Salary.findOne().sort({ salaryID: -1 }).limit(1);
-    const lastId = lastSalary ? parseInt(lastSalary.salaryID.replace('S', ''), 10) : 0;
-    const newId = `S${(lastId + 1).toString().padStart(3, '0')}`; // Adjust padding as needed
+// Generate maintenance ID with leading zeros
+const generateMaintananceID = async () => {
+    const lastMaintanance = await Maintanance.findOne().sort({ maintananceID: -1 }).limit(1);
+    const lastId = lastMaintanance ? parseInt(lastMaintanance.maintananceID.replace('M', ''), 10) : 0;
+    const newId = `M${(lastId + 1).toString().padStart(3, '0')}`; // Adjust padding as needed
     return newId;
 };
 
-exports.createSupplier = async (req, res) => {
+// Create a new maintenance record
+exports.createMaintanance = async (req, res) => {
     try {
-        const { SupOrderID, type, quantity, InvID, JID, SupID, status, date, description } = req.body;
+        const { description, date, cost, staffID } = req.body;
 
-        // Check if SupOrderID already exists
-        const existingSupplier = await Supplier.findOne({ SupOrderID });
-        if (existingSupplier) {
-            return res.status(400).json({ message: 'Supplier order ID already exists' });
+        const maintananceID = await generateMaintananceID(); // Generate new maintenance ID
+        const newMaintanance = new Maintanance({ maintananceID, description, date, cost, staffID });
+        await newMaintanance.save();
+
+        res.status(201).json({ message: 'Maintenance record created successfully', maintanance: newMaintanance });
+    } catch (error) {
+        res.status(500).json({ message: 'Error creating maintenance record', error: error.message });
+    }
+};
+
+// Get all maintenance records
+exports.getAllMaintanances = async (req, res) => {
+    try {
+        const maintanances = await Maintanance.find();
+        res.status(200).json(maintanances);
+    } catch (error) {
+        res.status(500).json({ message: 'Error retrieving maintenance records', error: error.message });
+    }
+};
+
+// Get a maintenance record by ID
+exports.getMaintananceById = async (req, res) => {
+    try {
+        const maintanance = await Maintanance.findById(req.params.id);
+        if (!maintanance) {
+            return res.status(404).json({ message: 'Maintenance record not found' });
         }
-
-        const newSupplier = new Supplier({
-            SupOrderID,
-            type,
-            quantity,
-            InvID,
-            JID,
-            SupID,
-            status,
-            date,
-            description
-        });
-
-        await newSupplier.save();
-
-        res.status(201).json({ message: 'Supplier order created successfully', supplier: newSupplier });
+        res.status(200).json(maintanance);
     } catch (error) {
-        res.status(500).json({ message: 'Error creating supplier order', error });
+        res.status(500).json({ message: 'Error retrieving maintenance record', error: error.message });
     }
 };
 
-// Get all supplier orders
-exports.getAllSuppliers = async (req, res) => {
+// Update a maintenance record by ID
+exports.updateMaintanance = async (req, res) => {
     try {
-        const suppliers = await Supplier.find();
-        res.status(200).json(suppliers);
-    } catch (error) {
-        res.status(500).json({ message: 'Error retrieving supplier orders', error });
-    }
-};
+        const { description, date, cost, staffID } = req.body;
 
-// Get a single supplier order by ID
-exports.getSupplierById = async (req, res) => {
-    try {
-        const supplier = await Supplier.findById(req.params.id);
-        if (!supplier) {
-            return res.status(404).json({ message: 'Supplier order not found' });
-        }
-        res.status(200).json(supplier);
-    } catch (error) {
-        res.status(500).json({ message: 'Error retrieving supplier order', error });
-    }
-};
-
-// Update a supplier order by ID
-exports.updateSupplier = async (req, res) => {
-    try {
-        const { SupOrderID, type, quantity, InvID, JID, SupID, status, date, description } = req.body;
-
-        const updatedSupplier = await Supplier.findByIdAndUpdate(
+        const updatedMaintanance = await Maintanance.findByIdAndUpdate(
             req.params.id,
-            { SupOrderID, type, quantity, InvID, JID, SupID, status, date, description },
-            { new: true } // Return the updated supplier order
+            { description, date, cost, staffID },
+            { new: true } // Return the updated maintenance record
         );
 
-        if (!updatedSupplier) {
-            return res.status(404).json({ message: 'Supplier order not found' });
+        if (!updatedMaintanance) {
+            return res.status(404).json({ message: 'Maintenance record not found' });
         }
 
-        res.status(200).json({ message: 'Supplier order updated successfully', supplier: updatedSupplier });
+        res.status(200).json({ message: 'Maintenance record updated successfully', maintanance: updatedMaintanance });
     } catch (error) {
-        res.status(500).json({ message: 'Error updating supplier order', error });
+        res.status(500).json({ message: 'Error updating maintenance record', error: error.message });
     }
 };
 
-// Delete a supplier order by ID
-exports.deleteSupplier = async (req, res) => {
+// Delete a maintenance record by ID
+exports.deleteMaintanance = async (req, res) => {
     try {
-        const deletedSupplier = await Supplier.findByIdAndDelete(req.params.id);
-        if (!deletedSupplier) {
-            return res.status(404).json({ message: 'Supplier order not found' });
+        const deletedMaintanance = await Maintanance.findByIdAndDelete(req.params.id);
+        if (!deletedMaintanance) {
+            return res.status(404).json({ message: 'Maintenance record not found' });
         }
 
-        res.status(200).json({ message: 'Supplier order deleted successfully' });
+        res.status(200).json({ message: 'Maintenance record deleted successfully' });
     } catch (error) {
-        res.status(500).json({ message: 'Error deleting supplier order', error });
+        res.status(500).json({ message: 'Error deleting maintenance record', error: error.message });
     }
 };

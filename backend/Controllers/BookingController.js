@@ -1,84 +1,82 @@
-const Salary = require('../Model/SalaryModel');
+const Booking = require('../Model/BookingModel');
 
-// Generate salary ID with leading zeros
-const generateSalaryID = async () => {
-    const lastSalary = await Salary.findOne().sort({ salaryID: -1 }).limit(1);
-    const lastId = lastSalary ? parseInt(lastSalary.salaryID.replace('S', ''), 10) : 0;
-    const newId = `S${(lastId + 1).toString().padStart(3, '0')}`; // Adjust padding as needed
+// Generate booking ID with leading zeros
+const generateBookingID = async () => {
+    const lastBooking = await Booking.findOne().sort({ bookingID: -1 }).limit(1);
+    const lastId = lastBooking ? parseInt(lastBooking.bookingID.replace('B', ''), 10) : 0;
+    const newId = `B${(lastId + 1).toString().padStart(3, '0')}`; // Adjust padding as needed
     return newId;
 };
 
-// Create a new salary record
-exports.createSalary = async (req, res) => {
+// Create a new booking record
+exports.createBooking = async (req, res) => {
     try {
-        const { EMPID, month, workdays, otRate, otHours } = req.body;
-        const totalSalary = (workdays * 8 * otRate) + (otHours * otRate); // Example calculation
+        const { movieID, customerID, showTime, seats } = req.body;
 
-        const salaryID = await generateSalaryID(); // Generate new salary ID
-        const newSalary = new Salary({ salaryID, EMPID, month, workdays, otRate, otHours, totalSalary });
-        await newSalary.save();
+        const bookingID = await generateBookingID(); // Generate new booking ID
+        const newBooking = new Booking({ bookingID, movieID, customerID, showTime, seats });
+        await newBooking.save();
 
-        res.status(201).json({ message: 'Salary record created successfully', salary: newSalary });
+        res.status(201).json({ message: 'Booking created successfully', booking: newBooking });
     } catch (error) {
-        res.status(500).json({ message: 'Error creating salary record', error: error.message });
+        res.status(500).json({ message: 'Error creating booking', error: error.message });
     }
 };
 
-// Get all salary records
-exports.getAllSalaries = async (req, res) => {
+// Get all booking records
+exports.getAllBookings = async (req, res) => {
     try {
-        const salaries = await Salary.find();
-        res.status(200).json(salaries);
+        const bookings = await Booking.find();
+        res.status(200).json(bookings);
     } catch (error) {
-        res.status(500).json({ message: 'Error retrieving salary records', error: error.message });
+        res.status(500).json({ message: 'Error retrieving bookings', error: error.message });
     }
 };
 
-// Get a salary record by ID
-exports.getSalaryById = async (req, res) => {
+// Get a booking record by ID
+exports.getBookingById = async (req, res) => {
     try {
-        const salary = await Salary.findById(req.params.id);
-        if (!salary) {
-            return res.status(404).json({ message: 'Salary record not found' });
+        const booking = await Booking.findById(req.params.id);
+        if (!booking) {
+            return res.status(404).json({ message: 'Booking not found' });
         }
-        res.status(200).json(salary);
+        res.status(200).json(booking);
     } catch (error) {
-        res.status(500).json({ message: 'Error retrieving salary record', error: error.message });
+        res.status(500).json({ message: 'Error retrieving booking', error: error.message });
     }
 };
 
-// Update a salary record by ID
-exports.updateSalary = async (req, res) => {
+// Update a booking record by ID
+exports.updateBooking = async (req, res) => {
     try {
-        const { EMPID, month, workdays, otRate, otHours } = req.body;
-        const totalSalary = (workdays * 8 * otRate) + (otHours * otRate); // Example calculation
+        const { movieID, customerID, showTime, seats } = req.body;
 
-        const updatedSalary = await Salary.findByIdAndUpdate(
+        const updatedBooking = await Booking.findByIdAndUpdate(
             req.params.id,
-            { EMPID, month, workdays, otRate, otHours, totalSalary },
-            { new: true } // Return the updated salary record
+            { movieID, customerID, showTime, seats },
+            { new: true } // Return the updated booking record
         );
 
-        if (!updatedSalary) {
-            return res.status(404).json({ message: 'Salary record not found' });
+        if (!updatedBooking) {
+            return res.status(404).json({ message: 'Booking not found' });
         }
 
-        res.status(200).json({ message: 'Salary record updated successfully', salary: updatedSalary });
+        res.status(200).json({ message: 'Booking updated successfully', booking: updatedBooking });
     } catch (error) {
-        res.status(500).json({ message: 'Error updating salary record', error: error.message });
+        res.status(500).json({ message: 'Error updating booking', error: error.message });
     }
 };
 
-// Delete a salary record by ID
-exports.deleteSalary = async (req, res) => {
+// Delete a booking record by ID
+exports.deleteBooking = async (req, res) => {
     try {
-        const deletedSalary = await Salary.findByIdAndDelete(req.params.id);
-        if (!deletedSalary) {
-            return res.status(404).json({ message: 'Salary record not found' });
+        const deletedBooking = await Booking.findByIdAndDelete(req.params.id);
+        if (!deletedBooking) {
+            return res.status(404).json({ message: 'Booking not found' });
         }
 
-        res.status(200).json({ message: 'Salary record deleted successfully' });
+        res.status(200).json({ message: 'Booking deleted successfully' });
     } catch (error) {
-        res.status(500).json({ message: 'Error deleting salary record', error: error.message });
+        res.status(500).json({ message: 'Error deleting booking', error: error.message });
     }
 };

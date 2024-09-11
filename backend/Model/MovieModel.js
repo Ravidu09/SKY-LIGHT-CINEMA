@@ -1,13 +1,20 @@
 const mongoose = require('mongoose');
+const Schema = mongoose.Schema;
 
-const JewellerySchema = new mongoose.Schema({
-  JID: { type: String, required: true, unique: true },
-  name: { type: String, required: true },
-  price: { type: Number, required: true },
-  quantity: { type: Number, required: true },
-  status: { type: String, required: true },
-  image: { type: String }, // Image URL or path
-  description: { type: String }
+const MovieSchema = new Schema({
+    image: {
+        type: String, // URL or path to the image
+        required: true,
+    },
+    name: {
+        type: String,
+        required: true,
+        unique: true,
+    },
+    description: {
+        type: String,
+        required: true,
+    }
 });
 
-module.exports = mongoose.model('Jewellery', JewellerySchema);
+module.exports = mongoose.model('Movie', MovieSchema);

@@ -1,12 +1,12 @@
 const express = require('express');
 const router = express.Router();
-const EmployeeController = require('../Controllers/EmployeeController');
+const StaffController = require('../Controllers/StaffController');  // Make sure this path is correct
 
-
-router.post('/', EmployeeController.createEmployee);
-router.get('/', EmployeeController.getEmployees);
-router.get('/:id', EmployeeController.getEmployeeById);
-router.put('/:id', EmployeeController.updateEmployee);
-router.delete('/:id', EmployeeController.deleteEmployee);
+// Define routes for staff operations
+router.post('/staff', StaffController.createStaff);
+router.get('/staff', StaffController.getStaff);
+router.get('/staff:id', StaffController.getStaffById);
+router.put('/staff:id', StaffController.updateStaff);
+router.delete('/staff:id', StaffController.deleteStaff);
 
 module.exports = router;

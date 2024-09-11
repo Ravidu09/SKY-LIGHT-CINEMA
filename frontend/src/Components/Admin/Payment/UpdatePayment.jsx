@@ -4,11 +4,11 @@ import axios from 'axios';
 import { Box, TextField, Button, Typography } from '@mui/material';
 import { useParams, useNavigate } from 'react-router-dom';
 
-const URL = "http://localhost:4000/inventory";
+const URL = "http://localhost:4000/Payment";
 
-function UpdateInventory() {
+function UpdatePayment() {
   const { id } = useParams();
-  const [inventory, setInventory] = useState({
+  const [Payment, setPayment] = useState({
     ItemName: '',
     type: '',
     OrderID: '',
@@ -21,10 +21,10 @@ function UpdateInventory() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const fetchInventory = async () => {
+    const fetchPayment = async () => {
       try {
         const response = await axios.get(`${URL}/${id}`);
-        setInventory(response.data);
+        setPayment(response.data);
         setLoading(false);
       } catch (error) {
         setError(error.response ? error.response.data.message : 'An error occurred');
@@ -32,19 +32,19 @@ function UpdateInventory() {
       }
     };
 
-    fetchInventory();
+    fetchPayment();
   }, [id]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setInventory({ ...inventory, [name]: value });
+    setPayment({ ...Payment, [name]: value });
   };
 
   const handleUpdate = async () => {
     try {
-      await axios.put(`${URL}/${id}`, inventory);
-      alert('Inventory updated successfully');
-      navigate('/admindashboard/inventory-management');
+      await axios.put(`${URL}/${id}`, Payment);
+      alert('Payment updated successfully');
+      navigate('/admindashboard/Payment-management');
     } catch (error) {
       setError(error.response ? error.response.data.message : 'An error occurred');
     }
@@ -56,11 +56,11 @@ function UpdateInventory() {
 
   return (
     <Box sx={{ padding: 3, backgroundColor: 'white', borderRadius: 1 }}>
-      <Typography variant="h6" gutterBottom>Update Inventory</Typography>
+      <Typography variant="h6" gutterBottom>Update Payment</Typography>
       <TextField
         label="Item Name"
         name="ItemName"
-        value={inventory.ItemName}
+        value={Payment.ItemName}
         onChange={handleChange}
         fullWidth
         margin="normal"
@@ -68,7 +68,7 @@ function UpdateInventory() {
       <TextField
         label="Type"
         name="type"
-        value={inventory.type}
+        value={Payment.type}
         onChange={handleChange}
         fullWidth
         margin="normal"
@@ -76,7 +76,7 @@ function UpdateInventory() {
       <TextField
         label="Order ID"
         name="OrderID"
-        value={inventory.OrderID}
+        value={Payment.OrderID}
         onChange={handleChange}
         fullWidth
         margin="normal"
@@ -85,7 +85,7 @@ function UpdateInventory() {
         label="Cost"
         name="Cost"
         type="number"
-        value={inventory.Cost}
+        value={Payment.Cost}
         onChange={handleChange}
         fullWidth
         margin="normal"
@@ -94,7 +94,7 @@ function UpdateInventory() {
         label="Date"
         name="Date"
         type="date"
-        value={inventory.Date}
+        value={Payment.Date}
         onChange={handleChange}
         fullWidth
         margin="normal"
@@ -102,7 +102,7 @@ function UpdateInventory() {
       <TextField
         label="Note"
         name="Note"
-        value={inventory.Note}
+        value={Payment.Note}
         onChange={handleChange}
         fullWidth
         margin="normal"
@@ -113,7 +113,7 @@ function UpdateInventory() {
         onClick={handleUpdate}
         sx={{ marginTop: 2 }}
       >
-        Update Inventory
+        Update Payment
       </Button>
       {error && (
         <Typography color="error" sx={{ marginTop: 2 }}>
@@ -124,4 +124,4 @@ function UpdateInventory() {
   );
 }
 
-export default UpdateInventory;
+export default UpdatePayment;

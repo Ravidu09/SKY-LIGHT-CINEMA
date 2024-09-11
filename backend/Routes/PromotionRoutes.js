@@ -1,12 +1,12 @@
 const express = require('express');
 const router = express.Router();
-const CustomerController = require('../Controllers/CustomerController');
+const PromotionController = require('../Controllers/PromotionController');
 
-// Routes
-router.post('/', CustomerController.createCustomer);
-router.get('/', CustomerController.getAllCustomers);
-router.get('/:id', CustomerController.getCustomerById);
-router.put('/:id', CustomerController.updateCustomer);
-router.delete('/:id', CustomerController.deleteCustomer);
+// Routes for Promotion operations
+router.post('/Promotion', PromotionController.createPromotion);
+router.get('/Promotion', PromotionController.getAllPromotions);
+router.get('/Promotion:id', PromotionController.getPromotionById);
+router.put('/Promotion:id', PromotionController.updatePromotion);
+router.delete('/Promotion:id', PromotionController.deletePromotion);
 
 module.exports = router;

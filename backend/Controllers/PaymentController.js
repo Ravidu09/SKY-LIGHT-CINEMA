@@ -1,94 +1,82 @@
-const Inventory = require('../Model/InventoryModel'); // Adjust the path as necessary
-const mongoose = require('mongoose');
+const Payment = require('../Model/PaymentModel');
 
-// Generate a new Inventory ID
-const generateInventoryID = async () => {
-    const lastInventory = await Inventory.findOne().sort({ InvID: -1 }).limit(1);
-    const lastId = lastInventory ? parseInt(lastInventory.InvID.replace('I', ''), 10) : 0;
-    const newId = `I${(lastId + 1).toString().padStart(3, '0')}`; // Adjust padding as needed
+// Generate payment ID with leading zeros
+const generatePaymentID = async () => {
+    const lastPayment = await Payment.findOne().sort({ paymentID: -1 }).limit(1);
+    const lastId = lastPayment ? parseInt(lastPayment.paymentID.replace('P', ''), 10) : 0;
+    const newId = `P${(lastId + 1).toString().padStart(3, '0')}`; // Adjust padding as needed
     return newId;
 };
 
-// Create a new inventory item
-exports.createInventory = async (req, res) => {
+// Create a new payment record
+exports.createPayment = async (req, res) => {
     try {
-        const { ItemName, type, OrderID, Cost, Date, Note } = req.body;
+        const { bookingID, amount, paymentMethod, date } = req.body;
 
-        // Generate a new Inventory ID
-        const InvID = await generateInventoryID();
+        const paymentID = await generatePaymentID(); // Generate new payment ID
+        const newPayment = new Payment({ paymentID, bookingID, amount, paymentMethod, date });
+        await newPayment.save();
 
-        const newInventory = new Inventory({
-            InvID,
-            ItemName,
-            type,
-            OrderID,
-            Cost,
-            Date,
-            Note
-        });
-
-        await newInventory.save();
-
-        res.status(201).json({ message: 'Inventory item created successfully', inventory: newInventory });
+        res.status(201).json({ message: 'Payment record created successfully', payment: newPayment });
     } catch (error) {
-        res.status(500).json({ message: 'Error creating inventory item', error });
+        res.status(500).json({ message: 'Error creating payment record', error: error.message });
     }
 };
 
-// Get all inventory items
-exports.getAllInventories = async (req, res) => {
+// Get all payment records
+exports.getAllPayments = async (req, res) => {
     try {
-        const inventories = await Inventory.find();
-        res.status(200).json(inventories);
+        const payments = await Payment.find();
+        res.status(200).json(payments);
     } catch (error) {
-        res.status(500).json({ message: 'Error retrieving inventory items', error });
+        res.status(500).json({ message: 'Error retrieving payment records', error: error.message });
     }
 };
 
-// Get a single inventory item by ID
-exports.getInventoryById = async (req, res) => {
+// Get a payment record by ID
+exports.getPaymentById = async (req, res) => {
     try {
-        const inventory = await Inventory.findById(req.params.id);
-        if (!inventory) {
-            return res.status(404).json({ message: 'Inventory item not found' });
+        const payment = await Payment.findById(req.params.id);
+        if (!payment) {
+            return res.status(404).json({ message: 'Payment record not found' });
         }
-        res.status(200).json(inventory);
+        res.status(200).json(payment);
     } catch (error) {
-        res.status(500).json({ message: 'Error retrieving inventory item', error });
+        res.status(500).json({ message: 'Error retrieving payment record', error: error.message });
     }
 };
 
-// Update an inventory item by ID
-exports.updateInventory = async (req, res) => {
+// Update a payment record by ID
+exports.updatePayment = async (req, res) => {
     try {
-        const { ItemName, type, OrderID, Cost, Date, Note } = req.body;
+        const { bookingID, amount, paymentMethod, date } = req.body;
 
-        const updatedInventory = await Inventory.findByIdAndUpdate(
+        const updatedPayment = await Payment.findByIdAndUpdate(
             req.params.id,
-            { ItemName, type, OrderID, Cost, Date, Note },
-            { new: true } // Return the updated inventory item
+            { bookingID, amount, paymentMethod, date },
+            { new: true } // Return the updated payment record
         );
 
-        if (!updatedInventory) {
-            return res.status(404).json({ message: 'Inventory item not found' });
+        if (!updatedPayment) {
+            return res.status(404).json({ message: 'Payment record not found' });
         }
 
-        res.status(200).json({ message: 'Inventory item updated successfully', inventory: updatedInventory });
+        res.status(200).json({ message: 'Payment record updated successfully', payment: updatedPayment });
     } catch (error) {
-        res.status(500).json({ message: 'Error updating inventory item', error });
+        res.status(500).json({ message: 'Error updating payment record', error: error.message });
     }
 };
 
-// Delete an inventory item by ID
-exports.deleteInventory = async (req, res) => {
+// Delete a payment record by ID
+exports.deletePayment = async (req, res) => {
     try {
-        const deletedInventory = await Inventory.findByIdAndDelete(req.params.id);
-        if (!deletedInventory) {
-            return res.status(404).json({ message: 'Inventory item not found' });
+        const deletedPayment = await Payment.findByIdAndDelete(req.params.id);
+        if (!deletedPayment) {
+            return res.status(404).json({ message: 'Payment record not found' });
         }
 
-        res.status(200).json({ message: 'Inventory item deleted successfully' });
+        res.status(200).json({ message: 'Payment record deleted successfully' });
     } catch (error) {
-        res.status(500).json({ message: 'Error deleting inventory item', error });
+        res.status(500).json({ message: 'Error deleting payment record', error: error.message });
     }
 };
