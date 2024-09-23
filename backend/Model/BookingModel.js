@@ -1,37 +1,14 @@
 const mongoose = require('mongoose');
 
-const salarySchema = new mongoose.Schema({
-    salaryID: {
-        type: String,
-        required: true,
-        unique: true
-    },
-    EMPID: {
-        type: String,
-        required: true
-    },
-    month: {
-        type: String,
-        required: true
-    },
-    workdays: {
-        type: Number,
-        required: true
-    },
-    otRate: {
-        type: Number,
-        required: true
-    },
-    otHours: {
-        type: Number,
-        required: true
-    },
-    totalSalary: {
-        type: Number,
-        required: true
-    }
+const bookingSchema = new mongoose.Schema({
+    BookingId: { type: String, required: true, unique: true },
+    TicketId: { type: String, required: true },
+    count: { type: Number, required: true },
+    movieId: { type: String, required: true },
+    userId: { type: String, required: true },
+    showTimeId: { type: String },
+    date: { type: Date, required: true },
+    seat: { type: String, required: true }
 });
 
-const Salary = mongoose.model('Salary', salarySchema);
-
-module.exports = Salary;
+module.exports = mongoose.model('Booking', bookingSchema);

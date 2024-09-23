@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Box, Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField, Paper, IconButton, } from '@mui/material';
+import { Box, Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField, Paper, IconButton } from '@mui/material';
 import { Edit, Delete, Print, Add } from '@mui/icons-material';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
 import AddUser from './AddUser';
 import { useNavigate } from 'react-router-dom';
 
-const URL = "http://localhost:4000/users";
+const URL = "http://localhost:4001/users";
 
 const fetchHandler = async () => {
   try {
@@ -41,12 +41,10 @@ function UserDetails() {
     navigate(`/admindashboard/update-user/${userId}`);
   };
 
-  // Ensure deleteUser is defined
   const deleteUser = async (userId) => {
     try {
       const response = await axios.delete(`${URL}/${userId}`);
       if (response.status === 200) {
-        // Update state to remove the deleted user
         setAllUsers(prev => prev.filter(user => user.userId !== userId));
         setUsers(prev => prev.filter(user => user.userId !== userId));
       } else {
@@ -62,8 +60,8 @@ function UserDetails() {
     doc.text("User Details Report", 10, 10);
 
     doc.autoTable({
-      head: [['User ID', 'Username', 'Name', 'Email', 'Phone', 'Type']],
-      body: users.map(user => [user.userId, user.userName, user.name, user.email, user.phone, user.type]),
+      head: [['User ID', 'Username', 'Name', 'Email', 'Phone', 'Type', 'Password']],
+      body: users.map(user => [user.userId, user.userName, user.name, user.email, user.phone, user.type, user.password]),
       startY: 20,
       margin: { top: 20 },
       styles: {
@@ -165,13 +163,14 @@ function UserDetails() {
                     <TableCell>Email</TableCell>
                     <TableCell>Phone</TableCell>
                     <TableCell>Type</TableCell>
+                   
                     <TableCell>Actions</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
                   {noResults ? (
                     <TableRow>
-                      <TableCell colSpan={7} align="center">No users found.</TableCell>
+                      <TableCell colSpan={8} align="center">No users found.</TableCell>
                     </TableRow>
                   ) : (
                     users.map((user) => (
@@ -182,6 +181,7 @@ function UserDetails() {
                         <TableCell>{user.email}</TableCell>
                         <TableCell>{user.phone}</TableCell>
                         <TableCell>{user.type}</TableCell>
+                        
                         <TableCell>
                           <IconButton onClick={() => handleEdit(user.userId)} sx={{ color: 'primary.main' }}>
                             <Edit />

@@ -8,7 +8,7 @@ import 'jspdf-autotable';
 import AddFeedback from './AddFeedback'; // Ensure path is correct
 import { useNavigate } from 'react-router-dom';
 
-const URL = "http://localhost:4000/feedback";
+const URL = "http://localhost:4001/feedback";
 
 const fetchFeedbacks = async () => {
   try {
@@ -56,8 +56,8 @@ function FeedbackDetails() {
     doc.text("Feedback Details Report", 10, 10);
 
     doc.autoTable({
-      head: [['ID', 'Customer ID', 'Jewellery ID', 'Rating', 'Comment']],
-      body: feedbacks.map(feedback => [feedback.feedbackId, feedback.customerId, feedback.jewelleryId, feedback.rating, feedback.comment]),
+      head: [['ID', 'Customer ID', 'Movie ID', 'Rating', 'Comment']],
+      body: feedbacks.map(feedback => [feedback.feedbackId, feedback.customerId, feedback.movieId, feedback.rating, feedback.comment]),
       startY: 20,
       margin: { top: 20 },
       styles: {
@@ -159,7 +159,7 @@ function FeedbackDetails() {
                   <TableRow>
                     <TableCell>ID</TableCell>
                     <TableCell>Customer ID</TableCell>
-                    <TableCell>Jewellery ID</TableCell>
+                    <TableCell>Movie ID</TableCell>
                     <TableCell>Rating</TableCell>
                     <TableCell>Comment</TableCell>
                     <TableCell>Actions</TableCell>
@@ -175,7 +175,7 @@ function FeedbackDetails() {
                       <TableRow key={feedback._id}>
                         <TableCell>{feedback.feedbackId}</TableCell>
                         <TableCell>{feedback.customerId}</TableCell>
-                        <TableCell>{feedback.jewelleryId}</TableCell>
+                        <TableCell>{feedback.movieId}</TableCell>
                         <TableCell>{feedback.rating}</TableCell>
                         <TableCell>{feedback.comment}</TableCell>
                         <TableCell>

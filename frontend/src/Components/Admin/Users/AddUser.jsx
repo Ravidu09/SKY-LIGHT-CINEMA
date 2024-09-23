@@ -1,9 +1,11 @@
+/* eslint-disable react/prop-types */
+/* eslint-disable no-unused-vars */
 import React, { useState } from 'react';
 import axios from 'axios';
-import { Box, Button, TextField, Typography } from '@mui/material';
+import { Box, Button, TextField, Typography, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 
-const URL = "http://localhost:4000/users";
+const URL = "http://localhost:4001/users/register"; // Ensure this matches your API endpoint
 
 function AddUser({ onBack }) {
   const [userName, setUserName] = useState('');
@@ -19,6 +21,11 @@ function AddUser({ onBack }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError(null); // Reset error state
+
+    if (!userName || !name || !email || !password || !phone) {
+      setError('Please fill in all fields.');
+      return;
+    }
 
     try {
       const response = await axios.post(URL, { userName, name, email, password, phone, type });
@@ -81,19 +88,17 @@ function AddUser({ onBack }) {
           fullWidth
           margin="normal"
         />
-        <TextField
-          label="User Type"
-          variant="outlined"
-          select
-          SelectProps={{ native: true }}
-          value={type}
-          onChange={(e) => setType(e.target.value)}
-          fullWidth
-          margin="normal"
-        >
-          <option value="user">User</option>
-          <option value="admin">Admin</option>
-        </TextField>
+        <FormControl fullWidth margin="normal">
+          <InputLabel>User Type</InputLabel>
+          <Select
+            value={type}
+            onChange={(e) => setType(e.target.value)}
+            label="User Type"
+          >
+            <MenuItem value="user">User</MenuItem>
+            <MenuItem value="admin">Admin</MenuItem>
+          </Select>
+        </FormControl>
         <Button
           type="submit"
           variant="contained"

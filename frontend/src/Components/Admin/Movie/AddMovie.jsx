@@ -1,14 +1,18 @@
+/* eslint-disable no-unused-vars */
 import React, { useState } from 'react';
 import axios from 'axios';
 import { Box, Button, TextField, Typography } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 
-const URL = "http://localhost:4000/Movie";
+const URL = "http://localhost:4001/movies";
 
+// eslint-disable-next-line react/prop-types
 function AddMovie({ onBack }) {
   const [image, setImage] = useState('');
   const [name, setName] = useState('');
-  const [description, setDescription] = useState(''); // Changed from price to description
+  const [rate, setRate] = useState('');
+  const [description, setDescription] = useState('');
+  const [status, setStatus] = useState('available'); // Default to 'available'
   const [error, setError] = useState(null);
 
   const navigate = useNavigate();
@@ -18,10 +22,10 @@ function AddMovie({ onBack }) {
     setError(null); // Reset error state
 
     try {
-      const response = await axios.post(URL, { image, name, description });
+      const response = await axios.post(URL, { image, name, rate, description, status });
       if (response.status === 201) {
         alert('Movie added successfully');
-        navigate('/admindashboard/movie-management'); // Fixed route
+        navigate('/admindashboard/movie-management');
       }
     } catch (error) {
       setError(error.response ? error.response.data.message : 'An error occurred');
@@ -29,7 +33,7 @@ function AddMovie({ onBack }) {
   };
 
   return (
-    <Box sx={{ padding: 3, backgroundColor: 'white', borderRadius: 1, boxShadow: 1 }}>
+    <Box sx={{ padding: 3, backgroundColor: 'white', borderRadius: 1 }}>
       <Typography variant="h5" gutterBottom>
         Add New Movie
       </Typography>
@@ -51,15 +55,35 @@ function AddMovie({ onBack }) {
           margin="normal"
         />
         <TextField
+          label="Rate"
+          variant="outlined"
+          type="number"
+          value={rate}
+          onChange={(e) => setRate(e.target.value)}
+          fullWidth
+          margin="normal"
+        />
+        <TextField
           label="Description"
           variant="outlined"
           value={description}
           onChange={(e) => setDescription(e.target.value)}
           fullWidth
-          multiline
-          rows={4} // Adjust based on expected content length
           margin="normal"
         />
+        <TextField
+          label="Status"
+          variant="outlined"
+          select
+          SelectProps={{ native: true }}
+          value={status}
+          onChange={(e) => setStatus(e.target.value)}
+          fullWidth
+          margin="normal"
+        >
+        <option value="Now Showing!">Now Showing!</option>
+        <option value="Up Coming!">Up Coming!</option>
+        </TextField>
         <Button
           type="submit"
           variant="contained"

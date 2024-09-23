@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Box, TextField, Button, Typography, MenuItem, Select, InputLabel, FormControl } from '@mui/material';
+import { Box, TextField, Button, Typography, MenuItem, Select, InputLabel, FormControl, CircularProgress } from '@mui/material';
 import { useParams, useNavigate } from 'react-router-dom';
 
-const URL = "http://localhost:4000/users";
+const URL = "http://localhost:4001/users";
 
 function UpdateUser() {
   const { id } = useParams(); // Get the user ID from the URL
@@ -16,16 +16,19 @@ function UpdateUser() {
     type: 'user' // Default to 'user'
   });
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
     const fetchUser = async () => {
       try {
         const response = await axios.get(`${URL}/${id}`);
+        console.log('Fetched User:', response.data); // Check the data
         setUser(response.data);
         setLoading(false);
       } catch (error) {
         console.error("Error fetching user:", error);
+        setError('Error fetching user data');
         setLoading(false);
       }
     };
@@ -40,9 +43,10 @@ function UpdateUser() {
 
   const handleUpdate = async () => {
     try {
+      console.log('Update Payload:', user); // Check the payload
       await axios.put(`${URL}/${id}`, user);
       alert('User updated successfully');
-      navigate('/admindashboard/user-management'); // Redirect to the user details page
+      navigate('/admindashboard/user-management'); // Redirect to the user management page
     } catch (error) {
       console.error("Error updating user:", error);
       alert('Error updating user');
@@ -50,7 +54,11 @@ function UpdateUser() {
   };
 
   if (loading) {
-    return <Typography>Loading...</Typography>;
+    return <CircularProgress />;
+  }
+
+  if (error) {
+    return <Typography color="error">{error}</Typography>;
   }
 
   return (

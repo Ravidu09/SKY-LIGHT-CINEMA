@@ -8,9 +8,9 @@ import 'jspdf-autotable';
 import AddMovie from './AddMovie';
 import { useNavigate } from 'react-router-dom';
 
-const URL = "http://localhost:4000/Movie";
+const URL = "http://localhost:4001/movies";
 
-const fetchMovies = async () => {
+const fetchMovie = async () => {
   try {
     const response = await axios.get(URL);
     return Array.isArray(response.data) ? response.data : [response.data];
@@ -21,7 +21,7 @@ const fetchMovies = async () => {
 };
 
 function MovieDetails() {
-  const [movies, setMovies] = useState([]);
+  const [movie, setMovie] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [noResults, setNoResults] = useState(false);
   const [showAddMovieForm, setShowAddMovieForm] = useState(false);
@@ -29,10 +29,10 @@ function MovieDetails() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetchMovies().then(data => {
-      setMovies(data);
+    fetchMovie().then(data => {
+      setMovie(data);
     }).catch(error => {
-      console.error("Error fetching movies:", error);
+      console.error("Error fetching movie:", error);
     });
   }, []);
 
@@ -42,14 +42,19 @@ function MovieDetails() {
 
   const deleteMovie = async (id) => {
     try {
-      console.log(`Attempting to delete movie with ID: ${id}`);
+      console.log(`Attempting to delete movie with ID: ${id}`); // Log the ID being deleted
       const response = await axios.delete(`${URL}/${id}`);
       
-      console.log('Delete response:', response);
+      console.log('Delete response:', response); // Log the response
       
       if (response.status === 200) {
         console.log(`Successfully deleted movie with ID: ${id}`);
-        setMovies(prev => prev.filter(item => item._id !== id));
+        // Update state to remove the deleted movie item
+        setMovie(prev => {
+          const updatedList = prev.filter(item => item._id !== id); // Filter by MongoDB _id
+          console.log('Updated movie list:', updatedList); // Log the updated list
+          return updatedList;
+        });
       } else {
         console.error("Unexpected response status:", response.status);
       }
@@ -63,13 +68,8 @@ function MovieDetails() {
     doc.text("Movie Details Report", 10, 10);
 
     doc.autoTable({
-      head: [['ID', 'Image', 'Name', 'Description']],
-      body: movies.map(item => [
-        item._id,
-        item.image || 'No Image',
-        item.name,
-        item.description || 'No Description'
-      ]),
+      head: [['Movie ID', 'Name', 'Rate', 'Description', 'Status']],
+      body: movie.map(item => [item.MID, item.name, item.rate, item.description, item.status]),
       startY: 20,
       margin: { top: 20 },
       styles: {
@@ -82,27 +82,27 @@ function MovieDetails() {
       },
     });
 
-    doc.save('Movie-details.pdf');
+    doc.save('movie-details.pdf');
   };
 
   const handleSearch = () => {
     if (searchQuery.trim() === "") {
-      fetchMovies().then(data => {
-        setMovies(data);
+      fetchMovie().then(data => {
+        setMovie(data);
         setNoResults(false);
       }).catch(error => {
-        console.error("Error fetching movies:", error);
+        console.error("Error fetching movie:", error);
       });
       return;
     }
 
-    const filteredMovies = movies.filter(item =>
+    const filteredMovie = movie.filter(item =>
       Object.values(item).some(field =>
         field && field.toString().toLowerCase().includes(searchQuery.toLowerCase())
       )
     );
-    setMovies(filteredMovies);
-    setNoResults(filteredMovies.length === 0);
+    setMovie(filteredMovie);
+    setNoResults(filteredMovie.length === 0);
   };
 
   const handleAddMovie = () => {
@@ -169,27 +169,31 @@ function MovieDetails() {
               <Table>
                 <TableHead>
                   <TableRow>
-                    <TableCell>ID</TableCell>
+                    <TableCell>Movie ID</TableCell>
                     <TableCell>Image</TableCell>
                     <TableCell>Name</TableCell>
+                    <TableCell>Ratings</TableCell>
                     <TableCell>Description</TableCell>
+                    <TableCell>Status</TableCell>
                     <TableCell>Actions</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
                   {noResults ? (
                     <TableRow>
-                      <TableCell colSpan={5} align="center">No movies found.</TableCell>
+                      <TableCell colSpan={7} align="center">No movie found.</TableCell>
                     </TableRow>
                   ) : (
-                    movies.map((item) => (
+                    movie.map((item) => (
                       <TableRow key={item._id}>
-                        <TableCell>{item._id}</TableCell>
+                        <TableCell>{item.MID}</TableCell>
                         <TableCell>
                           <img src={item.image || 'default-image-path'} alt={item.name} style={{ width: '50px', height: '50px' }} />
                         </TableCell>
                         <TableCell>{item.name}</TableCell>
-                        <TableCell>{item.description || 'No Description'}</TableCell>
+                        <TableCell>{item.rate}</TableCell>
+                        <TableCell>{item.description}</TableCell>
+                        <TableCell>{item.status}</TableCell>
                         <TableCell>
                           <IconButton onClick={() => handleEdit(item._id)} sx={{ color: 'primary.main' }}>
                             <Edit />

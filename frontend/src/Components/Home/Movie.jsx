@@ -1,118 +1,207 @@
-/* eslint-disable no-unused-vars */
-import React from 'react';
-import { Box, Grid, Typography, Card, CardMedia, CardContent, Button } from '@mui/material';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import Header from '../Navbar/Navbar';
 import Footer from '../Footer/Footer';
+import { Container, Typography, TextField, Button, Grid, Card, CardMedia, CardContent, IconButton } from '@mui/material';
+import { Link } from 'react-router-dom';
+import { Swiper, SwiperSlide } from 'swiper/react';
+import 'swiper/css';
 
-// Import images from the Images folder
-import movie1 from '../Images/movie1.jpg'; // Adjust these paths according to your file structure
-import movie2 from '../Images/movie2.jpg';
-import movie3 from '../Images/movie3.jpg';
-import movie4 from '../Images/movie4.jpg';
 
-const movies = [
-  {
-    title: 'Planet of Apes',
-    image: movie1,
-    description: 'This is a brief description of Movie 1.'
-  },
-  {
-    title: 'The Garfield Movie',
-    image: movie2,
-    description: 'This is a brief description of Movie 2.'
-  },
-  {
-    title: 'Deadpool x Vouwariene',
-    image: movie3,
-    description: 'This is a brief description of Movie 3.'
-  },
-  {
-    title: 'The Garfield Movie',
-    image: movie4,
-    description: 'This is a brief description of Movie 4.'
-  },
-];
+const URL = "http://localhost:4001/movies";
 
-function Movie() {
-  const navigate = useNavigate();
+const fetchMovie = async () => {
+  try {
+    const response = await axios.get(URL);
+    return Array.isArray(response.data) ? response.data : [response.data];
+  } catch (error) {
+    console.error("Error fetching data:", error);
+    throw error;
+  }
+};
 
-  const handleBooking = (title) => {
-    navigate('/Show', { state: { movieTitle: title } });
+function MoviePage() {
+  const [movie, setMovie] = useState([]);
+  const [searchQuery, setSearchQuery] = useState('');
+
+  useEffect(() => {
+    fetchMovie().then(data => {
+      setMovie(data);
+    }).catch(error => {
+      console.error("Error fetching movie:", error);
+    });
+  }, []);
+
+  const handleSearch = (query = searchQuery) => {
+    if (query.trim() === "") {
+      fetchMovie().then(data => {
+        setMovie(data);
+      }).catch(error => {
+        console.error("Error fetching movie:", error);
+      });
+      return;
+    }
+
+    const filteredMovie = movie.filter(item =>
+      Object.values(item).some(field =>
+        field && field.toString().toLowerCase().includes(query.toLowerCase())
+      )
+    );
+    setMovie(filteredMovie);
   };
 
+  const sampleSearchButtons = [
+    { label: 'Rings', query: 'ring' },
+    { label: 'Necklaces', query: 'necklace' },
+    { label: 'Bracelets', query: 'bracelet' },
+    { label: 'Earrings', query: 'earring' }
+  ];
+
   return (
-    <div>
+    <div style={{ backgroundColor: '#f5f5f5', minHeight: '100vh' }}>
       <Header />
-      <Box sx={{ padding: 4, backgroundColor: '#000000' }}>
-        <Typography variant="h3" align="center" color="red" gutterBottom>
-          Now Showing
+      <br></br>
+      <Container>
+        <Grid container justifyContent="left" alignItems="left" spacing={2} sx={{ marginBottom: '20px' }}>
+          <Grid item>
+            <TextField
+              label="Search"
+              variant="outlined"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              sx={{
+                width: '300px',
+                backgroundColor: 'white',
+                borderRadius: 1,
+                padding: '1px'
+              }}
+            />
+          </Grid>
+          <Grid item>
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={() => handleSearch()}
+              sx={{
+                borderRadius: 2,
+                padding: '10px 20px',
+                boxShadow: '0 3px 5px 2px rgba(255, 105, 135, .3)',
+                background: 'linear-gradient(45deg, #FE6B8B 30%, #FF8E53 90%)'
+              }}
+            >
+              Search
+            </Button>
+          </Grid>
+        </Grid>
+
+        <Typography variant="h4" align="left" gutterBottom sx={{ marginTop: '20px', fontWeight: 'bold' }}>
+          Now Showing!
         </Typography>
-        <Grid container spacing={4}>
-          {movies.map((movie, index) => (
-            <Grid item xs={12} sm={6} md={3} key={index}>
-              <Card sx={{ borderRadius: 2, boxShadow: 3 }}>
-                <CardMedia
-                  component="img"
-                  height="300"
-                  image={movie.image}
-                  alt={movie.title}
-                />
+        <Swiper
+          spaceBetween={20}
+          slidesPerView={4}
+          navigation
+          breakpoints={{
+            320: { slidesPerView: 1 },
+            600: { slidesPerView: 2 },
+            960: { slidesPerView: 3 },
+            1280: { slidesPerView: 4 }
+          }}
+
+
+        >
+
+          {movie.map(item => (
+            <SwiperSlide key={item._id}>
+              <Card
+                sx={{
+                  boxShadow: '0 4px 8px rgba(0,0,0,0.2)',
+                  transition: 'transform 0.2s',
+                  '&:hover': {
+                    transform: 'scale(1.05)'
+                  }
+                }}
+              >
+                <Link to={`/movies/${item._id}`}>
+                  <CardMedia
+                    component="img"
+                    alt={item.name}
+                    height="400"
+                    image={item.image || 'http://localhost:5173/src/Components/Images/3.png'}
+                    title={item.name}
+                  />
+                </Link>
                 <CardContent>
-                  <Typography variant="h6" gutterBottom>
-                    {movie.title}
+                  <Typography variant="h6" component="div" sx={{ fontWeight: 'bold' }}>
+                    Title :
+                    {item.name}
                   </Typography>
                   <Typography variant="body2" color="text.secondary">
-                    {movie.description}
+                    IMDB Rate: {item.rate}
                   </Typography>
-                  <Button
-                    variant="contained"
-                    sx={{ marginTop: 2 }}
-                    onClick={() => handleBooking(movie.title)}
-                  >
-                    Book Now
-                  </Button>
                 </CardContent>
               </Card>
-            </Grid>
+            </SwiperSlide>
           ))}
-        </Grid>
-        <Typography variant="h3" align="center" color="red" gutterBottom>
-          <br></br>Upcoming Movies
+        </Swiper>
+      </Container>
+      <Container>
+        <Typography variant="h4" align="left" gutterBottom sx={{ marginTop: '20px', fontWeight: 'bold' }}>
+          Up Coming!
         </Typography>
-        <Grid container spacing={4}>
-          {movies.map((movie, index) => (
-            <Grid item xs={12} sm={6} md={3} key={index}>
-              <Card sx={{ borderRadius: 2, boxShadow: 3 }}>
-                <CardMedia
-                  component="img"
-                  height="300"
-                  image={movie.image}
-                  alt={movie.title}
-                />
+        <Swiper
+          spaceBetween={20}
+          slidesPerView={4}
+          navigation
+          breakpoints={{
+            320: { slidesPerView: 1 },
+            600: { slidesPerView: 2 },
+            960: { slidesPerView: 3 },
+            1280: { slidesPerView: 4 }
+          }}
+
+
+        >
+
+          {movie.map(item => (
+            <SwiperSlide key={item._id}>
+              <Card
+                sx={{
+                  boxShadow: '0 4px 8px rgba(0,0,0,0.2)',
+                  transition: 'transform 0.2s',
+                  '&:hover': {
+                    transform: 'scale(1.05)'
+                  }
+                }}
+              >
+                <Link to={`/movies/${item._id}`}>
+                  <CardMedia
+                    component="img"
+                    alt={item.name}
+                    height="400"
+                    image={item.image || 'http://localhost:5173/src/Components/Images/3.png'}
+                    title={item.name}
+                  />
+                </Link>
                 <CardContent>
-                  <Typography variant="h6" gutterBottom>
-                    {movie.title}
+                  <Typography variant="h6" component="div" sx={{ fontWeight: 'bold' }}>
+                    Title :
+                    {item.name}
                   </Typography>
                   <Typography variant="body2" color="text.secondary">
-                    {movie.description}
+                    IMDB Rate: {item.rate}
                   </Typography>
-                  <Button
-                    variant="contained"
-                    sx={{ marginTop: 2 }}
-                    onClick={() => handleBooking(movie.title)}
-                  >
-                    Book Now
-                  </Button>
                 </CardContent>
               </Card>
-            </Grid>
+            </SwiperSlide>
           ))}
-        </Grid>
-      </Box>
+        </Swiper>
+      </Container>
+      
+
       <Footer />
     </div>
   );
 }
 
-export default Movie;
+export default MoviePage;
