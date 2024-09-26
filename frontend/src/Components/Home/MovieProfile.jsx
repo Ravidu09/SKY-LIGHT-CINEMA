@@ -9,7 +9,7 @@ import { AuthContext } from '../Auth/AuthContext';
 
 const MovieProfile = () => {
   const [movie, setMovie] = useState(null);
-  const [feedbacks, setFeedbacks] = useState([]);
+  const [feedbacks, setFeedbacks] = useState([]); 
   const { id: movieId } = useParams();
   const [noResults, setNoResults] = useState(false);
   const [showAddFeedbackForm, setShowAddFeedbackForm] = useState(false);
@@ -158,6 +158,7 @@ const MovieProfile = () => {
           {snackbarMessage}
         </Alert>
       </Snackbar>
+      
     </div>
   );
 }

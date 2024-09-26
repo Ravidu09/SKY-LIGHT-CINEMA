@@ -15,7 +15,7 @@ const inventorySchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    OrderID: {
+    MaintananceID: {
         type: String, // Change to String if not using ObjectId
         required: true
     },

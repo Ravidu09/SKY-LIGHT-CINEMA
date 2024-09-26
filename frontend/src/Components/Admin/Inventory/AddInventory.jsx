@@ -10,7 +10,7 @@ const URL = "http://localhost:4001/inventory";
 function AddInventory({ onBack }) {
   const [ItemName, setItemName] = useState('');
   const [type, setType] = useState('');
-  const [OrderID, setOrderID] = useState('');
+  const [MaintananceID, setMaintananceID] = useState('');
   const [Cost, setCost] = useState('');
   const [Date, setDate] = useState('');
   const [Note, setNote] = useState('');
@@ -23,7 +23,7 @@ function AddInventory({ onBack }) {
     setError(null);
 
     try {
-      const response = await axios.post(URL, { ItemName, type, OrderID, Cost, Date, Note });
+      const response = await axios.post(URL, { ItemName, type, MaintananceID, Cost, Date, Note });
       if (response.status === 201) {
         alert('Inventory added successfully');
         navigate('/admindashboard/inventory-management');
@@ -36,7 +36,7 @@ function AddInventory({ onBack }) {
   return (
     <Box sx={{ padding: 3, backgroundColor: 'white', borderRadius: 1 }}>
       <Typography variant="h5" gutterBottom>
-        Add New Inventory
+        Add New Maintanance
       </Typography>
       <form onSubmit={handleSubmit}>
         <TextField
@@ -58,8 +58,8 @@ function AddInventory({ onBack }) {
         <TextField
           label="Order ID"
           variant="outlined"
-          value={OrderID}
-          onChange={(e) => setOrderID(e.target.value)}
+          value={MaintananceID}
+          onChange={(e) => setMaintananceID(e.target.value)}
           fullWidth
           margin="normal"
         />

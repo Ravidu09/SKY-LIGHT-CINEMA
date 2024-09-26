@@ -1,16 +1,15 @@
-/* eslint-disable no-unused-vars */
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Box, Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField, Paper, IconButton } from '@mui/material';
 import { Edit, Delete, Print, Add } from '@mui/icons-material';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
-import AddInventory from './AddInventory';
+import AddPayment from './AddPayment'; // Ensure you have an AddPayment component
 import { useNavigate } from 'react-router-dom';
 
-const URL = "http://localhost:4001/inventory";
+const URL = "http://localhost:4001/payments";
 
-const fetchInventory = async () => {
+const fetchHandler = async () => {
   try {
     const response = await axios.get(URL);
     return Array.isArray(response.data) ? response.data : [response.data];
@@ -20,55 +19,55 @@ const fetchInventory = async () => {
   }
 };
 
-function InventoryDetails() {
-  const [inventory, setInventory] = useState([]);
+function PaymentDetails() {
+  const [allPayments, setAllPayments] = useState([]);
+  const [payments, setPayments] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [noResults, setNoResults] = useState(false);
-  const [showAddInventoryForm, setShowAddInventoryForm] = useState(false);
+  const [showAddPaymentForm, setShowAddPaymentForm] = useState(false);
 
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetchInventory().then(data => {
-      setInventory(data);
+    fetchHandler().then((data) => {
+      setAllPayments(data);
+      setPayments(data);
     }).catch(error => {
-      console.error("Error fetching Maintanance:", error);
+      console.error("Error fetching payments:", error);
     });
   }, []);
 
-  const handleEdit = (id) => {
-    navigate(`/admindashboard/update-inventory/${id}`);
+  const handleEdit = (paymentId) => {
+    navigate(`/admindashboard/update-payment/${paymentId}`);
   };
 
-  const deleteInventory = async (id) => {
+  const deletePayment = async (paymentId) => {
     try {
-      console.log(`Attempting to delete Maintanance with ID: ${id}`);
-      const response = await axios.delete(`${URL}/${id}`);
-      
-      console.log('Delete response:', response);
-      
+      const response = await axios.delete(`${URL}/${paymentId}`);
       if (response.status === 200) {
-        console.log(`Successfully deleted Maintanance with ID: ${id}`);
-        setInventory(prev => {
-          const updatedList = prev.filter(item => item._id !== id);
-          console.log('Updated inventory list:', updatedList);
-          return updatedList;
-        });
+        setAllPayments(prev => prev.filter(payment => payment.paymentId !== paymentId));
+        setPayments(prev => prev.filter(payment => payment.paymentId !== paymentId));
       } else {
         console.error("Unexpected response status:", response.status);
       }
     } catch (error) {
-      console.error("Error deleting Maintanance:", error.response ? error.response.data : error.message);
+      console.error("Error deleting payment:", error.response ? error.response.data : error.message);
     }
   };
 
   const handlePDF = () => {
     const doc = new jsPDF();
-    doc.text("Maintanance Details Report", 10, 10);
+    doc.text("Payment Details Report", 10, 10);
 
     doc.autoTable({
-      head: [['ID', 'Item Name', 'Type', 'Maintanance ID', 'Cost', 'Date', 'Note']],
-      body: inventory.map(item => [item.InvID, item.ItemName, item.type, item.MaintananceID, item.Cost, item.Date, item.Note || 'No Note']),
+      head: [['Payment ID', 'Amount', 'Method', 'Status', 'Transaction Date']],
+      body: payments.map(payment => [
+        payment.paymentId,
+        `$${payment.amount.toFixed(2)}`,
+        payment.method,
+        payment.status,
+        new Date(payment.transactionDate).toLocaleString()
+      ]),
       startY: 20,
       margin: { top: 20 },
       styles: {
@@ -81,42 +80,38 @@ function InventoryDetails() {
       },
     });
 
-    doc.save('Maintanance-details.pdf');
+    doc.save('payment-details.pdf');
   };
 
   const handleSearch = () => {
     if (searchQuery.trim() === "") {
-      fetchInventory().then(data => {
-        setInventory(data);
-        setNoResults(false);
-      }).catch(error => {
-        console.error("Error fetching Maintanance:", error);
-      });
+      setPayments(allPayments);
+      setNoResults(false);
       return;
     }
 
-    const filteredInventory = inventory.filter(item =>
-      Object.values(item).some(field =>
+    const filteredPayments = allPayments.filter(payment =>
+      Object.values(payment).some(field =>
         field && field.toString().toLowerCase().includes(searchQuery.toLowerCase())
       )
     );
-    setInventory(filteredInventory);
-    setNoResults(filteredInventory.length === 0);
+    setPayments(filteredPayments);
+    setNoResults(filteredPayments.length === 0);
   };
 
-  const handleAddInventory = () => {
-    setShowAddInventoryForm(true);
+  const handleAddPayment = () => {
+    setShowAddPaymentForm(true);
   };
 
   const handleBack = () => {
-    setShowAddInventoryForm(false);
+    setShowAddPaymentForm(false);
   };
 
   return (
     <Box>
-      {showAddInventoryForm ? (
+      {showAddPaymentForm ? (
         <Box>
-          <AddInventory onBack={handleBack} />
+          <AddPayment onBack={handleBack} />
         </Box>
       ) : (
         <>
@@ -155,11 +150,11 @@ function InventoryDetails() {
             <Button
               variant="contained"
               color="secondary"
-              onClick={handleAddInventory}
+              onClick={handleAddPayment}
               sx={{ borderRadius: 2, marginLeft: 'auto' }}
               startIcon={<Add />}
             >
-              Add Maintanance
+              Add Payment
             </Button>
           </Box>
 
@@ -168,36 +163,32 @@ function InventoryDetails() {
               <Table>
                 <TableHead>
                   <TableRow>
-                    <TableCell>ID</TableCell>
-                    <TableCell>Item Name</TableCell>
-                    <TableCell>Type</TableCell>
-                    <TableCell>Maintanance ID</TableCell>
-                    <TableCell>Cost</TableCell>
-                    <TableCell>Date</TableCell>
-                    <TableCell>Note</TableCell>
+                    <TableCell>Payment ID</TableCell>
+                    <TableCell>Amount</TableCell>
+                    <TableCell>Method</TableCell>
+                    <TableCell>Status</TableCell>
+                    <TableCell>Transaction Date</TableCell>
                     <TableCell>Actions</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
                   {noResults ? (
                     <TableRow>
-                      <TableCell colSpan={8} align="center">No Maintanance found.</TableCell>
+                      <TableCell colSpan={6} align="center">No payments found.</TableCell>
                     </TableRow>
                   ) : (
-                    inventory.map((item) => (
-                      <TableRow key={item._id}>
-                        <TableCell>{item.InvID}</TableCell>
-                        <TableCell>{item.ItemName}</TableCell>
-                        <TableCell>{item.type}</TableCell>
-                        <TableCell>{item.MaintananceID}</TableCell>
-                        <TableCell>{item.Cost}</TableCell>
-                        <TableCell>{new Date(item.Date).toLocaleDateString()}</TableCell>
-                        <TableCell>{item.Note || 'No Note'}</TableCell>
+                    payments.map((payment) => (
+                      <TableRow key={payment.paymentId}>
+                        <TableCell>{payment.paymentId}</TableCell>
+                        <TableCell>${payment.amount.toFixed(2)}</TableCell>
+                        <TableCell>{payment.method}</TableCell>
+                        <TableCell>{payment.status}</TableCell>
+                        <TableCell>{new Date(payment.transactionDate).toLocaleString()}</TableCell>
                         <TableCell>
-                          <IconButton onClick={() => handleEdit(item._id)} sx={{ color: 'primary.main' }}>
+                          <IconButton onClick={() => handleEdit(payment.paymentId)} sx={{ color: 'primary.main' }}>
                             <Edit />
                           </IconButton>
-                          <IconButton onClick={() => deleteInventory(item._id)} sx={{ color: 'error.main' }}>
+                          <IconButton onClick={() => deletePayment(payment.paymentId)} sx={{ color: 'error.main' }}>
                             <Delete />
                           </IconButton>
                         </TableCell>
@@ -223,4 +214,4 @@ function InventoryDetails() {
   );
 }
 
-export default InventoryDetails;
+export default PaymentDetails;

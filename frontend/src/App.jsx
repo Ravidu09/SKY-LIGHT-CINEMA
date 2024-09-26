@@ -25,12 +25,17 @@ import AddMovie from './Components/Admin/Movie/AddMovie';
 import UpdateMovie from './Components/Admin/Movie/UpdateMovie';
 import MovieProfile from './Components/Home/MovieProfile';
 import MovieBooking from './Components/Home/MovieBooking';
-
+import BookingConfirmation from './Components/Home/BookingConfirmation';
 
 import InventoryDetails from './Components/Admin/Inventory/InventoryDetails';
 import AddInventory from './Components/Admin/Inventory/AddInventory';
 import UpdateInventory from './Components/Admin/Inventory/UpdateInventory';
 import Inventory from './Components/Admin/Inventory/Inventory';
+
+import PaymentDetails from './Components/Admin/Payment/PaymentDetails';
+import AddPayment from './Components/Admin/Payment/AddPayment';
+import UpdatePayment from './Components/Admin/Payment/UpdatePayment';
+import Payment from './Components/Admin/Payment/Payment';
 
 import EmployeeDetails from './Components/Admin/Employees/EmployeeDetails';
 import AddEmployee from './Components/Admin/Employees/AddEmployee';
@@ -73,6 +78,8 @@ function App() {
           <Route path='/userprofile' element={<UserProfile />} />
           <Route path="/movies/:id" element={<MovieProfile />} />
           <Route path="/book/:id" element={<MovieBooking />} />
+          <Route path="/booking-confirmation" element={<BookingConfirmation />} />
+
 
 
 
@@ -88,6 +95,11 @@ function App() {
             <Route path="user-management" element={<UserDetails />} />
             <Route path="adduser" element={<AddUser />} />
             <Route path="update-user/:id" element={<UpdateUser />} />
+
+            <Route path="add-payment" element={<AddPayment />} />
+            <Route path="payments-management" element={<PaymentDetails />} />
+            <Route path="payments/:paymentId" element={<Payment />} />
+            <Route path="update-payments/:id" element={<UpdatePayment />} />
 
             <Route path="Movie-management" element={<MovieDetails />} />
             <Route path="Movie/:MID" element={<Movie />} />
@@ -108,7 +120,6 @@ function App() {
             <Route path="employee/:id" element={<Employee />} />
             <Route path="add-employee" element={<AddEmployee />} />
             <Route path="update-employee/:id" element={<UpdateEmployee />} />
-
 
             <Route path="inventory-management" element={<InventoryDetails />} />
             <Route path="inventory/:id" element={<Inventory />} />

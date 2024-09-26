@@ -12,7 +12,7 @@ const generateInventoryID = async () => {
 // Create a new inventory item
 exports.createInventory = async (req, res) => {
     try {
-        const { ItemName, type, OrderID, Cost, Date, Note } = req.body;
+        const { ItemName, type, MaintananceID, Cost, Date, Note } = req.body;
 
         // Generate a new Inventory ID
         const InvID = await generateInventoryID();
@@ -21,7 +21,7 @@ exports.createInventory = async (req, res) => {
             InvID,
             ItemName,
             type,
-            OrderID,
+            MaintananceID,
             Cost,
             Date,
             Note
@@ -61,11 +61,11 @@ exports.getInventoryById = async (req, res) => {
 // Update an inventory item by ID
 exports.updateInventory = async (req, res) => {
     try {
-        const { ItemName, type, OrderID, Cost, Date, Note } = req.body;
+        const { ItemName, type, MaintananceID, Cost, Date, Note } = req.body;
 
         const updatedInventory = await Inventory.findByIdAndUpdate(
             req.params.id,
-            { ItemName, type, OrderID, Cost, Date, Note },
+            { ItemName, type, MaintananceID, Cost, Date, Note },
             { new: true } // Return the updated inventory item
         );
 

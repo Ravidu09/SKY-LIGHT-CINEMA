@@ -25,6 +25,7 @@ function AdminDashboard() {
 
   const menuItems = [
     { text: 'Dashboard', icon: <DashboardIcon />, path: '/admindashboard' },
+    { text: 'Payment Management', icon: <PeopleIcon />, path: '/admindashboard/payments-management' },
     { text: 'User Management', icon: <PeopleIcon />, path: '/admindashboard/user-management' },
     { text: 'Movie Management', icon: <AssignmentIcon />, path: '/admindashboard/movie-management' },
     { text: 'Maintanance Management', icon: <InventoryIcon />, path: '/admindashboard/inventory-management' },
@@ -32,7 +33,6 @@ function AdminDashboard() {
     { text: 'Supplier Management', icon: <BusinessIcon />, path: '/admindashboard/supplier-management' },
     { text: 'Booking Management', icon: <BusinessIcon />, path: '/admindashboard/booking-management' },
     { text: 'Promortion Management', icon: <EventIcon />, path: '/admindashboard/appointment-management' },
-    { text: 'Payment Management', icon: <ShoppingCartIcon />, path: '/admindashboard/order-management' },
     { text: 'Feedback Management', icon: <FeedbackIcon />, path: '/admindashboard/feedback-management' },
     { text: 'Support Management', icon: <SupportAgentIcon />, path: '/admindashboard/support-management' },
   ];

@@ -11,7 +11,7 @@ function UpdateInventory() {
   const [inventory, setInventory] = useState({
     ItemName: '',
     type: '',
-    OrderID: '',
+    MaintananceID: '',
     Cost: '',
     Date: '',
     Note: ''
@@ -75,8 +75,8 @@ function UpdateInventory() {
       />
       <TextField
         label="Order ID"
-        name="OrderID"
-        value={inventory.OrderID}
+        name="MaintananceID"
+        value={inventory.MaintananceID}
         onChange={handleChange}
         fullWidth
         margin="normal"

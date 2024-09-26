@@ -39,7 +39,7 @@ function Inventory() {
         <Typography variant="h6">ID: {inventory.InvID}</Typography>
         <Typography variant="h6">Item Name: {inventory.ItemName}</Typography>
         <Typography variant="h6">Type: {inventory.type}</Typography>
-        <Typography variant="h6">Order ID: {inventory.OrderID}</Typography>
+        <Typography variant="h6">Maintanance ID: {inventory.MaintananceID}</Typography>
         <Typography variant="h6">Cost: ${inventory.Cost}</Typography>
         <Typography variant="h6">Date: {new Date(inventory.Date).toLocaleDateString()}</Typography>
         <Typography variant="h6">Note: {inventory.Note || 'No Note'}</Typography>
