@@ -8,7 +8,6 @@ import BusinessIcon from '@mui/icons-material/Business';
 import EventIcon from '@mui/icons-material/Event';
 import FeedbackIcon from '@mui/icons-material/Feedback';
 import AssignmentIcon from '@mui/icons-material/Assignment';
-import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import ExitToAppIcon from '@mui/icons-material/ExitToApp';
 import SupportAgentIcon from '@mui/icons-material/SupportAgent';
 import { AuthContext } from '../Auth/AuthContext'; // Import your AuthContext
@@ -32,7 +31,7 @@ function AdminDashboard() {
     { text: 'Staff Management', icon: <PeopleIcon />, path: '/admindashboard/employee-management' },
     { text: 'Supplier Management', icon: <BusinessIcon />, path: '/admindashboard/supplier-management' },
     { text: 'Booking Management', icon: <BusinessIcon />, path: '/admindashboard/booking-management' },
-    { text: 'Promortion Management', icon: <EventIcon />, path: '/admindashboard/appointment-management' },
+    { text: 'Promortion Management', icon: <EventIcon />, path: '/admindashboard/promotion-management' },
     { text: 'Feedback Management', icon: <FeedbackIcon />, path: '/admindashboard/feedback-management' },
     { text: 'Support Management', icon: <SupportAgentIcon />, path: '/admindashboard/support-management' },
   ];

@@ -14,6 +14,7 @@ const feedbackRoutes = require('./Routes/FeedbackRoutes');
 const employeeRoutes = require('./Routes/EmployeeRoutes');
 const salaryRoutes = require('./Routes/SalaryRoutes');
 const bookingRoutes = require('./Routes/BookingRoutes');
+const promotionRoutes = require('./Routes/PromotionRoutes');
 const inventoryRoutes = require('./Routes/InventoryRoutes');
 const authRoutes = require('./Routes/AuthRoutes');
 const supplierRoutes = require('./Routes/SupplierRoutes');
@@ -30,6 +31,7 @@ app.use('/customers', customerRoutes);
 app.use('/feedback', feedbackRoutes);
 app.use('/employees', employeeRoutes);
 app.use('/salaries', salaryRoutes);
+app.use('/promotions', promotionRoutes);  // Prefix for promotion routes
 app.use('/bookings', bookingRoutes);
 app.use('/inventory', inventoryRoutes);
 app.use('/suppliers', supplierRoutes);

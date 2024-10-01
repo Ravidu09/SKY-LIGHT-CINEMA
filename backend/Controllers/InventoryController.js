@@ -13,10 +13,7 @@ const generateInventoryID = async () => {
 exports.createInventory = async (req, res) => {
     try {
         const { ItemName, type, MaintananceID, Cost, Date, Note } = req.body;
-
-        // Generate a new Inventory ID
         const InvID = await generateInventoryID();
-
         const newInventory = new Inventory({
             InvID,
             ItemName,

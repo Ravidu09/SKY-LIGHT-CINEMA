@@ -42,6 +42,11 @@ import AddEmployee from './Components/Admin/Employees/AddEmployee';
 import UpdateEmployee from './Components/Admin/Employees/UpdateEmployee';
 import Employee from './Components/Admin/Employees/Employee';
 
+import PromotionDetails from './Components/Admin/Promotions/PromotionDetails';
+import AddPromotion from './Components/Admin/Promotions/AddPromotion';
+import UpdatePromotion from './Components/Admin/Promotions/UpdatePromotion';
+import Promotion from './Components/Admin/Promotions/Promotion';
+
 import BookingDetails from './Components/Admin/Booking/BookingDetails';
 import AddBooking from './Components/Admin/Booking/AddBooking';
 import UpdateBooking from './Components/Admin/Booking/UpdateBooking';
@@ -56,9 +61,9 @@ import SupportDetails from './Components/Admin/Support/SupportDetails';
 
 import OrderDetails from './Components/Admin/Order/OrderDetails';
 
-import AppointmentDetails from './Components/Admin/Appointment/AppointmentDetails';
-
 import { AuthProvider } from './Components/Auth/AuthContext';  // Import AuthProvider
+
+import PromotionPage from './Components/Home/PromotionPage';
 
 function App() {
   return (
@@ -75,6 +80,7 @@ function App() {
           <Route path='/about' element={<AboutUs />} />
           <Route path='/contact' element={<Contact />} />
           <Route path='/signup' element={<Register />} />
+          <Route path='/promotions' element={<PromotionPage />} />
           <Route path='/userprofile' element={<UserProfile />} />
           <Route path="/movies/:id" element={<MovieProfile />} />
           <Route path="/book/:id" element={<MovieBooking />} />
@@ -90,6 +96,7 @@ function App() {
           <Route path='/About' element={<AboutUs />} />
           <Route path='/Contact' element={<Contact />} />
           <Route path='/signup' element={<Register />} />
+
 
           <Route path="/admindashboard" element={<AdminDashboard />}>
             <Route path="user-management" element={<UserDetails />} />
@@ -121,6 +128,11 @@ function App() {
             <Route path="add-employee" element={<AddEmployee />} />
             <Route path="update-employee/:id" element={<UpdateEmployee />} />
 
+            <Route path="promotion-management" element={<PromotionDetails />} />
+            <Route path="promotion/:id" element={<Promotion />} />
+            <Route path="add-promotion" element={<AddPromotion />} />
+            <Route path="update-promotion/:id" element={<UpdatePromotion />} />
+
             <Route path="inventory-management" element={<InventoryDetails />} />
             <Route path="inventory/:id" element={<Inventory />} />
             <Route path="add-inventory" element={<AddInventory />} />
@@ -140,7 +152,6 @@ function App() {
 
             <Route path="order-management" element={<OrderDetails />} />
 
-            <Route path="appointment-management" element={<AppointmentDetails />} />
           </Route>
 
           <Route path="*" element={<NotFound />} />
