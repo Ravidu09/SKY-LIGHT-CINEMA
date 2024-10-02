@@ -24,7 +24,7 @@ function AdminDashboard() {
 
   const menuItems = [
     { text: 'Dashboard', icon: <DashboardIcon />, path: '/admindashboard' },
-    { text: 'Payment Management', icon: <PeopleIcon />, path: '/admindashboard/payments-management' },
+    { text: 'Payment Management', icon: <PeopleIcon />, path: '/admindashboard/payment-management' },
     { text: 'User Management', icon: <PeopleIcon />, path: '/admindashboard/user-management' },
     { text: 'Movie Management', icon: <AssignmentIcon />, path: '/admindashboard/movie-management' },
     { text: 'Maintanance Management', icon: <InventoryIcon />, path: '/admindashboard/inventory-management' },

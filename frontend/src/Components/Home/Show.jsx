@@ -5,7 +5,6 @@ import { useNavigate } from 'react-router-dom';
 import Header from '../Navbar/Navbar';
 import Footer from '../Footer/Footer';
 
-// Example showtimes data
 const showtimes = [
   {
     movieTitle: 'Planet of Apes',
@@ -38,9 +37,9 @@ function Show() {
         <Grid container spacing={4}>
           {showtimes.map((show, index) => (
             <Grid item xs={12} sm={6} md={3} key={index}>
-              <Card sx={{ borderRadius: 2, boxShadow: 3 }}>
+              <Card sx={{ borderRadius: 2, boxShadow: 3, backgroundColor: '#222' }}>
                 <CardContent>
-                  <Typography variant="h6" gutterBottom>
+                  <Typography variant="h6" gutterBottom color="white">
                     {show.movieTitle}
                   </Typography>
                   <Grid container spacing={1}>

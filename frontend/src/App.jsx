@@ -4,11 +4,17 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Home from './Components/Home/Home';
 import Login from './Components/Login/Login';
 import Movie from './Components/Home/Movie';
-import Gems from './Components/Home/Gems';
+import Buy from './Components/Home/Buy';
 import AboutUs from './Components/Home/AboutUs';
 import Contact from './Components/Home/ContactUs';
 import Register from './Components/Login/Register';
 import UserProfile from './Components/pages/UserProfile';
+
+import JewelleryDetails from './Components/Admin/Payment/PaymentDetails';
+import AddJewellery from './Components/Admin/Payment/AddPayment';
+import UpdateJewellery from './Components/Admin/Payment/UpdatePayment';
+import Jewellery from './Components/Admin/Payment/Payment';
+
 
 import AdminDashboard from './Components/Admin/AdminDashboard';
 import UserDetails from './Components/Admin/Users/UserDetails';
@@ -76,7 +82,7 @@ function App() {
           {/* Login Page */}
           <Route path="/login" element={<Login />} />
           <Route path='/Movie' element={<Movie />} />
-          <Route path='/gems' element={<Gems />} />
+          <Route path='/buy' element={<Buy />} />
           <Route path='/about' element={<AboutUs />} />
           <Route path='/contact' element={<Contact />} />
           <Route path='/signup' element={<Register />} />
@@ -92,7 +98,7 @@ function App() {
           {/* Login Page */}
           <Route path="/login" element={<Login />} />
           <Route path='/Movie' element={<Movie />} />
-          <Route path='/Gems' element={<Gems />} />
+          <Route path='/buy' element={<Buy />} />
           <Route path='/About' element={<AboutUs />} />
           <Route path='/Contact' element={<Contact />} />
           <Route path='/signup' element={<Register />} />
@@ -104,9 +110,9 @@ function App() {
             <Route path="update-user/:id" element={<UpdateUser />} />
 
             <Route path="add-payment" element={<AddPayment />} />
-            <Route path="payments-management" element={<PaymentDetails />} />
-            <Route path="payments/:paymentId" element={<Payment />} />
-            <Route path="update-payments/:id" element={<UpdatePayment />} />
+            <Route path="payment-management" element={<PaymentDetails />} />
+            <Route path="payments" element={<Payment />} />
+            <Route path="update-payment/:id" element={<UpdatePayment />} />
 
             <Route path="Movie-management" element={<MovieDetails />} />
             <Route path="Movie/:MID" element={<Movie />} />

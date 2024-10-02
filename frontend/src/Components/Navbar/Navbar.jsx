@@ -24,7 +24,6 @@ function Navbar() {
           <Typography variant="h5" component="div" sx={{ flexGrow: 1, color: 'red' }} >
             <Button color="inherit" component={Link} to="/">Home</Button>
             <Button color="inherit" component={Link} to="/Movie">Movie</Button>
-            <Button color="inherit" component={Link} to="/Show">Show Time</Button>
             <Button color="inherit" component={Link} to="/Buy">Buy Ticket</Button>
             <Button color="inherit" component={Link} to="/promotions">Promotions</Button>
             <Button color="inherit" component={Link} to="/About">About Us</Button>

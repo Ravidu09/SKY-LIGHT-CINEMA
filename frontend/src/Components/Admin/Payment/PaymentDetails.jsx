@@ -1,15 +1,16 @@
+/* eslint-disable no-unused-vars */
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Box, Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField, Paper, IconButton } from '@mui/material';
 import { Edit, Delete, Print, Add } from '@mui/icons-material';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
-import AddPayment from './AddPayment'; // Ensure you have an AddPayment component
+import AddPayment from './AddPayment';
 import { useNavigate } from 'react-router-dom';
 
-const URL = "http://localhost:4001/payments";
+const URL = "http://localhost:4001/payment";
 
-const fetchHandler = async () => {
+const fetchPayments = async () => {
   try {
     const response = await axios.get(URL);
     return Array.isArray(response.data) ? response.data : [response.data];
@@ -20,7 +21,6 @@ const fetchHandler = async () => {
 };
 
 function PaymentDetails() {
-  const [allPayments, setAllPayments] = useState([]);
   const [payments, setPayments] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [noResults, setNoResults] = useState(false);
@@ -29,26 +29,22 @@ function PaymentDetails() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetchHandler().then((data) => {
-      setAllPayments(data);
+    fetchPayments().then(data => {
       setPayments(data);
     }).catch(error => {
       console.error("Error fetching payments:", error);
     });
   }, []);
 
-  const handleEdit = (paymentId) => {
-    navigate(`/admindashboard/update-payment/${paymentId}`);
+  const handleEdit = (id) => {
+    navigate(`/admindashboard/update-payment/${id}`);
   };
 
-  const deletePayment = async (paymentId) => {
+  const deletePayment = async (id) => {
     try {
-      const response = await axios.delete(`${URL}/${paymentId}`);
+      const response = await axios.delete(`${URL}/${id}`);
       if (response.status === 200) {
-        setAllPayments(prev => prev.filter(payment => payment.paymentId !== paymentId));
-        setPayments(prev => prev.filter(payment => payment.paymentId !== paymentId));
-      } else {
-        console.error("Unexpected response status:", response.status);
+        setPayments(prev => prev.filter(item => item._id !== id));
       }
     } catch (error) {
       console.error("Error deleting payment:", error.response ? error.response.data : error.message);
@@ -61,13 +57,7 @@ function PaymentDetails() {
 
     doc.autoTable({
       head: [['Payment ID', 'Amount', 'Method', 'Status', 'Transaction Date']],
-      body: payments.map(payment => [
-        payment.paymentId,
-        `$${payment.amount.toFixed(2)}`,
-        payment.method,
-        payment.status,
-        new Date(payment.transactionDate).toLocaleString()
-      ]),
+      body: payments.map(item => [item.PID, item.amount, item.method, item.status, new Date(item.transactionDate).toLocaleDateString()]),
       startY: 20,
       margin: { top: 20 },
       styles: {
@@ -85,13 +75,17 @@ function PaymentDetails() {
 
   const handleSearch = () => {
     if (searchQuery.trim() === "") {
-      setPayments(allPayments);
-      setNoResults(false);
+      fetchPayments().then(data => {
+        setPayments(data);
+        setNoResults(false);
+      }).catch(error => {
+        console.error("Error fetching payments:", error);
+      });
       return;
     }
 
-    const filteredPayments = allPayments.filter(payment =>
-      Object.values(payment).some(field =>
+    const filteredPayments = payments.filter(item =>
+      Object.values(item).some(field =>
         field && field.toString().toLowerCase().includes(searchQuery.toLowerCase())
       )
     );
@@ -177,18 +171,18 @@ function PaymentDetails() {
                       <TableCell colSpan={6} align="center">No payments found.</TableCell>
                     </TableRow>
                   ) : (
-                    payments.map((payment) => (
-                      <TableRow key={payment.paymentId}>
-                        <TableCell>{payment.paymentId}</TableCell>
-                        <TableCell>${payment.amount.toFixed(2)}</TableCell>
-                        <TableCell>{payment.method}</TableCell>
-                        <TableCell>{payment.status}</TableCell>
-                        <TableCell>{new Date(payment.transactionDate).toLocaleString()}</TableCell>
+                    payments.map((item) => (
+                      <TableRow key={item._id}>
+                        <TableCell>{item.PID}</TableCell>
+                        <TableCell>{item.amount}</TableCell>
+                        <TableCell>{item.method}</TableCell>
+                        <TableCell>{item.status}</TableCell>
+                        <TableCell>{new Date(item.transactionDate).toLocaleDateString()}</TableCell>
                         <TableCell>
-                          <IconButton onClick={() => handleEdit(payment.paymentId)} sx={{ color: 'primary.main' }}>
+                          <IconButton onClick={() => handleEdit(item._id)} sx={{ color: 'primary.main' }}>
                             <Edit />
                           </IconButton>
-                          <IconButton onClick={() => deletePayment(payment.paymentId)} sx={{ color: 'error.main' }}>
+                          <IconButton onClick={() => deletePayment(item._id)} sx={{ color: 'error.main' }}>
                             <Delete />
                           </IconButton>
                         </TableCell>

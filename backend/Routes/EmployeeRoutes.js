@@ -1,11 +1,12 @@
 const express = require('express');
 const router = express.Router();
-const PromotionController = require('../Controllers/PromotionController');
+const EmployeeController = require('../Controllers/EmployeeController');
 
-router.post('/', PromotionController.createPromotion);
-router.get('/', PromotionController.getPromotions);
-router.get('/:id', PromotionController.getPromotionById);
-router.put('/:id', PromotionController.updatePromotion);
-router.delete('/:id', PromotionController.deletePromotion);
+
+router.post('/', EmployeeController.createEmployee);
+router.get('/', EmployeeController.getEmployees);
+router.get('/:id', EmployeeController.getEmployeeById);
+router.put('/:id', EmployeeController.updateEmployee);
+router.delete('/:id', EmployeeController.deleteEmployee);
 
 module.exports = router;
