@@ -1,11 +1,22 @@
-/* eslint-disable no-unused-vars */
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
-import { Box, Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField, Paper, IconButton } from '@mui/material';
+import {
+  Box,
+  Button,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  TextField,
+  Paper,
+  IconButton,
+} from '@mui/material';
 import { Edit, Delete, Print, Add } from '@mui/icons-material';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
-import AddBooking from './AddBooking'; // Make sure to create an AddBooking component
+import AddBooking from './AddBooking'; // Ensure this component is correctly set up
 import { useNavigate } from 'react-router-dom';
 
 const URL = "http://localhost:4001/bookings";
@@ -25,29 +36,36 @@ function BookingDetails() {
   const [searchQuery, setSearchQuery] = useState('');
   const [noResults, setNoResults] = useState(false);
   const [showAddBookingForm, setShowAddBookingForm] = useState(false);
+  const [editBooking, setEditBooking] = useState(null); // State to manage edit mode
 
   const navigate = useNavigate();
 
-  useEffect(() => {
-    fetchBookings().then(data => {
+  // Function to load bookings
+  const loadBookings = async () => {
+    try {
+      const data = await fetchBookings();
       setBookings(data);
       setNoResults(data.length === 0);
-    }).catch(error => {
+    } catch (error) {
       console.error("Error fetching bookings:", error);
-    });
+    }
+  };
+
+  useEffect(() => {
+    loadBookings(); // Load bookings on component mount
   }, []);
 
-  const handleEdit = (id) => {
-    navigate(`/admindashboard/update-booking/${id}`);
+  const handleEdit = (id) => {   
+     navigate(`/admindashboard/update-booking/${id}`);
+  // Show the UpdateBooking form
   };
 
   const deleteBooking = async (id) => {
     try {
       const response = await axios.delete(`${URL}/${id}`);
       if (response.status === 200) {
-        setBookings(prev => prev.filter(item => item.BookingId !== id)); // Filter by BookingId
-      } else {
-        console.error("Unexpected response status:", response.status);
+        loadBookings(); // Reload bookings to get updated list
+        alert("Booking deleted successfully");
       }
     } catch (error) {
       console.error("Error deleting booking:", error.response ? error.response.data : error.message);
@@ -59,13 +77,11 @@ function BookingDetails() {
     doc.text("Booking Details Report", 10, 10);
 
     doc.autoTable({
-      head: [['Booking ID', 'Ticket ID', 'Count', 'Movie ID', 'User ID', 'Show Time', 'Date', 'Seat']],
+      head: [['Booking ID', 'Count', 'Movie Name', 'Show Time', 'Date', 'Seat Type']],
       body: bookings.map(item => [
         item.BookingId,
-        item.TicketId,
         item.count,
         item.movieId,
-        item.userId,
         item.showTimeId,
         new Date(item.date).toLocaleDateString(),
         item.seat,
@@ -85,14 +101,9 @@ function BookingDetails() {
     doc.save('booking-details.pdf');
   };
 
-  const handleSearch = () => {
+  const handleSearch = useCallback(() => {
     if (searchQuery.trim() === "") {
-      fetchBookings().then(data => {
-        setBookings(data);
-        setNoResults(data.length === 0);
-      }).catch(error => {
-        console.error("Error fetching bookings:", error);
-      });
+      loadBookings(); // Reload bookings if search is empty
       return;
     }
 
@@ -103,9 +114,10 @@ function BookingDetails() {
     );
     setBookings(filteredBookings);
     setNoResults(filteredBookings.length === 0);
-  };
+  }, [searchQuery, bookings]);
 
   const handleAddBooking = () => {
+    setEditBooking(null); // Clear any existing booking for adding a new one
     setShowAddBookingForm(true);
   };
 
@@ -117,7 +129,7 @@ function BookingDetails() {
     <Box>
       {showAddBookingForm ? (
         <Box>
-          <AddBooking onBack={handleBack} />
+          <AddBooking booking={editBooking} onBack={handleBack} />
         </Box>
       ) : (
         <>
@@ -170,37 +182,33 @@ function BookingDetails() {
                 <TableHead>
                   <TableRow>
                     <TableCell>Booking ID</TableCell>
-                    <TableCell>Ticket ID</TableCell>
                     <TableCell>Count</TableCell>
-                    <TableCell>Movie ID</TableCell>
-                    <TableCell>User ID</TableCell>
+                    <TableCell>Movie Name</TableCell>
                     <TableCell>Show Time</TableCell>
                     <TableCell>Date</TableCell>
-                    <TableCell>Seat</TableCell>
+                    <TableCell>Seat Type</TableCell>
                     <TableCell>Actions</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
                   {noResults ? (
                     <TableRow>
-                      <TableCell colSpan={9} align="center">No booking found.</TableCell>
+                      <TableCell colSpan={7} align="center">No booking found.</TableCell>
                     </TableRow>
                   ) : (
                     bookings.map((item) => (
                       <TableRow key={item.BookingId}>
                         <TableCell>{item.BookingId}</TableCell>
-                        <TableCell>{item.TicketId}</TableCell>
                         <TableCell>{item.count}</TableCell>
                         <TableCell>{item.movieId}</TableCell>
-                        <TableCell>{item.userId}</TableCell>
                         <TableCell>{item.showTimeId}</TableCell>
                         <TableCell>{new Date(item.date).toLocaleDateString()}</TableCell>
                         <TableCell>{item.seat}</TableCell>
                         <TableCell>
-                          <IconButton onClick={() => handleEdit(item.BookingId)} sx={{ color: 'primary.main' }}>
+                          <IconButton onClick={() => handleEdit(item._id)} sx={{ color: 'primary.main' }}>
                             <Edit />
                           </IconButton>
-                          <IconButton onClick={() => deleteBooking(item.BookingId)} sx={{ color: 'error.main' }}>
+                          <IconButton onClick={() => deleteBooking(item._id)} sx={{ color: 'error.main' }}>
                             <Delete />
                           </IconButton>
                         </TableCell>

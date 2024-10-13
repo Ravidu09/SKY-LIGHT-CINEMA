@@ -78,8 +78,15 @@ exports.updateBooking = async (req, res) => {
 };
 
 // Delete a Booking item by ID
+const mongoose = require('mongoose');
+
 exports.deleteBooking = async (req, res) => {
     const id = req.params.id;
+
+    // Convert ID to ObjectId if necessary
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+        return res.status(400).json({ message: 'Invalid Booking ID' });
+    }
 
     try {
         const deletedBooking = await Booking.findByIdAndDelete(id);
@@ -92,3 +99,4 @@ exports.deleteBooking = async (req, res) => {
         res.status(500).json({ message: 'Error deleting Booking', error: error.message });
     }
 };
+

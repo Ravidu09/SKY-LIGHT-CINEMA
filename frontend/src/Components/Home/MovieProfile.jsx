@@ -1,15 +1,21 @@
 import React, { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
-import { Container, Typography, Button, Grid, Card, CardMedia, CardContent, Box, Snackbar, Alert, IconButton, Rating } from '@mui/material'; // Added Rating
+import { 
+  Container, Typography, Button, Grid, Card, CardMedia, CardContent, Box, 
+  Snackbar, Alert, IconButton, Rating, CardActions 
+} from '@mui/material';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import Header from '../Navbar/Navbar';
 import Footer from '../Footer/Footer';
 import AddFeedback from '../Admin/Feedback/AddFeedback2';
 import { AuthContext } from '../Auth/AuthContext';
+import FavoriteIcon from '@mui/icons-material/Favorite';
+import BookIcon from '@mui/icons-material/Book';
+import ContactSupportIcon from '@mui/icons-material/ContactSupport';
 
 const MovieProfile = () => {
   const [movie, setMovie] = useState(null);
-  const [feedbacks, setFeedbacks] = useState([]); 
+  const [feedbacks, setFeedbacks] = useState([]);
   const { id: movieId } = useParams();
   const [noResults, setNoResults] = useState(false);
   const [showAddFeedbackForm, setShowAddFeedbackForm] = useState(false);
@@ -53,8 +59,6 @@ const MovieProfile = () => {
     } else {
       setSnackbarMessage('Movie Booking Confirmed!');
       setSnackbarOpen(true);
-
-
     }
   };
 
@@ -70,19 +74,20 @@ const MovieProfile = () => {
   if (!movie) return <div>Loading...</div>;
 
   return (
-    <div>
+    <div style={{ backgroundColor: '#f5f5f5' }}>
       <Header />
-      <Container>
-        <br />
+      <Container sx={{ marginTop: 4 }}>
         <Grid container spacing={4}>
+          {/* Movie Poster and Gallery */}
           <Grid item xs={12} md={4}>
-            <Card>
+            <Card elevation={3} sx={{ padding: 2, textAlign: 'center' }}>
               <CardMedia
                 component="img"
                 alt={movie.name}
                 height="500"
                 image={movie.image || 'http://localhost:5173/src/Components/Images/3.png'}
                 title={movie.name}
+                sx={{ borderRadius: '10px' }}
               />
               <CardContent>
                 <Box sx={{ display: 'flex', overflowX: 'auto' }}>
@@ -91,50 +96,89 @@ const MovieProfile = () => {
                       key={index}
                       src={img}
                       alt={`Image ${index}`}
-                      style={{ width: '100%', maxWidth: '400px', marginRight: '10px' }}
+                      style={{ width: '100%', maxWidth: '400px', marginRight: '10px', borderRadius: '8px' }}
                     />
                   ))}
                 </Box>
               </CardContent>
             </Card>
           </Grid>
-          <Grid item xs={12} md={6}>
-            <Typography variant="h3">Title :{movie.name}</Typography>
-            <Typography variant="body1">{movie.description}</Typography>
-            <Typography variant="h4">IMDB Ratings :{movie.rate}</Typography>
-            <Typography variant="h4">{movie.status}</Typography>
-            <br /><br /><br /><br />
-            <Button variant="contained" color="primary" component={Link} to={`/book/${movie._id}`}>
-              Book Now
-            </Button>
-            <br /><br />
-            <Button variant="outlined" color="secondary" component={Link} to="/Contact">Contact Customer Care</Button>
 
-            <br /><br />
-            <Button variant="outlined" color="success" onClick={() => alert('Added to Favourite!')}>Add to Favourite</Button>
-            <br /><br />
-            <Button variant="outlined" color="secondary" onClick={() => setShowAddFeedbackForm(!showAddFeedbackForm)}>
+          {/* Movie Details */}
+          <Grid item xs={12} md={6}>
+            <Typography variant="h3" sx={{ fontWeight: 'bold', marginBottom: 2 }}>
+              {movie.name}
+            </Typography>
+            <Typography variant="body1" sx={{ marginBottom: 2 }}>
+              {movie.description}
+            </Typography>
+            <Typography variant="h5" sx={{ fontWeight: 'bold', marginBottom: 1 }}>
+              IMDB Rating: {movie.rate}
+            </Typography>
+            <Typography variant="h6" sx={{ color: movie.status === 'Available' ? 'green' : 'red', marginBottom: 3 }}>
+              {movie.status}
+            </Typography>
+
+            {/* Action Buttons */}
+            <CardActions>
+              <Button
+                variant="contained"
+                color="primary"
+                component={Link}
+                to={`/book/${movie._id}`}
+                startIcon={<BookIcon />}
+                sx={{ marginRight: 2 }}
+              >
+                Book Now
+              </Button>
+              <Button
+                variant="outlined"
+                color="secondary"
+                component={Link}
+                to="/Contact"
+                startIcon={<ContactSupportIcon />}
+              >
+                Contact Support
+              </Button>
+              <Button
+                variant="outlined"
+                color="success"
+                onClick={() => alert('Added to Favourite!')}
+                startIcon={<FavoriteIcon />}
+              >
+                Add to Favourite
+              </Button>
+            </CardActions>
+
+            <Button
+              variant="outlined"
+              color="secondary"
+              onClick={() => setShowAddFeedbackForm(!showAddFeedbackForm)}
+              sx={{ marginTop: 2 }}
+            >
               {showAddFeedbackForm ? 'Cancel' : 'Add Feedback'}
             </Button>
           </Grid>
         </Grid>
 
-        <Box>
+        {/* Feedback Section */}
+        <Box sx={{ marginTop: 5 }}>
           {showAddFeedbackForm ? (
-            <AddFeedback
-              movieId={movie.MID}
-              onBack={() => setShowAddFeedbackForm(false)}
-            />
+            <AddFeedback movieId={movie.MID} onBack={() => setShowAddFeedbackForm(false)} />
           ) : (
             <Box sx={{ padding: 3 }}>
               {noResults ? (
-                <Typography variant="h6" align="center">No feedback found.</Typography>
+                <Typography variant="h6" align="center">
+                  No feedback found.
+                </Typography>
               ) : (
                 feedbacks.map((feedback) => (
                   <Card key={feedback._id} sx={{ marginBottom: 2 }}>
                     <CardContent>
-                      <Typography variant="h6">Customer Name: {feedback.customerId}</Typography>
-                      <Rating value={feedback.rating} readOnly /> {/* Display stars for rating */}
+                      <Typography variant="h6">
+                        Customer Name: {feedback.customerId}
+                      </Typography>
+                      <Rating value={feedback.rating} readOnly />
                       <Typography variant="body2">{feedback.comment}</Typography>
                     </CardContent>
                   </Card>
@@ -148,17 +192,14 @@ const MovieProfile = () => {
 
       <Snackbar
         open={snackbarOpen}
-        autoHideDuration={null}
+        autoHideDuration={5000}
         onClose={handleSnackbarClose}
-        action={
-          <Button color="inherit" onClick={handleRedirectToLogin}>OK</Button>
-        }
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
       >
         <Alert onClose={handleSnackbarClose} severity="info" sx={{ width: '100%' }}>
           {snackbarMessage}
         </Alert>
       </Snackbar>
-      
     </div>
   );
 }

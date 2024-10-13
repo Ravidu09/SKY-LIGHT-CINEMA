@@ -1,4 +1,3 @@
-/* eslint-disable no-unused-vars */
 import React, { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
 import { Box, Button, TextField, Typography, Select, MenuItem, Snackbar, Alert, Grid, Card, CardMedia, CardContent } from '@mui/material';
@@ -12,19 +11,18 @@ const URL = "http://localhost:4001/bookings";
 const MovieBooking = () => {
   const { id: movieId } = useParams();
   const [movie, setMovie] = useState(null);
-  const [ticketId, setTicketId] = useState('AUTO_GENERATED_ID'); // Auto-filled
+  const [ticketId, setTicketId] = useState('AUTO_GENERATED_ID');
   const [count, setCount] = useState(1);
-  const [userId, setUserId] = useState('AUTO_FILLED_USER_ID'); // Auto-filled
-  const [showTimeId, setShowTimeId] = useState('10:30'); // Default show time
+  const { authState } = useContext(AuthContext);
+  const [userId, setUserId] = useState(authState.user?.id || 'AUTO_FILLED_USER_ID');
+  const [showTimeId, setShowTimeId] = useState('10:30');
   const [date, setDate] = useState('');
-  const [seat, setSeat] = useState('');
+  const [seat, setSeat] = useState('select');
   const [error, setError] = useState(null);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
-  const { authState } = useContext(AuthContext);
   const navigate = useNavigate();
 
-  // Fetch movie details
   useEffect(() => {
     const fetchMovie = async () => {
       try {
@@ -37,9 +35,16 @@ const MovieBooking = () => {
     fetchMovie();
   }, [movieId]);
 
+  const availableShowTimes = ["10:30", "12:30", "14:30", "16:30", "19:30", "22:00"];
+  
+  // Get current date and time for validation
+  const now = new Date();
+  const currentTime = now.toTimeString().slice(0, 5); // Current time in HH:mm format
+  const currentDate = now.toISOString().split("T")[0]; // Current date in YYYY-MM-DD format
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError(null); // Reset error state
+    setError(null);
 
     if (!authState.user) {
       setSnackbarMessage('You need to be logged in to book tickets.');
@@ -50,8 +55,8 @@ const MovieBooking = () => {
     try {
       const response = await axios.post(URL, {
         TicketId: ticketId,
-        count: Number(count), // Convert to number
-        movieId,
+        count: Number(count),
+        movieId: movie?.name,  // Send the movie name instead of the ID
         userId,
         showTimeId,
         date,
@@ -60,10 +65,21 @@ const MovieBooking = () => {
       if (response.status === 201) {
         setSnackbarMessage('Booking added successfully');
         setSnackbarOpen(true);
-        navigate('/booking-confirmation', { state: { bookingDetails } });      }
+        // Reset the form after successful booking
+        resetForm();
+        navigate('/Buy', { state: { bookingDetails: response.data } });
+      }
     } catch (error) {
       setError(error.response ? error.response.data.message : 'An error occurred');
     }
+  };
+
+  const resetForm = () => {
+    setCount(1);
+    setShowTimeId('10:30');
+    setDate('');
+    setSeat('select');
+    setTicketId('AUTO_GENERATED_ID');
   };
 
   const handleSnackbarClose = () => {
@@ -71,24 +87,28 @@ const MovieBooking = () => {
   };
 
   return (
-    <div>
+    <div style={{ backgroundColor: '#f7f7f7', minHeight: '100vh' }}>
       <Header />
 
-      <Box sx={{ padding: 3, backgroundColor: 'white', borderRadius: 1 }}>
-        <Grid container spacing={3}>
+      <Box sx={{ padding: 4, maxWidth: '1000px', margin: 'auto', backgroundColor: 'white', borderRadius: 3, boxShadow: '0 4px 20px rgba(0,0,0,0.1)', marginTop: 4 }}>
+        <Grid container spacing={4}>
           {/* Movie Information Section */}
           <Grid item xs={12} md={4}>
             {movie && (
-              <Card>
+              <Card sx={{ boxShadow: '0 4px 10px rgba(0,0,0,0.1)' }}>
                 <CardMedia
                   component="img"
                   alt={movie.name}
-                  height="300"
+                  height="350"
                   image={movie.image || 'http://localhost:5173/src/Components/Images/3.png'}
                   title={movie.name}
+                  sx={{ objectFit: 'cover' }}
                 />
                 <CardContent>
-                  <Typography variant="h5">{movie.name}</Typography>
+                  <Typography variant="h5" sx={{ fontWeight: 'bold', marginBottom: 1 }}>{movie.name}</Typography>
+                  <Typography variant="body1" color="text.secondary">
+                    Rating: {movie.rate || 'N/A'}
+                  </Typography>
                 </CardContent>
               </Card>
             )}
@@ -96,36 +116,24 @@ const MovieBooking = () => {
 
           {/* Booking Form Section */}
           <Grid item xs={12} md={8}>
-            <Typography variant="h5" gutterBottom>
-              Add New Booking
+            <Typography variant="h5" gutterBottom sx={{ fontWeight: 'bold', marginBottom: 3 }}>
+              Movie Booking
+            </Typography>
+            <Typography variant="body1" gutterBottom sx={{ marginBottom: 2 }}>
+              Fill in your details below to book tickets for <strong>{movie ? movie.name : 'the movie'}</strong>.
             </Typography>
             <form onSubmit={handleSubmit}>
-              <input
-                type="hidden"
-                value={ticketId}
-                onChange={(e) => setTicketId(e.target.value)}
-              />
               <TextField
-                label="Count"
+                label="Number of Tickets"
                 variant="outlined"
                 type="number"
                 value={count}
                 onChange={(e) => setCount(e.target.value)}
-                fullWidth
                 margin="normal"
+                fullWidth
                 required
                 inputProps={{ min: 1 }}
-              />
-
-              <input
-                type="hidden"
-                value={movieId}
-              />
-
-              <input
-                type="hidden"
-                value={userId}
-                onChange={(e) => setUserId(e.target.value)}
+                sx={{ marginBottom: 3 }}
               />
 
               <Select
@@ -134,10 +142,12 @@ const MovieBooking = () => {
                 value={showTimeId}
                 onChange={(e) => setShowTimeId(e.target.value)}
                 fullWidth
+                sx={{ marginBottom: 3 }}
               >
-                <MenuItem value="10:30">10:30 AM</MenuItem>
-                <MenuItem value="13:30">1:30 PM</MenuItem>
-                <MenuItem value="16:30">4:30 PM</MenuItem>
+                {/* Dynamically display available show times based on the selected date */}
+                {availableShowTimes.filter(time => (date === currentDate ? time > currentTime : true)).map(time => (
+                  <MenuItem key={time} value={time}>{time}</MenuItem>
+                ))}
               </Select>
 
               <TextField
@@ -146,36 +156,49 @@ const MovieBooking = () => {
                 type="date"
                 value={date}
                 onChange={(e) => setDate(e.target.value)}
-                fullWidth
                 margin="normal"
                 InputLabelProps={{ shrink: true }}
+                fullWidth
                 required
+                sx={{ marginBottom: 3 }}
+                inputProps={{
+                  min: currentDate // Set minimum date to today
+                }}
               />
-              <TextField
-                label="Seat"
+
+              <Select
+                label="Seat Type"
                 variant="outlined"
                 value={seat}
                 onChange={(e) => setSeat(e.target.value)}
                 fullWidth
-                margin="normal"
-                required
-              />
-              <Button
-                type="submit"
-                variant="contained"
-                color="primary"
-                sx={{ marginTop: 2 }}
+                sx={{ marginBottom: 3 }}
               >
-                Add Booking
-              </Button>
-              <Button
-                variant="outlined"
-                color="secondary"
-                sx={{ marginTop: 2, marginLeft: 2 }}
-                onClick={() => navigate(-1)}
-              >
-                Back
-              </Button>
+                <MenuItem value="select">Select Seat Type</MenuItem>
+                <MenuItem value="luxury">Luxury</MenuItem>
+                <MenuItem value="vip">VIP</MenuItem>
+                <MenuItem value="regular">Regular</MenuItem>
+              </Select>
+
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', marginTop: 2 }}>
+                <Button
+                  type="submit"
+                  variant="contained"
+                  color="primary"
+                  sx={{ padding: '12px 24px', fontSize: '1rem', textTransform: 'none', fontWeight: 'bold' }}
+                >
+                  Confirm Booking
+                </Button>
+                <Button
+                  variant="outlined"
+                  color="secondary"
+                  sx={{ padding: '12px 24px', fontSize: '1rem', textTransform: 'none', fontWeight: 'bold' }}
+                  onClick={() => navigate(-1)}
+                >
+                  Back
+                </Button>
+              </Box>
+
               {error && (
                 <Typography color="error" sx={{ marginTop: 2 }}>
                   {error}

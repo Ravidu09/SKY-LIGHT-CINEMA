@@ -64,7 +64,7 @@ function Home() {
             transition: 'transform 2s ease-out, opacity 2s ease-out',
           }}
         >
-          <span style={{ position: 'relative', right: '-1em', transition: 'transform 2s ease-out' }}>SKY LIGHT CINEMA</span>
+          <span style={{ position: 'relative', transition: 'transform 2s ease-out' }}>SKY LIGHT CINEMA</span>
         </Typography>
 
         {/* Subtitle */}
@@ -88,27 +88,7 @@ function Home() {
         </Typography>
 
         {/* Shopping Button */}
-        <Button
-          variant="contained"
-          color="secondary"
-          startIcon={<time />}
-          sx={{
-            position: 'absolute',
-            bottom: '90px',
-            backgroundColor: '#FFFFFF',
-            color: '#000000',
-            '&:hover': {
-              backgroundColor: '#F0F0F0',
-              transform: 'scale(1.1)',
-              transition: 'transform 0.3s',
-            },
-            opacity: fadeIn ? 1 : 0,
-            transform: fadeIn ? 'translateY(0)' : 'translateY(20px)',
-            transition: 'transform 2s ease-out, opacity 2s ease-out',
-          }}
-        >
-          Book Now
-        </Button>
+        
       </Box>
       <Footer/>
 
