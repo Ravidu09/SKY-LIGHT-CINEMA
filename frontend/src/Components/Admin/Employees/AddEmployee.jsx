@@ -17,12 +17,12 @@ function AddEmployee({ onBack }) {
     address: '',
     salary: ''
   });
-  
+
   const [error, setError] = useState(null);
   const [nameError, setNameError] = useState('');
   const [emailError, setEmailError] = useState('');
   const [phoneError, setPhoneError] = useState('');
-  
+
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -132,16 +132,21 @@ function AddEmployee({ onBack }) {
               fullWidth
               variant="outlined"
             >
-              <MenuItem value="Senior Manager">Senior Manager</MenuItem>
-              <MenuItem value="Junior Manager">Junior Manager</MenuItem>
-              <MenuItem value="Trainee">Trainee</MenuItem>
-              <MenuItem value="Software Engineer">Software Engineer</MenuItem>
-              <MenuItem value="Web Developer">Web Developer</MenuItem>
-              <MenuItem value="Jewelry Designer">Jewelry Designer</MenuItem>
-              <MenuItem value="Project Coordinator">Project Coordinator</MenuItem>
-              <MenuItem value="Marketing Executive">Marketing Executive</MenuItem>
-              <MenuItem value="Sales Representative">Sales Representative</MenuItem>
-              <MenuItem value="Photographer/Content Creator">Photographer/Content Creator</MenuItem>
+              <MenuItem value="Cinema Manager">Cinema Manager</MenuItem>
+              <MenuItem value="Assistant Manager">Assistant Manager</MenuItem>
+              <MenuItem value="Ticketing Officer">Ticketing Officer</MenuItem>
+              <MenuItem value="Customer Service Representative">Customer Service Representative</MenuItem>
+              <MenuItem value="Concessions Staff">Concessions Staff</MenuItem>
+              <MenuItem value="Projectionist">Projectionist</MenuItem>
+              <MenuItem value="Usher">Usher</MenuItem>
+              <MenuItem value="Marketing Coordinator">Marketing Coordinator</MenuItem>
+              <MenuItem value="Operations Manager">Operations Manager</MenuItem>
+              <MenuItem value="Event Coordinator">Event Coordinator</MenuItem>
+              <MenuItem value="Cleaning Staff">Cleaning Staff</MenuItem>
+              <MenuItem value="Security Officer">Security Officer</MenuItem>
+              <MenuItem value="Technical Support">Technical Support</MenuItem>
+              <MenuItem value="Sound/Lighting Technician">Sound/Lighting Technician</MenuItem>
+
             </Select>
           </FormControl>
           <TextField

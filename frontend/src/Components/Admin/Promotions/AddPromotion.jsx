@@ -44,6 +44,11 @@ function AddPromotion({ onBack }) {
       }));
     }
   };
+  
+  const getTodayDate = () => {
+    const today = new Date();
+    return today.toISOString().split('T')[0]; // Extracts date in 'YYYY-MM-DD' format
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -89,30 +94,36 @@ function AddPromotion({ onBack }) {
           margin="normal"
           type="number"
         />
-        <TextField
-          label="Valid From"
-          name="validFrom"
-          value={promotion.validFrom}
-          onChange={handleChange}
-          fullWidth
-          margin="normal"
-          type="date"
-          InputLabelProps={{
-            shrink: true,
-          }}
-        />
-        <TextField
-          label="Valid To"
-          name="validTo"
-          value={promotion.validTo}
-          onChange={handleChange}
-          fullWidth
-          margin="normal"
-          type="date"
-          InputLabelProps={{
-            shrink: true,
-          }}
-        />
+         <TextField
+        label="Valid From"
+        name="validFrom"
+        value={promotion.validFrom}
+        onChange={handleChange}
+        fullWidth
+        margin="normal"
+        type="date"
+        InputLabelProps={{
+          shrink: true,
+        }}
+        inputProps={{
+          min: getTodayDate(), // Enforces only future dates
+        }}
+      />
+      <TextField
+        label="Valid To"
+        name="validTo"
+        value={promotion.validTo}
+        onChange={handleChange}
+        fullWidth
+        margin="normal"
+        type="date"
+        InputLabelProps={{
+          shrink: true,
+        }}
+        inputProps={{
+          min: promotion.validFrom || getTodayDate(), // Enforces valid "To" date only after "From" date
+        }}
+      />
 
         {/* Payment Methods Section */}
         <Typography variant="h6" sx={{ marginTop: 2 }}>

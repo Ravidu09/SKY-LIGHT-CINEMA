@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Box, Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField, Paper, IconButton } from '@mui/material';
+import { Box, Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField, Paper, IconButton, ToggleButton, ToggleButtonGroup, Typography } from '@mui/material';
 import { Edit, Delete, Add } from '@mui/icons-material';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
@@ -24,6 +24,7 @@ function EmployeeDetails() {
   const [searchQuery, setSearchQuery] = useState('');
   const [noResults, setNoResults] = useState(false);
   const [showAddEmployeeForm, setShowAddEmployeeForm] = useState(false);
+  const [view, setView] = useState('table'); // Toggle between 'table' and 'stats'
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -100,26 +101,52 @@ function EmployeeDetails() {
     setShowAddEmployeeForm(false);
   };
 
-  
+  // Calculate statistics
+  const totalEmployees = employees.length;
+  const positionDistribution = employees.reduce((acc, employee) => {
+    acc[employee.position] = (acc[employee.position] || 0) + 1;
+    return acc;
+  }, {});
+
+  // Render the statistics view
+  const renderStatsView = () => (
+    <Box sx={{ padding: 3, backgroundColor: 'white', borderRadius: 1 }}>
+      <Typography variant="h5" gutterBottom>Total Employees: {totalEmployees}</Typography>
+      <Typography variant="h6" gutterBottom>Position Distribution:</Typography>
+      <TableContainer component={Paper} sx={{ border: '1px solid', borderColor: 'divider' }}>
+        <Table>
+          <TableHead>
+            <TableRow>
+              <TableCell>Position</TableCell>
+              <TableCell>Count</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {Object.entries(positionDistribution).map(([position, count]) => (
+              <TableRow key={position}>
+                <TableCell>{position}</TableCell>
+                <TableCell>{count}</TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
+    </Box>
+  );
+
+  // Handle view change
+  const handleViewChange = (event, newView) => {
+    setView(newView);
+  };
 
   return (
-    <Box
-      
-    >
+    <Box>
       {showAddEmployeeForm ? (
         <Box>
           <AddEmployee onBack={handleBack} />
         </Box>
       ) : (
-        <Box
-          sx={{
-            width: '100%',
-            maxWidth: '1600px',
-            backgroundColor: 'rgba(255, 255, 255, 0.7)', // Make the box slightly transparent
-            borderRadius: 2,
-            padding: 3,
-          }}
-        >
+        <>
           <Box sx={{ display: 'flex', gap: 2, marginBottom: 2, alignItems: 'center', marginTop: 4 }}>
             <TextField
               label="Search"
@@ -152,67 +179,74 @@ function EmployeeDetails() {
             >
               Search
             </Button>
+            <ToggleButtonGroup
+              value={view}
+              exclusive
+              onChange={handleViewChange}
+              sx={{ marginLeft: 'auto' }}
+            >
+              <ToggleButton value="table">Table View</ToggleButton>
+              <ToggleButton value="stats">Stats View</ToggleButton>
+            </ToggleButtonGroup>
             <Button
               variant="contained"
               color="primary"
               onClick={handleAddEmployee}
-              sx={{ borderRadius: 2, marginLeft: 'auto' }}
+              sx={{ borderRadius: 2, marginLeft: 2 }}
               startIcon={<Add />}
             >
               Add Employee
             </Button>
           </Box>
 
-          <Box sx={{ padding: 3, backgroundColor: 'white', borderRadius: 1 }}>
-            <TableContainer component={Paper} sx={{ border: '1px solid', borderColor: 'divider' }}>
-              <Table>
-                <TableHead>
-                  <TableRow>
-                    <TableCell>ID</TableCell>
-                    <TableCell>Name</TableCell>
-                    <TableCell>Email</TableCell>
-                    <TableCell>Position</TableCell>
-                    <TableCell>Phone</TableCell>
-                    <TableCell>Address</TableCell>
-                    <TableCell>Actions</TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {noResults ? (
+          {view === 'table' ? (
+            <Box sx={{ padding: 3, backgroundColor: 'white', borderRadius: 1 }}>
+              <TableContainer component={Paper} sx={{ border: '1px solid', borderColor: 'divider' }}>
+                <Table>
+                  <TableHead>
                     <TableRow>
-                      <TableCell colSpan={8} align="center">No employee found.</TableCell>
+                      <TableCell>ID</TableCell>
+                      <TableCell>Name</TableCell>
+                      <TableCell>Email</TableCell>
+                      <TableCell>Position</TableCell>
+                      <TableCell>Phone</TableCell>
+                      <TableCell>Address</TableCell>
+                      <TableCell>Actions</TableCell>
                     </TableRow>
-                  ) : (
-                    employees.map((employee) => (
-                      <TableRow key={employee._id}>
-                        <TableCell>{employee.EMPID}</TableCell>
-                        <TableCell>{employee.name}</TableCell>
-                        <TableCell>{employee.email}</TableCell>
-                        <TableCell>{employee.position}</TableCell>
-                        <TableCell>{employee.phone}</TableCell>
-                        <TableCell>{employee.address}</TableCell>
-                        <TableCell>
-                          <IconButton onClick={() => handleEdit(employee._id)} sx={{ color: 'primary.main' }}>
-                            <Edit />
-                          </IconButton>
-                          <IconButton onClick={() => deleteEmployee(employee)} sx={{ color: 'error.main' }}>
-                            <Delete />
-                          </IconButton>
-                        </TableCell>
+                  </TableHead>
+                  <TableBody>
+                    {noResults ? (
+                      <TableRow>
+                        <TableCell colSpan={8} align="center">No employee found.</TableCell>
                       </TableRow>
-                    ))
-                  )}
-                </TableBody>
-              </Table>
-            </TableContainer>
-          </Box>
-
-          <Box sx={{ display: 'flex', gap: 2, marginTop: 2 }}>
-            <Button variant="contained" color="primary" onClick={handlePDF}>
-              Generate PDF Report
-            </Button>
-          </Box>
-        </Box>
+                    ) : (
+                      employees.map((employee) => (
+                        <TableRow key={employee._id}>
+                          <TableCell>{employee.EMPID}</TableCell>
+                          <TableCell>{employee.name}</TableCell>
+                          <TableCell>{employee.email}</TableCell>
+                          <TableCell>{employee.position}</TableCell>
+                          <TableCell>{employee.phone}</TableCell>
+                          <TableCell>{employee.address}</TableCell>
+                          <TableCell>
+                            <IconButton onClick={() => handleEdit(employee._id)} sx={{ color: 'primary.main' }}>
+                              <Edit />
+                            </IconButton>
+                            <IconButton onClick={() => deleteEmployee(employee)} sx={{ color: 'error.main' }}>
+                              <Delete />
+                            </IconButton>
+                          </TableCell>
+                        </TableRow>
+                      ))
+                    )}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            </Box>
+          ) : (
+            renderStatsView()
+          )}
+        </>
       )}
     </Box>
   );

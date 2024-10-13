@@ -21,7 +21,7 @@ function UpdateBooking() {
     const navigate = useNavigate();
 
     // Available show times
-    const availableShowTimes = ["10:30", "13:30", "16:30"];
+    const availableShowTimes = ["10:30", "12:30", "14:30", "16:30", "19:30", "22:00"];
 
     // Get current date and time
     const now = new Date();

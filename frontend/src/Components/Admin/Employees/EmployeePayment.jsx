@@ -184,7 +184,7 @@ function EmployeePayment() {
                         <TableCell>{employee.EMPID}</TableCell>
                         <TableCell>{employee.name}</TableCell>
                         <TableCell>{employee.position}</TableCell>
-                        <TableCell>{employee.salary}</TableCell>
+                        <TableCell>LKR {employee.salary}</TableCell>
                         <TableCell>
                           
                           <Button

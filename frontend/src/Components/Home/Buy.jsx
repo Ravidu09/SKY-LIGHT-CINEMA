@@ -92,7 +92,7 @@ function Buy() {
       });
       if (response.status === 201) {
         alert('Payment added successfully');
-        navigate('/admindashboard/payment-management');
+        navigate('/movie');
       }
     } catch (error) {
       setError(error.response ? error.response.data.message : 'An error occurred');

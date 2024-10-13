@@ -7,6 +7,7 @@ import { Link } from 'react-router-dom';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import 'swiper/css';
 import SearchIcon from '@mui/icons-material/Search';
+import dayjs from 'dayjs'; // Import dayjs to format dates
 
 const URL = "http://localhost:4001/promotions"; // URL to fetch promotions
 
@@ -23,7 +24,7 @@ const fetchPromotions = async () => {
 function PromotionPage() {
   const [promotions, setPromotions] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
-  const [loading, setLoading] = useState(true); // Loading state
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetchPromotions().then(data => {
@@ -35,22 +36,20 @@ function PromotionPage() {
     });
   }, []);
 
-  const handleSearch = () => {
-    if (searchQuery.trim() === "") {
-      fetchPromotions().then(data => {
-        setPromotions(data);
-      }).catch(error => {
-        console.error("Error fetching promotions:", error);
-      });
-      return;
-    }
-
+  const handleSearch = (query) => {
     const filteredPromotions = promotions.filter(item =>
       Object.values(item).some(field =>
-        field && field.toString().toLowerCase().includes(searchQuery.toLowerCase())
+        field && field.toString().toLowerCase().includes(query.toLowerCase())
       )
     );
     setPromotions(filteredPromotions);
+  };
+
+  // Live search while typing
+  const handleInputChange = (e) => {
+    const query = e.target.value;
+    setSearchQuery(query);
+    handleSearch(query);
   };
 
   return (
@@ -63,7 +62,7 @@ function PromotionPage() {
               label="Search Promotions"
               variant="outlined"
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              onChange={handleInputChange} // Live search here
               sx={{
                 width: '300px',
                 backgroundColor: 'white',
@@ -77,24 +76,6 @@ function PromotionPage() {
               }}
             />
           </Grid>
-          <Grid item>
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={handleSearch}
-              sx={{
-                borderRadius: 2,
-                padding: '10px 20px',
-                boxShadow: '0 3px 5px 2px rgba(255, 105, 135, .3)',
-                background: 'linear-gradient(45deg, #FE6B8B 30%, #FF8E53 90%)',
-                '&:hover': {
-                  background: 'linear-gradient(45deg, #FF8E53 30%, #FE6B8B 90%)',
-                },
-              }}
-            >
-              Search
-            </Button>
-          </Grid>
         </Grid>
 
         <Typography variant="h4" align="left" gutterBottom sx={{ marginTop: '20px', fontWeight: 'bold' }}>
@@ -106,25 +87,23 @@ function PromotionPage() {
         ) : (
           <Swiper
             spaceBetween={20}
-            slidesPerView={5} // You can change this for multiple cards on larger screens
-            
+            slidesPerView={5}
           >
             {promotions.map(item => (
               <SwiperSlide key={item._id}>
                 <Card
                   sx={{
-                    width: '250px', // Decreased width of the card
-                    flexDirection: 'row',
+                    width: '240px', // Fixed width for consistency
+                    height: '400px', // Fixed height to maintain uniformity
                     boxShadow: '0 4px 8px rgba(0,0,0,0.2)',
                     transition: 'transform 0.2s',
                     '&:hover': {
                       transform: 'scale(1.05)',
-                      boxShadow: '0 8px 16px rgba(0,0,0,0.3)',
                     },
-                    height: '100%',
+                    margin: '0 auto' // Center cards inside Swiper
                   }}
                 >
-                  <Link to={`/promotions/${item._id}`}>
+                  <Link to={`/movie`}>
                     <CardMedia
                       component="img"
                       alt={item.title}
@@ -138,13 +117,13 @@ function PromotionPage() {
                   </Link>
                   <CardContent sx={{ flexGrow: 1 }}>
                     <Typography variant="h6" component="div" sx={{ fontWeight: 'bold' }}>
-                      Title: {item.title}
+                      {item.title}
                     </Typography>
                     <Typography variant="body2" color="text.secondary">
                       Discount: {item.discountPercentage}%
                     </Typography>
                     <Typography variant="body2" color="text.secondary">
-                      Expiry Date: {item.validTo}
+                      Expiry Date: {dayjs(item.validTo).format('YYYY-MM-DD')}
                     </Typography>
                     <Typography variant="body2" color="text.secondary">
                       Description: {item.description}

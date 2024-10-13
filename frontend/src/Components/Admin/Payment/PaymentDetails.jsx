@@ -100,6 +100,10 @@ function PaymentDetails() {
     setShowAddPaymentForm(false);
   };
 
+  const handleEmpPay = () =>{
+    navigate('/admindashboard/EmpPay');
+  };
+
   // Calculate statistics
   const totalPayments = payments.reduce((acc, curr) => acc + curr.amount, 0);
   const avgPayment = (totalPayments / payments.length) || 0;
@@ -112,7 +116,7 @@ function PaymentDetails() {
   const renderStatsView = () => (
     <Box sx={{ padding: 3, backgroundColor: 'white', borderRadius: 1 }}>
       <Typography variant="h5" gutterBottom>Total Payments: {payments.length}</Typography>
-      <Typography variant="h6" gutterBottom>Total Amount: ${totalPayments.toFixed(2)}</Typography>
+      <Typography variant="h6" gutterBottom>Total Amount: LKR {totalPayments.toFixed(2)}</Typography>
       <br></br>
       <Typography variant="h6" gutterBottom>Payment Methods Distribution:</Typography>
       <TableContainer component={Paper} sx={{ border: '1px solid', borderColor: 'divider' }}>
@@ -176,6 +180,9 @@ function PaymentDetails() {
             <Button variant="contained" color="primary" onClick={handleSearch} sx={{ borderRadius: 2 }}>
               Search
             </Button>
+            <Button variant="contained" color="secondary" onClick={handleEmpPay} sx={{ marginLeft: 2}}>
+              Employee Payments
+            </Button>
             <ToggleButtonGroup
               value={view}
               exclusive
