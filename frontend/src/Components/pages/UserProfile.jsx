@@ -28,7 +28,7 @@ function UserProfile() {
         const fetchUser = async () => {
             if (user && user.userId && token) {
                 try {
-                    const response = await axios.get(`http://localhost:4000/users/${user.userId}`, {
+                    const response = await axios.get(`http://localhost:4001/users/${user.userId}`, {
                         headers: { 'Authorization': `Bearer ${token}` }
                     });
                     setUpdatedUser(response.data);
@@ -59,7 +59,7 @@ function UserProfile() {
 
     const handleUpdate = async () => {
         try {
-            await axios.put(`http://localhost:4000/users/${user.userId}`, updatedUser, {
+            await axios.put(`http://localhost:4001/users/${user.userId}`, updatedUser, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             alert('Profile updated successfully');
@@ -73,7 +73,7 @@ function UserProfile() {
     const handleDelete = async () => {
         if (window.confirm('Are you sure you want to delete your account? This action cannot be undone.')) {
             try {
-                await axios.delete(`http://localhost:4000/users/${user.userId}`, {
+                await axios.delete(`http://localhost:4001/users/${user.userId}`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
                 alert('Profile deleted successfully');
@@ -130,16 +130,16 @@ function UserProfile() {
                                         variant="contained"
                                         startIcon={<Edit />}
                                         fullWidth
-                                        sx={{ marginBottom: 2, backgroundColor: '#ffffff', color: '#ffffff', textTransform: 'none' }}
+                                        sx={{ marginBottom: 2, backgroundColor: '#FF6F61', color: '#ffffff', textTransform: 'none', '&:hover': { backgroundColor: '#FF4F45' } }}
                                         onClick={() => setEditing(true)}
                                     >
-                                        Edit Account
+                                        Edit Details
                                     </Button>
                                     <Button
                                         variant="contained"
                                         startIcon={<Lock />}
                                         fullWidth
-                                        sx={{ marginBottom: 2, backgroundColor: '#ffffff', color: '#ffffff', textTransform: 'none' }}
+                                        sx={{ marginBottom: 2, backgroundColor: '#FF6F61', color: '#ffffff', textTransform: 'none', '&:hover': { backgroundColor: '#FF4F45' } }}
                                     >
                                         Change Password
                                     </Button>
@@ -147,7 +147,7 @@ function UserProfile() {
                                         variant="contained"
                                         startIcon={<Delete />}
                                         fullWidth
-                                        sx={{ marginBottom: 2, backgroundColor: '#ffffff', color: '#ffffff', textTransform: 'none' }}
+                                        sx={{ marginBottom: 2, backgroundColor: '#FF6F61', color: '#ffffff', textTransform: 'none', '&:hover': { backgroundColor: '#FF4F45' } }}
                                         onClick={handleDelete}
                                     >
                                         Delete Account
@@ -156,7 +156,7 @@ function UserProfile() {
                                         variant="contained"
                                         startIcon={<Logout />}
                                         fullWidth
-                                        sx={{ backgroundColor: '#aaaaaa', color: '#ffffff', textTransform: 'none' }}
+                                        sx={{ marginBottom: 2, backgroundColor: '#FF6F61', color: '#ffffff', textTransform: 'none', '&:hover': { backgroundColor: '#FF4F45' } }}
                                         onClick={handleLogout}
                                     >
                                         Logout
@@ -183,7 +183,7 @@ function UserProfile() {
                                         onChange={handleChange}
                                         fullWidth
                                         margin="normal"
-                                        sx={{ input: { color: '#ffffff' }, label: { color: '#FF3838' }, '& .MuiOutlinedInput-root': { '& fieldset': { borderColor: '#FF3838' }, '&:hover fieldset': { borderColor: '#FF3838' }, '&.Mui-focused fieldset': { borderColor: '#FF3838' } }}}
+                                        sx={{ input: { color: '#ffffff' }, label: { color: '#FF3838' }, '& .MuiOutlinedInput-root': { '& fieldset': { borderColor: '#FF3838' }, '&:hover fieldset': { borderColor: '#FF3838' }, '&.Mui-focused fieldset': { borderColor: '#FF3838' } } }}
                                     />
                                     <TextField
                                         label="Name"
@@ -192,7 +192,7 @@ function UserProfile() {
                                         onChange={handleChange}
                                         fullWidth
                                         margin="normal"
-                                        sx={{ input: { color: '#ffffff' }, label: { color: '#FF3838' }, '& .MuiOutlinedInput-root': { '& fieldset': { borderColor: '#FF3838' }, '&:hover fieldset': { borderColor: '#FF3838' }, '&.Mui-focused fieldset': { borderColor: '#FF3838' } }}}
+                                        sx={{ input: { color: '#ffffff' }, label: { color: '#FF3838' }, '& .MuiOutlinedInput-root': { '& fieldset': { borderColor: '#FF3838' }, '&:hover fieldset': { borderColor: '#FF3838' }, '&.Mui-focused fieldset': { borderColor: '#FF3838' } } }}
                                     />
                                     <TextField
                                         label="Email"
@@ -201,7 +201,7 @@ function UserProfile() {
                                         onChange={handleChange}
                                         fullWidth
                                         margin="normal"
-                                        sx={{ input: { color: '#ffffff' }, label: { color: '#FF3838' }, '& .MuiOutlinedInput-root': { '& fieldset': { borderColor: '#FF3838' }, '&:hover fieldset': { borderColor: '#FF3838' }, '&.Mui-focused fieldset': { borderColor: '#FF3838' } }}}
+                                        sx={{ input: { color: '#ffffff' }, label: { color: '#FF3838' }, '& .MuiOutlinedInput-root': { '& fieldset': { borderColor: '#FF3838' }, '&:hover fieldset': { borderColor: '#FF3838' }, '&.Mui-focused fieldset': { borderColor: '#FF3838' } } }}
                                     />
                                     <TextField
                                         label="Phone"
@@ -210,7 +210,7 @@ function UserProfile() {
                                         onChange={handleChange}
                                         fullWidth
                                         margin="normal"
-                                        sx={{ input: { color: '#ffffff' }, label: { color: '#FF3838' }, '& .MuiOutlinedInput-root': { '& fieldset': { borderColor: '#FF3838' }, '&:hover fieldset': { borderColor: '#FF3838' }, '&.Mui-focused fieldset': { borderColor: '#FF3838' } }}}
+                                        sx={{ input: { color: '#ffffff' }, label: { color: '#FF3838' }, '& .MuiOutlinedInput-root': { '& fieldset': { borderColor: '#FF3838' }, '&:hover fieldset': { borderColor: '#FF3838' }, '&.Mui-focused fieldset': { borderColor: '#FF3838' } } }}
                                     />
                                     <Button
                                         variant="contained"

@@ -14,7 +14,7 @@ import Logo from '../Images/3.png';
 function Register() {
     const navigate = useNavigate();
     const [user, setUser] = useState({
-        userName: "", // Added userName
+        userName: "",
         name: "",
         email: "",
         phone: "",
@@ -23,6 +23,57 @@ function Register() {
     });
 
     const [termsAccepted, setTermsAccepted] = useState(false);
+    const [errors, setErrors] = useState({}); // State to store validation errors
+
+    const validate = () => {
+        let tempErrors = {};
+
+        // Username validation
+        if (!user.userName.trim()) {
+            tempErrors.userName = "Username is required.";
+        }
+
+        // Name validation
+        if (!user.name.trim()) {
+            tempErrors.name = "Name is required.";
+        }
+
+        // Email validation
+        if (!user.email.trim()) {
+            tempErrors.email = "Email is required.";
+        } else if (!/\S+@\S+\.\S+/.test(user.email)) {
+            tempErrors.email = "Email is not valid.";
+        }
+
+        // Phone validation
+        if (!user.phone.trim()) {
+            tempErrors.phone = "Phone number is required.";
+        } else if (!/^\d{10}$/.test(user.phone)) {
+            tempErrors.phone = "Phone number must be 10 digits.";
+        }
+
+        // Password validation
+        if (!user.password.trim()) {
+            tempErrors.password = "Password is required.";
+        } else if (user.password.length < 6) {
+            tempErrors.password = "Password must be at least 6 characters.";
+        }
+
+        // Confirm Password validation
+        if (!user.confirmPassword.trim()) {
+            tempErrors.confirmPassword = "Please confirm your password.";
+        } else if (user.password !== user.confirmPassword) {
+            tempErrors.confirmPassword = "Passwords do not match.";
+        }
+
+        // Terms and Conditions validation
+        if (!termsAccepted) {
+            tempErrors.termsAccepted = "You must accept the terms and conditions.";
+        }
+
+        setErrors(tempErrors);
+        return Object.keys(tempErrors).length === 0; // Return true if no errors
+    };
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
@@ -34,19 +85,13 @@ function Register() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-
-        if (!termsAccepted) {
-            alert("Please accept the terms and conditions.");
-            return;
-        }
-
-        if (user.password !== user.confirmPassword) {
-            alert("Passwords do not match.");
-            return;
+        
+        if (!validate()) {
+            return; // Stop submission if validation fails
         }
 
         const userData = {
-            userName: user.userName, // Ensure userName is included
+            userName: user.userName,
             name: user.name,
             email: user.email,
             phone: user.phone,
@@ -82,9 +127,9 @@ function Register() {
                             <Box component="form" onSubmit={handleSubmit} sx={{ mt: 2 }}>
                                 <TextField
                                     fullWidth
-                                    placeholder="Username" // Changed placeholder
+                                    placeholder="Username"
                                     variant="outlined"
-                                    name="userName" // Changed name attribute
+                                    name="userName"
                                     value={user.userName}
                                     onChange={handleInputChange}
                                     InputProps={{
@@ -92,6 +137,8 @@ function Register() {
                                         sx: { backgroundColor: '#FDF2F2', borderRadius: 2 }
                                     }}
                                     sx={{ marginBottom: 2 }}
+                                    error={!!errors.userName}
+                                    helperText={errors.userName}
                                 />
                                 <TextField
                                     fullWidth
@@ -105,6 +152,8 @@ function Register() {
                                         sx: { backgroundColor: '#FDF2F2', borderRadius: 2 }
                                     }}
                                     sx={{ marginBottom: 2 }}
+                                    error={!!errors.name}
+                                    helperText={errors.name}
                                 />
                                 <TextField
                                     fullWidth
@@ -118,6 +167,8 @@ function Register() {
                                         sx: { backgroundColor: '#FDF2F2', borderRadius: 2 }
                                     }}
                                     sx={{ marginBottom: 2 }}
+                                    error={!!errors.email}
+                                    helperText={errors.email}
                                 />
                                 <TextField
                                     fullWidth
@@ -131,6 +182,8 @@ function Register() {
                                         sx: { backgroundColor: '#FDF2F2', borderRadius: 2 }
                                     }}
                                     sx={{ marginBottom: 2 }}
+                                    error={!!errors.phone}
+                                    helperText={errors.phone}
                                 />
                                 <TextField
                                     fullWidth
@@ -145,6 +198,8 @@ function Register() {
                                         sx: { backgroundColor: '#FDF2F2', borderRadius: 2 }
                                     }}
                                     sx={{ marginBottom: 2 }}
+                                    error={!!errors.password}
+                                    helperText={errors.password}
                                 />
                                 <TextField
                                     fullWidth
@@ -159,6 +214,8 @@ function Register() {
                                         sx: { backgroundColor: '#FDF2F2', borderRadius: 2 }
                                     }}
                                     sx={{ marginBottom: 2 }}
+                                    error={!!errors.confirmPassword}
+                                    helperText={errors.confirmPassword}
                                 />
                                 <FormControlLabel
                                     control={
@@ -170,6 +227,11 @@ function Register() {
                                     label="Accept Terms and Conditions"
                                     sx={{ marginBottom: 2 }}
                                 />
+                                {errors.termsAccepted && (
+                                    <Typography variant="body2" color="error" sx={{ marginBottom: 2 }}>
+                                        {errors.termsAccepted}
+                                    </Typography>
+                                )}
                                 <Button
                                     type="submit"
                                     fullWidth

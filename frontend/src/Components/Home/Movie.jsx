@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import Header from '../Navbar/Navbar';
 import Footer from '../Footer/Footer';
-import { Container, Typography, TextField, Button, Grid, Card, CardMedia, CardContent, CircularProgress } from '@mui/material';
+import { Container, Typography, CircularProgress, Card, CardMedia, CardContent, Box } from '@mui/material';
 import { Link } from 'react-router-dom';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import 'swiper/css';
@@ -21,34 +21,17 @@ const fetchMovies = async () => {
 
 function MoviePage() {
   const [movies, setMovies] = useState([]);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [loading, setLoading] = useState(true); // Add loading state
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetchMovies().then(data => {
       setMovies(data);
-      setLoading(false); // Set loading to false once data is fetched
+      setLoading(false);
     }).catch(error => {
       console.error("Error fetching movies:", error);
-      setLoading(false); // Ensure loading is set to false on error
+      setLoading(false);
     });
   }, []);
-
-  const handleSearch = (query = searchQuery) => {
-    if (query.trim() === "") {
-      fetchMovies().then(data => {
-        setMovies(data);
-      }).catch(error => {
-        console.error("Error fetching movies:", error);
-      });
-      return;
-    }
-
-    const filteredMovies = movies.filter(item =>
-      item.name && item.name.toLowerCase().includes(query.toLowerCase())
-    );
-    setMovies(filteredMovies);
-  };
 
   return (
     <div style={{ backgroundColor: '#f5f5f5', minHeight: '100vh' }}>
@@ -63,7 +46,6 @@ function MoviePage() {
         ) : (
           <Swiper
             spaceBetween={20}
-            width="600"
             slidesPerView={4}
             navigation
             breakpoints={{
@@ -79,6 +61,8 @@ function MoviePage() {
                 <SwiperSlide key={item._id}>
                   <Card
                     sx={{
+                      width: '240px', // Fixed width for consistency
+                      height: '400px', // Fixed height to maintain uniformity
                       boxShadow: '0 4px 8px rgba(0,0,0,0.2)',
                       transition: 'transform 0.2s',
                       '&:hover': {
@@ -90,16 +74,17 @@ function MoviePage() {
                       <CardMedia
                         component="img"
                         alt={item.name}
-                        height="200"
+                        height="300" // Fixed height for the image
                         image={item.image || 'http://localhost:5173/src/Components/Images/3.png'}
                         title={item.name}
+                        sx={{ objectFit: 'cover' }} // Ensure image is contained within fixed size
                       />
                     </Link>
                     <CardContent>
-                      <Typography variant="h6" component="div" sx={{ fontWeight: 'bold' }}>
-                        Title: {item.name}
+                      <Typography variant="h6" component="div" sx={{ fontWeight: 'bold', fontSize: '16px' }}>
+                        {item.name}
                       </Typography>
-                      <Typography variant="body2" color="text.secondary">
+                      <Typography variant="body2" color="text.secondary" sx={{ fontSize: '14px' }}>
                         IMDB Rate: {item.rate}
                       </Typography>
                     </CardContent>
@@ -112,7 +97,7 @@ function MoviePage() {
       
       <Container sx={{ padding: '40px 0' }}>
         <Typography variant="h4" align="left" gutterBottom sx={{ marginTop: '20px', fontWeight: 'bold' }}>
-          Up Coming!
+          Upcoming Movies
         </Typography>
         
         {loading ? (
@@ -121,7 +106,6 @@ function MoviePage() {
           <Swiper
             spaceBetween={20}
             slidesPerView={4}
-            width="700"
             navigation
             breakpoints={{
               320: { slidesPerView: 1 },
@@ -136,6 +120,8 @@ function MoviePage() {
                 <SwiperSlide key={item._id}>
                   <Card
                     sx={{
+                      width: '240px', // Fixed width for consistency
+                      height: '400px', // Fixed height to maintain uniformity
                       boxShadow: '0 4px 8px rgba(0,0,0,0.2)',
                       transition: 'transform 0.2s',
                       '&:hover': {
@@ -147,16 +133,17 @@ function MoviePage() {
                       <CardMedia
                         component="img"
                         alt={item.name}
-                        height="200"
+                        height="300"
                         image={item.image || 'http://localhost:5173/src/Components/Images/3.png'}
                         title={item.name}
+                        sx={{ objectFit: 'cover' }} // Ensure image is contained within fixed size
                       />
                     </Link>
                     <CardContent>
-                      <Typography variant="h6" component="div" sx={{ fontWeight: 'bold' }}>
-                        Title: {item.name}
+                      <Typography variant="h6" component="div" sx={{ fontWeight: 'bold', fontSize: '16px' }}>
+                        {item.name}
                       </Typography>
-                      <Typography variant="body2" color="text.secondary">
+                      <Typography variant="body2" color="text.secondary" sx={{ fontSize: '14px' }}>
                         IMDB Rate: {item.rate}
                       </Typography>
                     </CardContent>

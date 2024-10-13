@@ -1,5 +1,4 @@
 import { Box, AppBar, Toolbar, Typography, Button, IconButton } from '@mui/material';
-import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import React, { useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../Auth/AuthContext'; // Adjust the path as needed
@@ -31,20 +30,13 @@ function Navbar() {
           </Typography>
 
           {/* Right Side Items */}
-          <IconButton
-            size="large"
-            aria-label="show cart items"
-            color="red"
-            component={Link} to="/cart"
-          >
-            <ShoppingCartIcon />
-          </IconButton>
+          
           {user ? (
             <>
-              <Typography variant="body1" sx={{ mx: 2, color: 'black' }}>
+              <Typography variant="body1" sx={{ mx: 2, color: 'red' }}>
                 Hello, {user.name}
               </Typography>
-              <Button color="inherit" onClick={handleLogout} sx={{ mx: 2, color: 'black' }}>Logout</Button>
+              <Button color="inherit" onClick={handleLogout} sx={{ mx: 2, color: 'red' }}>Logout</Button>
             </>
           ) : (
             <>
