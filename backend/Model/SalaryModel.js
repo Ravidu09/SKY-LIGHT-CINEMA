@@ -26,6 +26,16 @@ const salarySchema = new mongoose.Schema({
         type: Number,
         required: true
     },
+    leaveDays: {
+        type: Number,
+        required: true,
+        default: 0 // Default value if not provided
+    },
+    dailyRate: {
+        type: Number,
+        required: true,
+        default: 0 // Default value if not provided
+    },
     totalSalary: {
         type: Number,
         required: true

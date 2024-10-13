@@ -67,6 +67,7 @@ const MovieBooking = () => {
         setSnackbarOpen(true);
         // Reset the form after successful booking
         resetForm();
+        alert('Complete the Payment to Proceed');
         navigate('/Buy', { state: { bookingDetails: response.data } });
       }
     } catch (error) {

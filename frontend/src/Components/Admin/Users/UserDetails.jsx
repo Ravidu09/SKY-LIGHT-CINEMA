@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Box, Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField, Paper, IconButton } from '@mui/material';
+import { Box, Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField, Paper, IconButton, Typography, ToggleButton, ToggleButtonGroup } from '@mui/material';
 import { Edit, Delete, Print, Add } from '@mui/icons-material';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
@@ -25,6 +25,7 @@ function UserDetails() {
   const [searchQuery, setSearchQuery] = useState('');
   const [noResults, setNoResults] = useState(false);
   const [showAddUserForm, setShowAddUserForm] = useState(false);
+  const [view, setView] = useState('table'); // For toggling views (table or stats)
 
   const navigate = useNavigate();
 
@@ -60,8 +61,8 @@ function UserDetails() {
     doc.text("User Details Report", 10, 10);
 
     doc.autoTable({
-      head: [['User ID', 'Username', 'Name', 'Email', 'Phone', 'Type', 'Password']],
-      body: users.map(user => [user.userId, user.userName, user.name, user.email, user.phone, user.type, user.password]),
+      head: [['User ID', 'Username', 'Name', 'Email', 'Phone', 'Type']],
+      body: users.map(user => [user.userId, user.userName, user.name, user.email, user.phone, user.type]),
       startY: 20,
       margin: { top: 20 },
       styles: {
@@ -99,6 +100,44 @@ function UserDetails() {
 
   const handleBack = () => {
     setShowAddUserForm(false);
+  };
+
+  // Calculate statistics
+  const totalUsers = users.length;
+  const userTypeDistribution = users.reduce((acc, user) => {
+    acc[user.type] = (acc[user.type] || 0) + 1;
+    return acc;
+  }, {});
+
+  // Render the statistics view
+  const renderStatsView = () => (
+    <Box sx={{ padding: 3, backgroundColor: 'white', borderRadius: 1 }}>
+      <Typography variant="h5" gutterBottom>Total Users: {totalUsers}</Typography>
+      <Typography variant="h6" gutterBottom>User Types Distribution:</Typography>
+      <TableContainer component={Paper} sx={{ border: '1px solid', borderColor: 'divider' }}>
+        <Table>
+          <TableHead>
+            <TableRow>
+              <TableCell>User Type</TableCell>
+              <TableCell>Count</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {Object.entries(userTypeDistribution).map(([type, count]) => (
+              <TableRow key={type}>
+                <TableCell>{type}</TableCell>
+                <TableCell>{count}</TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
+    </Box>
+  );
+
+  // Handle view change
+  const handleViewChange = (event, newView) => {
+    setView(newView);
   };
 
   return (
@@ -141,71 +180,82 @@ function UserDetails() {
             >
               Search
             </Button>
+            <ToggleButtonGroup
+              value={view}
+              exclusive
+              onChange={handleViewChange}
+              sx={{ marginLeft: 'auto' }}
+            >
+              <ToggleButton value="table">Table View</ToggleButton>
+              <ToggleButton value="stats">Stats View</ToggleButton>
+            </ToggleButtonGroup>
             <Button
               variant="contained"
               color="secondary"
               onClick={handleAddUser}
-              sx={{ borderRadius: 2, marginLeft: 'auto' }}
+              sx={{ borderRadius: 2, marginLeft: 2 }}
               startIcon={<Add />}
             >
               Add User
             </Button>
           </Box>
 
-          <Box sx={{ padding: 3, backgroundColor: 'white', borderRadius: 1 }}>
-            <TableContainer component={Paper} sx={{ border: '1px solid', borderColor: 'divider' }}>
-              <Table>
-                <TableHead>
-                  <TableRow>
-                    <TableCell>User ID</TableCell>
-                    <TableCell>Username</TableCell>
-                    <TableCell>Name</TableCell>
-                    <TableCell>Email</TableCell>
-                    <TableCell>Phone</TableCell>
-                    <TableCell>Type</TableCell>
-                   
-                    <TableCell>Actions</TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {noResults ? (
+          {view === 'table' ? (
+            <Box sx={{ padding: 3, backgroundColor: 'white', borderRadius: 1 }}>
+              <TableContainer component={Paper} sx={{ border: '1px solid', borderColor: 'divider' }}>
+                <Table>
+                  <TableHead>
                     <TableRow>
-                      <TableCell colSpan={8} align="center">No users found.</TableCell>
+                      <TableCell>User ID</TableCell>
+                      <TableCell>Username</TableCell>
+                      <TableCell>Name</TableCell>
+                      <TableCell>Email</TableCell>
+                      <TableCell>Phone</TableCell>
+                      <TableCell>Type</TableCell>
+                      <TableCell>Actions</TableCell>
                     </TableRow>
-                  ) : (
-                    users.map((user) => (
-                      <TableRow key={user.userId}>
-                        <TableCell>{user.userId}</TableCell>
-                        <TableCell>{user.userName}</TableCell>
-                        <TableCell>{user.name}</TableCell>
-                        <TableCell>{user.email}</TableCell>
-                        <TableCell>{user.phone}</TableCell>
-                        <TableCell>{user.type}</TableCell>
-                        
-                        <TableCell>
-                          <IconButton onClick={() => handleEdit(user.userId)} sx={{ color: 'primary.main' }}>
-                            <Edit />
-                          </IconButton>
-                          <IconButton onClick={() => deleteUser(user.userId)} sx={{ color: 'error.main' }}>
-                            <Delete />
-                          </IconButton>
-                        </TableCell>
+                  </TableHead>
+                  <TableBody>
+                    {noResults ? (
+                      <TableRow>
+                        <TableCell colSpan={7} align="center">No users found.</TableCell>
                       </TableRow>
-                    ))
-                  )}
-                </TableBody>
-              </Table>
-            </TableContainer>
+                    ) : (
+                      users.map((user) => (
+                        <TableRow key={user.userId}>
+                          <TableCell>{user.userId}</TableCell>
+                          <TableCell>{user.userName}</TableCell>
+                          <TableCell>{user.name}</TableCell>
+                          <TableCell>{user.email}</TableCell>
+                          <TableCell>{user.phone}</TableCell>
+                          <TableCell>{user.type}</TableCell>
+                          <TableCell>
+                            <IconButton onClick={() => handleEdit(user.userId)} sx={{ color: 'primary.main' }}>
+                              <Edit />
+                            </IconButton>
+                            <IconButton onClick={() => deleteUser(user.userId)} sx={{ color: 'error.main' }}>
+                              <Delete />
+                            </IconButton>
+                          </TableCell>
+                        </TableRow>
+                      ))
+                    )}
+                  </TableBody>
+                </Table>
+              </TableContainer>
 
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={handlePDF}
-              sx={{ marginTop: 2, borderRadius: 2 }}
-            >
-              <Print /> Download
-            </Button>
-          </Box>
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={handlePDF}
+                sx={{ marginTop: 2, borderRadius: 2 }}
+              >
+                <Print /> Download
+              </Button>
+            </Box>
+          ) : (
+            renderStatsView()
+          )}
         </>
       )}
     </Box>

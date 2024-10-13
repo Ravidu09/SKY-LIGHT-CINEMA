@@ -112,16 +112,16 @@ function Register() {
     };
 
     return (
-        <Box sx={{ backgroundColor: '#FAF2F2', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+        <Box sx={{ backgroundColor: '#000000', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
             <Navbar />
             <Container sx={{ flexGrow: 1, display: 'flex', justifyContent: 'center', alignItems: 'center', paddingY: 5 }}>
-                <Paper elevation={6} sx={{ paddingRight: 4, paddingLeft: 4, paddingTop: 4, borderRadius: 2, maxWidth: 900 }}>
+                <Paper elevation={6}  sx={{ paddingRight: 4, paddingLeft: 4, paddingTop: 4, borderRadius: 2, maxWidth: 900, backgroundColor: 'rgba(0,0,0,0.8)' }}>
                     <Grid container spacing={4}>
-                        <Grid item xs={12} sm={5} sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', backgroundColor: '#F8D9D9', borderRadius: 2 }}>
+                        <Grid item xs={12} sm={5} sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', backgroundColor: '#2C2C2C', borderRadius: 2 }}>
                             <img src={Logo} alt="Crystal Elegance" style={{ maxWidth: '100%', paddingRight: 30, height: '50vh', paddingBottom: 30 }} />
                         </Grid>
                         <Grid item xs={12} sm={7}>
-                            <Typography variant="h4" gutterBottom sx={{ fontWeight: 'bold' }}>
+                            <Typography variant="h4" color="red" gutterBottom sx={{ fontWeight: 'bold' }}>
                                 REGISTER
                             </Typography>
                             <Box component="form" onSubmit={handleSubmit} sx={{ mt: 2 }}>
@@ -133,8 +133,8 @@ function Register() {
                                     value={user.userName}
                                     onChange={handleInputChange}
                                     InputProps={{
-                                        startAdornment: <PersonIcon color="disabled" />,
-                                        sx: { backgroundColor: '#FDF2F2', borderRadius: 2 }
+                                        startAdornment: <PersonIcon sx={{ color: '#FF0000' }} />,
+                                        sx: { backgroundColor: '#1F1F1F', borderRadius: 2, color: '#FFFFFF'}
                                     }}
                                     sx={{ marginBottom: 2 }}
                                     error={!!errors.userName}
@@ -148,8 +148,8 @@ function Register() {
                                     value={user.name}
                                     onChange={handleInputChange}
                                     InputProps={{
-                                        startAdornment: <PersonIcon color="disabled" />,
-                                        sx: { backgroundColor: '#FDF2F2', borderRadius: 2 }
+                                        startAdornment: <PersonIcon sx={{ color: '#FF0000' }} />,
+                                        sx: { backgroundColor: '#1F1F1F', borderRadius: 2, color: '#FFFFFF' }
                                     }}
                                     sx={{ marginBottom: 2 }}
                                     error={!!errors.name}
@@ -163,8 +163,8 @@ function Register() {
                                     value={user.email}
                                     onChange={handleInputChange}
                                     InputProps={{
-                                        startAdornment: <EmailIcon color="disabled" />,
-                                        sx: { backgroundColor: '#FDF2F2', borderRadius: 2 }
+                                        startAdornment: <EmailIcon sx={{ color: '#FF0000' }} />,
+                                        sx: { backgroundColor: '#1F1F1F', borderRadius: 2, color: '#FFFFFF' }
                                     }}
                                     sx={{ marginBottom: 2 }}
                                     error={!!errors.email}
@@ -178,8 +178,8 @@ function Register() {
                                     value={user.phone}
                                     onChange={handleInputChange}
                                     InputProps={{
-                                        startAdornment: <PhoneIcon color="disabled" />,
-                                        sx: { backgroundColor: '#FDF2F2', borderRadius: 2 }
+                                        startAdornment: <PhoneIcon sx={{ color: '#FF0000' }} />,
+                                        sx: { backgroundColor: '#1F1F1F', borderRadius: 2, color: '#FFFFFF' }
                                     }}
                                     sx={{ marginBottom: 2 }}
                                     error={!!errors.phone}
@@ -194,8 +194,8 @@ function Register() {
                                     value={user.password}
                                     onChange={handleInputChange}
                                     InputProps={{
-                                        startAdornment: <LockIcon color="disabled" />,
-                                        sx: { backgroundColor: '#FDF2F2', borderRadius: 2 }
+                                        startAdornment: <LockIcon sx={{ color: '#FF0000' }} />,
+                                        sx: { backgroundColor: '#1F1F1F', borderRadius: 2, color: '#FFFFFF' }
                                     }}
                                     sx={{ marginBottom: 2 }}
                                     error={!!errors.password}
@@ -210,8 +210,8 @@ function Register() {
                                     value={user.confirmPassword}
                                     onChange={handleInputChange}
                                     InputProps={{
-                                        startAdornment: <LockIcon color="disabled" />,
-                                        sx: { backgroundColor: '#FDF2F2', borderRadius: 2 }
+                                        startAdornment: <LockIcon sx={{ color: '#FF0000' }} />,
+                                        sx: { backgroundColor: '#1F1F1F', borderRadius: 2, color: '#FFFFFF' }
                                     }}
                                     sx={{ marginBottom: 2 }}
                                     error={!!errors.confirmPassword}
@@ -237,7 +237,7 @@ function Register() {
                                     fullWidth
                                     variant="contained"
                                     sx={{
-                                        backgroundColor: '#F8B9B7',
+                                        backgroundColor: '#FF0000',
                                         color: '#fff',
                                         paddingY: 1.5,
                                         borderRadius: 2,

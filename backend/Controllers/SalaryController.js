@@ -11,11 +11,23 @@ const generateSalaryID = async () => {
 // Create a new salary record
 exports.createSalary = async (req, res) => {
     try {
-        const { EMPID, month, workdays, otRate, otHours } = req.body;
-        const totalSalary = (workdays * 8 * otRate) + (otHours * otRate); // Example calculation
+        const { EMPID, month, workdays, otRate, otHours, leaveDays, dailyRate } = req.body;
+
+        // Calculate total salary considering the leave days and daily rate
+        const totalSalary = (workdays * 8 * dailyRate) + (otHours * otRate) - (leaveDays * dailyRate);
 
         const salaryID = await generateSalaryID(); // Generate new salary ID
-        const newSalary = new Salary({ salaryID, EMPID, month, workdays, otRate, otHours, totalSalary });
+        const newSalary = new Salary({ 
+            salaryID, 
+            EMPID, 
+            month, 
+            workdays, 
+            otRate, 
+            otHours, 
+            leaveDays, 
+            dailyRate, 
+            totalSalary 
+        });
         await newSalary.save();
 
         res.status(201).json({ message: 'Salary record created successfully', salary: newSalary });
@@ -50,12 +62,14 @@ exports.getSalaryById = async (req, res) => {
 // Update a salary record by ID
 exports.updateSalary = async (req, res) => {
     try {
-        const { EMPID, month, workdays, otRate, otHours } = req.body;
-        const totalSalary = (workdays * 8 * otRate) + (otHours * otRate); // Example calculation
+        const { EMPID, month, workdays, otRate, otHours, leaveDays, dailyRate } = req.body;
+
+        // Calculate total salary considering the leave days and daily rate
+        const totalSalary = (workdays * 8 * dailyRate) + (otHours * otRate) - (leaveDays * dailyRate);
 
         const updatedSalary = await Salary.findByIdAndUpdate(
             req.params.id,
-            { EMPID, month, workdays, otRate, otHours, totalSalary },
+            { EMPID, month, workdays, otRate, otHours, leaveDays, dailyRate, totalSalary },
             { new: true } // Return the updated salary record
         );
 

@@ -18,6 +18,7 @@ const promotionRoutes = require('./Routes/PromotionRoutes');
 const inventoryRoutes = require('./Routes/InventoryRoutes');
 const authRoutes = require('./Routes/AuthRoutes');
 const supplierRoutes = require('./Routes/SupplierRoutes');
+const salaryRoutes = require('./Routes/SalaryRoutes');
 
 // Middleware
 app.use(express.json());
@@ -36,6 +37,7 @@ app.use('/inventory', inventoryRoutes);
 app.use('/suppliers', supplierRoutes);
 app.use('/auth', authRoutes);
 app.use('/payments', paymentRoutes); // Prefixing all payment routes with `/payments`
+app.use('/salaries', salaryRoutes);
 
 // Serve static files (uploaded images)
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
