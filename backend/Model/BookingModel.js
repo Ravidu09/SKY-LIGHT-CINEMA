@@ -11,4 +11,5 @@ const bookingSchema = new mongoose.Schema({
     seat: { type: String, required: true }
 });
 
+
 module.exports = mongoose.model('Booking', bookingSchema);
