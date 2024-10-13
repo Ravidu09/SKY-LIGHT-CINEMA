@@ -3,16 +3,17 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Box, TextField, Button, Typography } from '@mui/material';
 import { useParams, useNavigate } from 'react-router-dom';
+import { Description } from '@mui/icons-material';
 
-const URL = "http://localhost:4000/jewellery";
+const URL = "http://localhost:4001/movies";
 
-function UpdateJewellery() {
-  const { JID } = useParams();
-  const [jewellery, setJewellery] = useState({
+function UpdateMovie() {
+  const { MID } = useParams();
+  const [movie, setMovie] = useState({
     image: '',
     name: '',
-    price: '',
-    quantity: '',
+    rate: '',
+    description: '',
     status: 'available'
   });
   const [loading, setLoading] = useState(true);
@@ -20,33 +21,33 @@ function UpdateJewellery() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    console.log("Fetching jewellery with JID:", JID);
-    const fetchJewellery = async () => {
+    console.log("Fetching movie with MID:", MID);
+    const fetchMovie = async () => {
       try {
-        const response = await axios.get(`${URL}/${JID}`);
-        console.log("Fetched jewellery data:", response.data);
-        setJewellery(response.data);
+        const response = await axios.get(`${URL}/${MID}`);
+        console.log("Fetched movie data:", response.data);
+        setMovie(response.data);
         setLoading(false);
       } catch (error) {
-        console.error("Error fetching jewellery:", error);
+        console.error("Error fetching movie:", error);
         setError(error.response ? error.response.data.message : 'An error occurred');
         setLoading(false);
       }
     };
 
-    fetchJewellery();
-  }, [JID]);
+    fetchMovie();
+  }, [MID]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setJewellery({ ...jewellery, [name]: value });
+    setMovie({ ...movie, [name]: value });
   };
 
   const handleUpdate = async () => {
     try {
-      await axios.put(`${URL}/${JID}`, jewellery);
-      alert('Jewellery updated successfully');
-      navigate('/admindashboard/jewellery-management');
+      await axios.put(`${URL}/${MID}`, movie);
+      alert('Movie updated successfully');
+      navigate('/admindashboard/movie-management');
     } catch (error) {
       setError(error.response ? error.response.data.message : 'An error occurred');
     }
@@ -58,11 +59,11 @@ function UpdateJewellery() {
 
   return (
     <Box sx={{ padding: 3, backgroundColor: 'white', borderRadius: 1 }}>
-      <Typography variant="h6" gutterBottom>Update Jewellery</Typography>
+      <Typography variant="h6" gutterBottom>Update Movie</Typography>
       <TextField
         label="Image URL"
         name="image"
-        value={jewellery.image}
+        value={movie.image}
         onChange={handleChange}
         fullWidth
         margin="normal"
@@ -70,25 +71,24 @@ function UpdateJewellery() {
       <TextField
         label="Name"
         name="name"
-        value={jewellery.name}
+        value={movie.name}
         onChange={handleChange}
         fullWidth
         margin="normal"
       />
       <TextField
-        label="Price"
+        label="Ratings"
         name="price"
         type="number"
-        value={jewellery.price}
+        value={movie.rate}
         onChange={handleChange}
         fullWidth
         margin="normal"
       />
       <TextField
-        label="Quantity"
+        label="Description"
         name="quantity"
-        type="number"
-        value={jewellery.quantity}
+        value={movie.description}
         onChange={handleChange}
         fullWidth
         margin="normal"
@@ -98,13 +98,13 @@ function UpdateJewellery() {
         name="status"
         select
         SelectProps={{ native: true }}
-        value={jewellery.status}
+        value={movie.status}
         onChange={handleChange}
         fullWidth
         margin="normal"
       >
-        <option value="available">Available</option>
-        <option value="out of stock">Out of Stock</option>
+        <option value="Now Showing!">Now Showing!</option>
+        <option value="Up Coming!">Up Coming!</option>
       </TextField>
       <Button
         variant="contained"
@@ -112,7 +112,7 @@ function UpdateJewellery() {
         onClick={handleUpdate}
         sx={{ marginTop: 2 }}
       >
-        Update Jewellery
+        Update Movie
       </Button>
       {error && (
         <Typography color="error" sx={{ marginTop: 2 }}>
@@ -123,4 +123,4 @@ function UpdateJewellery() {
   );
 }
 
-export default UpdateJewellery;
+export default UpdateMovie;

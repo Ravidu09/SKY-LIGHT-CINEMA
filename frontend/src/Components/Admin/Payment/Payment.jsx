@@ -4,11 +4,11 @@ import axios from 'axios';
 import { Box, Typography, Paper, Divider } from '@mui/material';
 import { useParams } from 'react-router-dom';
 
-const URL = "http://localhost:4000/Payment";
+const URL = "http://localhost:4001/payment";
 
 function Payment() {
-  const { id } = useParams();
-  const [Payment, setPayment] = useState(null);
+  const { id } = useParams(); // Use 'id' for Payment ID
+  const [payment, setPayment] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -18,7 +18,7 @@ function Payment() {
         setPayment(response.data);
         setLoading(false);
       } catch (error) {
-        console.error('Error fetching Payment details:', error);
+        console.error('Error fetching payment details:', error);
         setLoading(false);
       }
     };
@@ -27,22 +27,20 @@ function Payment() {
   }, [id]);
 
   if (loading) return <Typography>Loading...</Typography>;
-  if (!Payment) return <Typography>No Payment found.</Typography>;
+  if (!payment) return <Typography>No payment found.</Typography>;
 
   return (
     <Box sx={{ padding: 3 }}>
       <Typography variant="h4" gutterBottom>
-      Payment Details
+        Payment Details
       </Typography>
       <Divider sx={{ marginBottom: 2 }} />
       <Paper sx={{ padding: 3 }}>
-        <Typography variant="h6">ID: {Payment.InvID}</Typography>
-        <Typography variant="h6">Item Name: {Payment.ItemName}</Typography>
-        <Typography variant="h6">Type: {Payment.type}</Typography>
-        <Typography variant="h6">Order ID: {Payment.OrderID}</Typography>
-        <Typography variant="h6">Cost: ${Payment.Cost}</Typography>
-        <Typography variant="h6">Date: {new Date(Payment.Date).toLocaleDateString()}</Typography>
-        <Typography variant="h6">Note: {Payment.Note || 'No Note'}</Typography>
+        <Typography variant="h6">Payment ID: {payment.PID}</Typography>
+        <Typography variant="h6">Amount: ${payment.amount}</Typography>
+        <Typography variant="h6">Method: {payment.method}</Typography>
+        <Typography variant="h6">Status: {payment.status}</Typography>
+        <Typography variant="h6">Transaction Date: {new Date(payment.transactionDate).toLocaleDateString()}</Typography>
       </Paper>
     </Box>
   );

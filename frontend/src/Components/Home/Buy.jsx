@@ -1,8 +1,10 @@
 /* eslint-disable no-unused-vars */
 import React, { useState } from 'react';
-import { Box, Grid, Typography, MenuItem, FormControl, InputLabel, Select, Button, List, ListItem, ListItemText, Divider } from '@mui/material';
+import axios from 'axios';
+import { TextField, Box, Grid, Typography, MenuItem, FormControl, InputLabel, Select, Button, List, ListItem, ListItemText, Divider } from '@mui/material';
 import Header from '../Navbar/Navbar';
 import Footer from '../Footer/Footer';
+import { useNavigate } from 'react-router-dom';
 
 // Dummy data for movies and showtimes
 const movies = [
@@ -31,11 +33,20 @@ const generateSeats = (num) => {
 };
 
 const seats = generateSeats(50);
+const SEAT_PRICE = 750; // Price per seat
 
 function Buy() {
   const [selectedMovie, setSelectedMovie] = useState('');
   const [selectedShowtime, setSelectedShowtime] = useState('');
   const [selectedSeats, setSelectedSeats] = useState([]);
+  const [amount, setAmount] = useState(0); // Amount starts at 0
+  const [method, setMethod] = useState('credit card'); // Default to 'credit card'
+  const [status, setStatus] = useState('pending'); // Default to 'pending'
+  const [transactionDate, setTransactionDate] = useState('');
+  const [error, setError] = useState(null);
+
+  const navigate = useNavigate();
+  const URL = "http://localhost:4001/payment";
 
   const handleMovieChange = (e) => {
     setSelectedMovie(e.target.value);
@@ -46,9 +57,37 @@ function Buy() {
   };
 
   const handleSeatSelection = (seatId) => {
-    setSelectedSeats((prevSeats) =>
-      prevSeats.includes(seatId) ? prevSeats.filter(id => id !== seatId) : [...prevSeats, seatId]
-    );
+    setSelectedSeats((prevSeats) => {
+      const updatedSeats = prevSeats.includes(seatId)
+        ? prevSeats.filter(id => id !== seatId) // Remove seat if already selected
+        : [...prevSeats, seatId]; // Add seat if not already selected
+
+      // Update the amount based on selected seats
+      setAmount(updatedSeats.length * SEAT_PRICE); // Update amount
+      return updatedSeats; // Return updated selected seats
+    });
+  };
+
+
+  const handleSubmitPayment = async (e) => {
+    e.preventDefault();
+    setError(null); // Reset error state
+
+    try {
+      const response = await axios.post(URL, {
+        amount,
+        method,
+        status,
+        transactionDate,
+        seats: selectedSeats,
+      });
+      if (response.status === 201) {
+        alert('Payment added successfully');
+        navigate('/admindashboard/payment-management');
+      }
+    } catch (error) {
+      setError(error.response ? error.response.data.message : 'An error occurred');
+    }
   };
 
   return (
@@ -66,7 +105,7 @@ function Buy() {
                 labelId="movie-label"
                 value={selectedMovie}
                 onChange={handleMovieChange}
-                sx={{ backgroundColor: '#333333', color: 'white', '& .MuiSelect-icon': { color: 'red' } }}
+                sx={{ backgroundColor: '#444444', color: 'white', '& .MuiSelect-icon': { color: 'red' } }}
               >
                 {movies.map((movie) => (
                   <MenuItem key={movie.id} value={movie.title} sx={{ backgroundColor: '#333333', color: 'white' }}>
@@ -83,7 +122,7 @@ function Buy() {
                 labelId="showtime-label"
                 value={selectedShowtime}
                 onChange={handleShowtimeChange}
-                sx={{ backgroundColor: '#333333', color: 'white', '& .MuiSelect-icon': { color: 'red' } }}
+                sx={{ backgroundColor: '#444444', color: 'white', '& .MuiSelect-icon': { color: 'red' } }}
               >
                 {showtimes.map((showtime) => (
                   <MenuItem key={showtime.id} value={showtime.time} sx={{ backgroundColor: '#333333', color: 'white' }}>
@@ -102,20 +141,21 @@ function Buy() {
                     variant="contained"
                     fullWidth
                     sx={{
-                      backgroundColor: seat.status === 'available' ? '#F44336' : '#B71C1C',
+                      backgroundColor: selectedSeats.includes(seat.id) ? '#C62828' : '#F44336', // Change color if selected
                       color: 'white',
                       borderRadius: 2,
                       '&:hover': {
-                        backgroundColor: seat.status === 'available' ? '#C62828' : '#d32f2f',
+                        backgroundColor: selectedSeats.includes(seat.id) ? '#B71C1C' : '#C62828', // Change hover color
                       },
                     }}
                     onClick={() => handleSeatSelection(seat.id)}
-                    disabled={seat.status === 'booked'}
+                    disabled={seat.status === 'booked'} // Disable if seat is booked
                   >
                     {seat.id}
                   </Button>
                 </Grid>
               ))}
+
             </Grid>
           </Grid>
           <Grid item xs={12} md={4}>
@@ -134,15 +174,110 @@ function Buy() {
             </Box>
           </Grid>
           <Grid item xs={12}>
-            <Button
-              variant="contained"
-              color="error"
-              fullWidth
-              sx={{ mt: 2, borderRadius: 2 }}
-              onClick={() => alert(`Booking ${selectedSeats.join(', ')} seats`)}
-            >
-              Pay For Tickets
-            </Button>
+            <Typography variant="h6" color="white">Payment Details</Typography>
+            <form onSubmit={handleSubmitPayment}>
+              <TextField
+                label="Amount"
+                variant="outlined"
+                type="number"
+                value={amount}
+                onChange={(e) => setAmount(e.target.value)} // Optional: Prevent manual input
+                fullWidth
+                margin="normal"
+                required
+                inputProps={{
+                  readOnly: true, // Prevent manual changes
+                  style: { color: 'white' }, // Set input text color to white
+                }}
+                InputLabelProps={{
+                  style: { color: 'white' }, // Set label color to white
+                }}
+                sx={{
+                  backgroundColor: '#444444',
+                  '& .MuiOutlinedInput-notchedOutline': {
+                    borderColor: 'white', // Set border color to white
+                  },
+                  '&:hover .MuiOutlinedInput-notchedOutline': {
+                    borderColor: 'red', // Change border color on hover
+                  },
+                  '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                    borderColor: 'red', // Change border color when focused
+                  },
+                }}
+              />
+
+              <FormControl fullWidth margin="normal">
+                <InputLabel id="method-label" sx={{ color: 'white' }}>Payment Method</InputLabel>
+                <Select
+                  labelId="method-label"
+                  value={method}
+                  onChange={(e) => setMethod(e.target.value)}
+                  sx={{ backgroundColor: '#444444', color: 'white', '& .MuiSelect-icon': { color: 'red' } }}
+                >
+                  <MenuItem value="credit card" sx={{ backgroundColor: '#333333', color: 'white' }}>Credit Card</MenuItem>
+                  <MenuItem value="PayPal" sx={{ backgroundColor: '#333333', color: 'white' }}>PayPal</MenuItem>
+                  <MenuItem value="bank transfer" sx={{ backgroundColor: '#333333', color: 'white' }}>Bank Transfer</MenuItem>
+                  <MenuItem value="cash" sx={{ backgroundColor: '#333333', color: 'white' }}>Cash</MenuItem>
+                </Select>
+              </FormControl>
+              <FormControl fullWidth margin="normal">
+                <InputLabel id="status-label" sx={{ color: 'white' }}>Status</InputLabel>
+                <Select
+                  labelId="status-label"
+                  value={status}
+                  onChange={(e) => setStatus(e.target.value)}
+                  sx={{ backgroundColor: '#444444', color: 'white', '& .MuiSelect-icon': { color: 'red' } }}
+                >
+                  <MenuItem value="pending" sx={{ backgroundColor: '#333333', color: 'white' }}>Pending</MenuItem>
+                  <MenuItem value="completed" sx={{ backgroundColor: '#333333', color: 'white' }}>Completed</MenuItem>
+                  <MenuItem value="failed" sx={{ backgroundColor: '#333333', color: 'white' }}>Failed</MenuItem>
+                </Select>
+              </FormControl>
+              <TextField
+                label="Transaction Date"
+                variant="outlined"
+                type="date"
+                value={transactionDate}
+                onChange={(e) => setTransactionDate(e.target.value)}
+                fullWidth
+                margin="normal"
+                required
+                InputLabelProps={{
+                  shrink: true,
+                  style: { color: 'white' }, // Set label color to white
+                }}
+                inputProps={{
+                  style: { color: 'white' }, // Set input text color to white
+                }}
+                sx={{
+                  backgroundColor: '#444444',
+                  '& .MuiOutlinedInput-notchedOutline': {
+                    borderColor: 'white', // Set border color to white
+                  },
+                  '&:hover .MuiOutlinedInput-notchedOutline': {
+                    borderColor: 'red', // Change border color on hover
+                  },
+                  '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                    borderColor: 'red', // Change border color when focused
+                  },
+                }}
+              />
+
+              {error && (
+                <Typography color="error" sx={{ marginTop: 2 }}>
+                  {error}
+                </Typography>
+              )}
+              <Button
+                type="submit"
+                variant="contained"
+                color="primary"
+                fullWidth
+                sx={{ marginTop: 2, borderRadius: 2 }}
+              >
+                Pay For Tickets
+              </Button>
+            </form>
           </Grid>
         </Grid>
       </Box>

@@ -8,9 +8,9 @@ import 'jspdf-autotable';
 import AddPayment from './AddPayment';
 import { useNavigate } from 'react-router-dom';
 
-const URL = "http://localhost:4000/Payment";
+const URL = "http://localhost:4001/payment";
 
-const fetchPayment = async () => {
+const fetchPayments = async () => {
   try {
     const response = await axios.get(URL);
     return Array.isArray(response.data) ? response.data : [response.data];
@@ -21,7 +21,7 @@ const fetchPayment = async () => {
 };
 
 function PaymentDetails() {
-  const [Payment, setPayment] = useState([]);
+  const [payments, setPayments] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [noResults, setNoResults] = useState(false);
   const [showAddPaymentForm, setShowAddPaymentForm] = useState(false);
@@ -29,36 +29,25 @@ function PaymentDetails() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetchPayment().then(data => {
-      setPayment(data);
+    fetchPayments().then(data => {
+      setPayments(data);
     }).catch(error => {
-      console.error("Error fetching Payment:", error);
+      console.error("Error fetching payments:", error);
     });
   }, []);
 
   const handleEdit = (id) => {
-    navigate(`/admindashboard/update-Payment/${id}`);
+    navigate(`/admindashboard/update-payment/${id}`);
   };
 
   const deletePayment = async (id) => {
     try {
-      console.log(`Attempting to delete Payment with ID: ${id}`);
       const response = await axios.delete(`${URL}/${id}`);
-      
-      console.log('Delete response:', response);
-      
       if (response.status === 200) {
-        console.log(`Successfully deleted Payment with ID: ${id}`);
-        setPayment(prev => {
-          const updatedList = prev.filter(item => item._id !== id);
-          console.log('Updated Payment list:', updatedList);
-          return updatedList;
-        });
-      } else {
-        console.error("Unexpected response status:", response.status);
+        setPayments(prev => prev.filter(item => item._id !== id));
       }
     } catch (error) {
-      console.error("Error deleting Payment:", error.response ? error.response.data : error.message);
+      console.error("Error deleting payment:", error.response ? error.response.data : error.message);
     }
   };
 
@@ -67,8 +56,8 @@ function PaymentDetails() {
     doc.text("Payment Details Report", 10, 10);
 
     doc.autoTable({
-      head: [['ID', 'Item Name', 'Type', 'Order ID', 'Cost', 'Date', 'Note']],
-      body: Payment.map(item => [item.InvID, item.ItemName, item.type, item.OrderID, item.Cost, item.Date, item.Note || 'No Note']),
+      head: [['Payment ID', 'Amount', 'Method', 'Status', 'Transaction Date']],
+      body: payments.map(item => [item.PID, item.amount, item.method, item.status, new Date(item.transactionDate).toLocaleDateString()]),
       startY: 20,
       margin: { top: 20 },
       styles: {
@@ -81,27 +70,27 @@ function PaymentDetails() {
       },
     });
 
-    doc.save('Payment-details.pdf');
+    doc.save('payment-details.pdf');
   };
 
   const handleSearch = () => {
     if (searchQuery.trim() === "") {
-      fetchPayment().then(data => {
-        setPayment(data);
+      fetchPayments().then(data => {
+        setPayments(data);
         setNoResults(false);
       }).catch(error => {
-        console.error("Error fetching Payment:", error);
+        console.error("Error fetching payments:", error);
       });
       return;
     }
 
-    const filteredPayment = Payment.filter(item =>
+    const filteredPayments = payments.filter(item =>
       Object.values(item).some(field =>
         field && field.toString().toLowerCase().includes(searchQuery.toLowerCase())
       )
     );
-    setPayment(filteredPayment);
-    setNoResults(filteredPayment.length === 0);
+    setPayments(filteredPayments);
+    setNoResults(filteredPayments.length === 0);
   };
 
   const handleAddPayment = () => {
@@ -168,31 +157,27 @@ function PaymentDetails() {
               <Table>
                 <TableHead>
                   <TableRow>
-                    <TableCell>ID</TableCell>
-                    <TableCell>Item Name</TableCell>
-                    <TableCell>Type</TableCell>
-                    <TableCell>Order ID</TableCell>
-                    <TableCell>Cost</TableCell>
-                    <TableCell>Date</TableCell>
-                    <TableCell>Note</TableCell>
+                    <TableCell>Payment ID</TableCell>
+                    <TableCell>Amount</TableCell>
+                    <TableCell>Method</TableCell>
+                    <TableCell>Status</TableCell>
+                    <TableCell>Transaction Date</TableCell>
                     <TableCell>Actions</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
                   {noResults ? (
                     <TableRow>
-                      <TableCell colSpan={8} align="center">No Payment found.</TableCell>
+                      <TableCell colSpan={6} align="center">No payments found.</TableCell>
                     </TableRow>
                   ) : (
-                    Payment.map((item) => (
+                    payments.map((item) => (
                       <TableRow key={item._id}>
-                        <TableCell>{item.InvID}</TableCell>
-                        <TableCell>{item.ItemName}</TableCell>
-                        <TableCell>{item.type}</TableCell>
-                        <TableCell>{item.OrderID}</TableCell>
-                        <TableCell>{item.Cost}</TableCell>
-                        <TableCell>{new Date(item.Date).toLocaleDateString()}</TableCell>
-                        <TableCell>{item.Note || 'No Note'}</TableCell>
+                        <TableCell>{item.PID}</TableCell>
+                        <TableCell>{item.amount}</TableCell>
+                        <TableCell>{item.method}</TableCell>
+                        <TableCell>{item.status}</TableCell>
+                        <TableCell>{new Date(item.transactionDate).toLocaleDateString()}</TableCell>
                         <TableCell>
                           <IconButton onClick={() => handleEdit(item._id)} sx={{ color: 'primary.main' }}>
                             <Edit />

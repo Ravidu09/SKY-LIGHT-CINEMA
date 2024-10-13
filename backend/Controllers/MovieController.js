@@ -1,78 +1,86 @@
-const Movie = require('../Model/MovieModel'); // Adjust the path as needed
+const Movie = require('../Model/MovieModel');
 
-// Create a new movie
+// Generate Movie ID with leading zeros
+const generateMovieId = async () => {
+    const lastMovie = await Movie.findOne().sort({ MID: -1 }).limit(1);
+    const lastId = lastMovie ? parseInt(lastMovie.MID.replace('M', ''), 10) : 0;
+    const newId = `M${(lastId + 1).toString().padStart(3, '0')}`; // Adjust padding as needed
+    return newId;
+};
+
+// Create a new Movie item
 exports.createMovie = async (req, res) => {
     try {
-        const { image, name, description } = req.body;
-
-        // Check if the movie already exists
-        const existingMovie = await Movie.findOne({ name });
-        if (existingMovie) {
-            return res.status(400).json({ message: 'Movie already exists' });
-        }
-
-        const newMovie = new Movie({ image, name, description });
+        const {image, name, rate, status, description } = req.body;
+        const MID = await generateMovieId(); // Generate new Movie ID
+        const newMovie = new Movie({ MID, name, rate, status, image, description });
         await newMovie.save();
 
-        res.status(201).json({ message: 'Movie created successfully', movie: newMovie });
+        res.status(201).json({ message: 'Movie created successfully', Movie: newMovie });
     } catch (error) {
-        res.status(500).json({ message: 'Error creating movie', error });
+        res.status(500).json({ message: 'Error creating Movie', error });
     }
 };
 
-// Get all movies
-exports.getAllMovies = async (req, res) => {
+// Get all Movie items
+exports.getAllMovie = async (req, res) => {
     try {
         const movies = await Movie.find();
         res.status(200).json(movies);
-    } catch (error) {
-        res.status(500).json({ message: 'Error retrieving movies', error });
-    }
-};
-
-// Get a single movie by ID
-exports.getMovieById = async (req, res) => {
-    try {
-        const movie = await Movie.findById(req.params.id);
-        if (!movie) {
-            return res.status(404).json({ message: 'Movie not found' });
-        }
-        res.status(200).json(movie);
     } catch (error) {
         res.status(500).json({ message: 'Error retrieving movie', error });
     }
 };
 
-// Update a movie by ID
-exports.updateMovie = async (req, res) => {
+// Get a single Movie item by ID
+exports.getMovieById = async (req, res) => {
+    const id = req.params.id;
+
     try {
-        const { image, name, description } = req.body;
+        const movie = await Movie.findById(id);
+        if (!Movie) {
+            return res.status(404).json({ message: 'Movie not found' });
+        }
+        res.status(200).json(movie);
+    } catch (error) {
+        res.status(500).json({ message: 'Error retrieving Movie', error });
+    }
+};
+
+// Update a Movie item by ID
+exports.updateMovie = async (req, res) => {
+    const id = req.params.id;
+    const { image ,name, rate, status, description } = req.body;
+
+    try {
         const updatedMovie = await Movie.findByIdAndUpdate(
-            req.params.id,
-            { image, name, description },
-            { new: true } // Return the updated movie
+            id,
+            { name, rate, status, image, description },
+            { new: true } // Return the updated Movie
         );
 
         if (!updatedMovie) {
             return res.status(404).json({ message: 'Movie not found' });
         }
 
-        res.status(200).json({ message: 'Movie updated successfully', movie: updatedMovie });
+        res.status(200).json({ message: 'Movie updated successfully', Movie: updatedMovie });
     } catch (error) {
-        res.status(500).json({ message: 'Error updating movie', error });
+        res.status(500).json({ message: 'Error updating Movie', error });
     }
 };
 
-// Delete a movie by ID
+// Delete a Movie item by ID
 exports.deleteMovie = async (req, res) => {
+    const id = req.params.id;
+
     try {
-        const deletedMovie = await Movie.findByIdAndDelete(req.params.id);
+        const deletedMovie = await Movie.findByIdAndDelete(id);
         if (!deletedMovie) {
             return res.status(404).json({ message: 'Movie not found' });
         }
 
         res.status(200).json({ message: 'Movie deleted successfully' });
     } catch (error) {
-        res.status(500).json({ message: 'Error deleting movie', error });
+        res.status(500).json({ message: 'Error deleting Movie', error });
     }
 };

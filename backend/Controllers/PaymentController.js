@@ -1,82 +1,121 @@
-const Payment = require('../Model/PaymentModel');
+const Payment = require('../Model/PaymentModel'); // Assuming you have a Payment model defined
+const mongoose = require('mongoose');
 
-// Generate payment ID with leading zeros
-const generatePaymentID = async () => {
-    const lastPayment = await Payment.findOne().sort({ paymentID: -1 }).limit(1);
-    const lastId = lastPayment ? parseInt(lastPayment.paymentID.replace('P', ''), 10) : 0;
-    const newId = `P${(lastId + 1).toString().padStart(3, '0')}`; // Adjust padding as needed
-    return newId;
-};
-
-// Create a new payment record
-exports.createPayment = async (req, res) => {
+// Function to generate a new Payment ID
+const generatePaymentId = async () => {
     try {
-        const { bookingID, amount, paymentMethod, date } = req.body;
-
-        const paymentID = await generatePaymentID(); // Generate new payment ID
-        const newPayment = new Payment({ paymentID, bookingID, amount, paymentMethod, date });
-        await newPayment.save();
-
-        res.status(201).json({ message: 'Payment record created successfully', payment: newPayment });
+        const lastPayment = await Payment.findOne().sort({ PID: -1 });
+        const lastId = lastPayment ? parseInt(lastPayment.PID.replace('P', ''), 10) : 0; // Corrected to PID
+        const newId = `P${(lastId + 1).toString().padStart(3, '0')}`; // Generates ID with 'P' prefix
+        return newId;
     } catch (error) {
-        res.status(500).json({ message: 'Error creating payment record', error: error.message });
+        throw new Error('Error generating Payment ID');
     }
 };
 
-// Get all payment records
+// Create a new payment
+exports.createPayment = async (req, res) => {
+    console.log('Received payment data:', req.body); // Log the incoming data
+
+    try {
+        const { amount, method, status, transactionDate } = req.body;
+
+        // Validate required fields
+        if (!amount) {
+            return res.status(400).json({ message: 'Payment amount is required' });
+        }
+
+        // Validate and parse the transactionDate
+        const parsedDate = transactionDate ? new Date(transactionDate) : Date.now();
+        if (isNaN(parsedDate)) {
+            return res.status(400).json({ message: 'Invalid transaction date' });
+        }
+
+        const PID = await generatePaymentId(); // Generate new Payment ID
+
+        const newPayment = new Payment({
+            PID,
+            amount,
+            method,
+            status,
+            transactionDate: parsedDate,
+        });
+
+        await newPayment.save();
+        res.status(201).json({ message: 'Payment created successfully', payment: newPayment });
+    } catch (error) {
+        if (error instanceof mongoose.Error.ValidationError) {
+            res.status(400).json({ message: 'Validation Error', error: error.errors });
+        } else {
+            console.error('Error creating payment:', error);
+            res.status(500).json({ message: 'Error creating payment', error: error.message });
+        }
+    }
+};
+
+// Get all payments
 exports.getAllPayments = async (req, res) => {
     try {
         const payments = await Payment.find();
         res.status(200).json(payments);
     } catch (error) {
-        res.status(500).json({ message: 'Error retrieving payment records', error: error.message });
+        console.error('Error retrieving payments:', error);
+        res.status(500).json({ message: 'Error retrieving payments', error: error.message });
     }
 };
 
-// Get a payment record by ID
+// Get a single payment by ID
 exports.getPaymentById = async (req, res) => {
     try {
+        if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+            return res.status(400).json({ message: 'Invalid Payment ID format' });
+        }
+
         const payment = await Payment.findById(req.params.id);
         if (!payment) {
-            return res.status(404).json({ message: 'Payment record not found' });
+            return res.status(404).json({ message: 'Payment not found' });
         }
         res.status(200).json(payment);
     } catch (error) {
-        res.status(500).json({ message: 'Error retrieving payment record', error: error.message });
+        console.error('Error retrieving payment:', error);
+        res.status(500).json({ message: 'Error retrieving payment', error: error.message });
     }
 };
 
-// Update a payment record by ID
+// Update a payment by ID
 exports.updatePayment = async (req, res) => {
     try {
-        const { bookingID, amount, paymentMethod, date } = req.body;
+        const { amount, method, status, transactionDate } = req.body;
+        
+        // Filter out undefined values before updating
+        const updateData = {};
+        if (amount !== undefined) updateData.amount = amount;
+        if (method !== undefined) updateData.method = method;
+        if (status !== undefined) updateData.status = status;
+        if (transactionDate !== undefined) updateData.transactionDate = new Date(transactionDate);
 
-        const updatedPayment = await Payment.findByIdAndUpdate(
-            req.params.id,
-            { bookingID, amount, paymentMethod, date },
-            { new: true } // Return the updated payment record
-        );
-
+        const updatedPayment = await Payment.findByIdAndUpdate(req.params.id, updateData, { new: true });
         if (!updatedPayment) {
-            return res.status(404).json({ message: 'Payment record not found' });
+            return res.status(404).json({ message: 'Payment not found' });
         }
 
-        res.status(200).json({ message: 'Payment record updated successfully', payment: updatedPayment });
+        res.status(200).json({ message: 'Payment updated successfully', payment: updatedPayment });
     } catch (error) {
-        res.status(500).json({ message: 'Error updating payment record', error: error.message });
+        console.error('Error updating payment:', error);
+        res.status(500).json({ message: 'Error updating payment', error: error.message });
     }
 };
 
-// Delete a payment record by ID
+// Delete a payment by ID
 exports.deletePayment = async (req, res) => {
     try {
         const deletedPayment = await Payment.findByIdAndDelete(req.params.id);
         if (!deletedPayment) {
-            return res.status(404).json({ message: 'Payment record not found' });
+            return res.status(404).json({ message: 'Payment not found' });
         }
-
-        res.status(200).json({ message: 'Payment record deleted successfully' });
+        res.status(200).json({ message: 'Payment deleted successfully' });
     } catch (error) {
-        res.status(500).json({ message: 'Error deleting payment record', error: error.message });
+        console.error('Error deleting payment:', error);
+        res.status(500).json({ message: 'Error deleting payment', error: error.message });
     }
 };

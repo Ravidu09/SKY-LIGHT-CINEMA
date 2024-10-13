@@ -1,82 +1,90 @@
 const Promotion = require('../Model/PromotionModel');
 
 // Generate promotion ID with leading zeros
-const generatePromotionID = async () => {
-    const lastPromotion = await Promotion.findOne().sort({ promotionID: -1 }).limit(1);
-    const lastId = lastPromotion ? parseInt(lastPromotion.promotionID.replace('PR', ''), 10) : 0;
-    const newId = `PR${(lastId + 1).toString().padStart(3, '0')}`; // Adjust padding as needed
+const generatePromotionId = async () => {
+    const lastPromotion = await Promotion.findOne().sort({ PROMOID: -1 }).limit(1);
+    const lastId = lastPromotion ? parseInt(lastPromotion.PROMOID.replace('P', ''), 10) : 0;
+    const newId = `P${(lastId + 1).toString().padStart(3, '0')}`; // Adjust padding as needed
     return newId;
 };
 
-// Create a new promotion record
+// Create a new promotion
 exports.createPromotion = async (req, res) => {
     try {
-        const { title, description, discount, startDate, endDate } = req.body;
+        const { title, description, discountPercentage, validFrom, validTo, paymentMethods } = req.body;
 
-        const promotionID = await generatePromotionID(); // Generate new promotion ID
-        const newPromotion = new Promotion({ promotionID, title, description, discount, startDate, endDate });
+        const PROMOID = await generatePromotionId(); // Generate new promotion ID
+        const newPromotion = new Promotion({
+            PROMOID,
+            title,
+            description,
+            discountPercentage,
+            validFrom,
+            validTo,
+            paymentMethods // Include payment methods
+        });
         await newPromotion.save();
 
-        res.status(201).json({ message: 'Promotion record created successfully', promotion: newPromotion });
+        res.status(201).json({ message: 'Promotion created successfully', promotion: newPromotion });
     } catch (error) {
-        res.status(500).json({ message: 'Error creating promotion record', error: error.message });
+        res.status(500).json({ message: 'Error creating promotion', error: error.message });
     }
 };
 
-// Get all promotion records
-exports.getAllPromotions = async (req, res) => {
+// Get all promotions
+exports.getPromotions = async (req, res) => {
     try {
         const promotions = await Promotion.find();
         res.status(200).json(promotions);
     } catch (error) {
-        res.status(500).json({ message: 'Error retrieving promotion records', error: error.message });
+        res.status(500).json({ message: 'Error retrieving promotions', error: error.message });
     }
 };
 
-// Get a promotion record by ID
+// Get a promotion by ID
 exports.getPromotionById = async (req, res) => {
     try {
         const promotion = await Promotion.findById(req.params.id);
-        if (!promotion) {
-            return res.status(404).json({ message: 'Promotion record not found' });
+        if (promotion) {
+            res.status(200).json(promotion);
+        } else {
+            res.status(404).json({ message: 'Promotion not found' });
         }
-        res.status(200).json(promotion);
     } catch (error) {
-        res.status(500).json({ message: 'Error retrieving promotion record', error: error.message });
+        res.status(500).json({ message: 'Error retrieving promotion', error: error.message });
     }
 };
 
-// Update a promotion record by ID
+// Update a promotion by ID
 exports.updatePromotion = async (req, res) => {
     try {
-        const { title, description, discount, startDate, endDate } = req.body;
-
+        const { title, description, discountPercentage, validFrom, validTo, paymentMethods } = req.body;
         const updatedPromotion = await Promotion.findByIdAndUpdate(
             req.params.id,
-            { title, description, discount, startDate, endDate },
-            { new: true } // Return the updated promotion record
+            { title, description, discountPercentage, validFrom, validTo, paymentMethods }, // Include payment methods
+            { new: true } // Return the updated promotion
         );
 
-        if (!updatedPromotion) {
-            return res.status(404).json({ message: 'Promotion record not found' });
+        if (updatedPromotion) {
+            res.status(200).json({ message: 'Promotion updated successfully', promotion: updatedPromotion });
+        } else {
+            res.status(404).json({ message: 'Promotion not found' });
         }
-
-        res.status(200).json({ message: 'Promotion record updated successfully', promotion: updatedPromotion });
     } catch (error) {
-        res.status(500).json({ message: 'Error updating promotion record', error: error.message });
+        res.status(500).json({ message: 'Error updating promotion', error: error.message });
     }
 };
 
-// Delete a promotion record by ID
+// Delete a promotion by ID
 exports.deletePromotion = async (req, res) => {
     try {
         const deletedPromotion = await Promotion.findByIdAndDelete(req.params.id);
-        if (!deletedPromotion) {
-            return res.status(404).json({ message: 'Promotion record not found' });
+        if (deletedPromotion) {
+            res.status(200).json({ message: 'Promotion deleted successfully' });
+        } else {
+            res.status(404).json({ message: 'Promotion not found' });
         }
-
-        res.status(200).json({ message: 'Promotion record deleted successfully' });
     } catch (error) {
-        res.status(500).json({ message: 'Error deleting promotion record', error: error.message });
+        res.status(500).json({ message: 'Error deleting promotion', error: error.message });
     }
 };

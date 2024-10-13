@@ -1,17 +1,14 @@
 const express = require('express');
 const router = express.Router();
-
-// Insert Model
-const Movie = require('../Model/MovieModel');
-
-// Insert Movie Controllers
 const MovieController = require('../Controllers/MovieController');
+const upload = require('../middleware/multer');
 
-// Define routes
-router.post('/Movie', MovieController.createMovie); // POST /movies
-router.get('/Movie', MovieController.getAllMovies);  // GET /movies
-router.get('/Movie:id', MovieController.getMovieById); // GET /movies/:id
-router.put('/Movie:id', MovieController.updateMovie); // PUT /movies/:id
-router.delete('/Movie:id', MovieController.deleteMovie); // DELETE /movies/:id
+// Routes
+router.post('/', upload.single('image'), MovieController.createMovie);
+router.get('/', MovieController.getAllMovie);
+router.get('/:id', MovieController.getMovieById);
+router.put('/:id', upload.single('image'), MovieController.updateMovie);
+router.delete('/:id', MovieController.deleteMovie);
+
 
 module.exports = router;

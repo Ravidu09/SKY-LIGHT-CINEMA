@@ -1,17 +1,18 @@
-// Assuming you already have user authentication logic in place
 const jwt = require('jsonwebtoken');
 
-const loginUser = async (req, res) => {
-  // Authenticate user logic here...
+const auth = (req, res, next) => {
+    const token = req.header('Authorization')?.replace('Bearer ', '');
+    if (!token) {
+        return res.status(401).json({ message: 'No token, authorization denied' });
+    }
 
-  const token = jwt.sign(
-    {
-      userId: user._id,
-      role: user.role, // Include the role in the token
-    },
-    process.env.JWT_SECRET,
-    { expiresIn: '1h' }
-  );
-
-  res.json({ success: true, token, role: user.role });
+    try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        req.user = decoded;
+        next();
+    } catch (error) {
+        res.status(401).json({ message: 'Token is not valid', error: error.message });
+    }
 };
+
+module.exports = auth;

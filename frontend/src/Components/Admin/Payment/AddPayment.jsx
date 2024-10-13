@@ -1,32 +1,30 @@
-/* eslint-disable react/prop-types */
 /* eslint-disable no-unused-vars */
 import React, { useState } from 'react';
 import axios from 'axios';
 import { Box, Button, TextField, Typography } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 
-const URL = "http://localhost:4000/Payment";
+const URL = "http://localhost:4001/payment";
 
+// eslint-disable-next-line react/prop-types
 function AddPayment({ onBack }) {
-  const [ItemName, setItemName] = useState('');
-  const [type, setType] = useState('');
-  const [OrderID, setOrderID] = useState('');
-  const [Cost, setCost] = useState('');
-  const [Date, setDate] = useState('');
-  const [Note, setNote] = useState('');
+  const [amount, setAmount] = useState('');
+  const [method, setMethod] = useState('credit card'); // Default to 'credit card'
+  const [status, setStatus] = useState('pending'); // Default to 'pending'
+  const [transactionDate, setTransactionDate] = useState('');
   const [error, setError] = useState(null);
 
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError(null);
+    setError(null); // Reset error state
 
     try {
-      const response = await axios.post(URL, { ItemName, type, OrderID, Cost, Date, Note });
+      const response = await axios.post(URL, { amount, method, status, transactionDate });
       if (response.status === 201) {
         alert('Payment added successfully');
-        navigate('/admindashboard/Payment-management');
+        navigate('/admindashboard/payment-management');
       }
     } catch (error) {
       setError(error.response ? error.response.data.message : 'An error occurred');
@@ -40,54 +38,54 @@ function AddPayment({ onBack }) {
       </Typography>
       <form onSubmit={handleSubmit}>
         <TextField
-          label="Item Name"
-          variant="outlined"
-          value={ItemName}
-          onChange={(e) => setItemName(e.target.value)}
-          fullWidth
-          margin="normal"
-        />
-        <TextField
-          label="Type"
-          variant="outlined"
-          value={type}
-          onChange={(e) => setType(e.target.value)}
-          fullWidth
-          margin="normal"
-        />
-        <TextField
-          label="Order ID"
-          variant="outlined"
-          value={OrderID}
-          onChange={(e) => setOrderID(e.target.value)}
-          fullWidth
-          margin="normal"
-        />
-        <TextField
-          label="Cost"
+          label="Amount"
           variant="outlined"
           type="number"
-          value={Cost}
-          onChange={(e) => setCost(e.target.value)}
+          value={amount}
+          onChange={(e) => setAmount(e.target.value)}
           fullWidth
           margin="normal"
         />
         <TextField
-          label="Date"
+          label="Method"
+          variant="outlined"
+          select
+          SelectProps={{ native: true }}
+          value={method}
+          onChange={(e) => setMethod(e.target.value)}
+          fullWidth
+          margin="normal"
+        >
+          <option value="credit card">Credit Card</option>
+          <option value="PayPal">PayPal</option>
+          <option value="bank transfer">Bank Transfer</option>
+          <option value="cash">Cash</option>
+        </TextField>
+        <TextField
+          label="Status"
+          variant="outlined"
+          select
+          SelectProps={{ native: true }}
+          value={status}
+          onChange={(e) => setStatus(e.target.value)}
+          fullWidth
+          margin="normal"
+        >
+          <option value="pending">Pending</option>
+          <option value="completed">Completed</option>
+          <option value="failed">Failed</option>
+        </TextField>
+        <TextField
+          label="Transaction Date"
           variant="outlined"
           type="date"
-          value={Date}
-          onChange={(e) => setDate(e.target.value)}
+          value={transactionDate}
+          onChange={(e) => setTransactionDate(e.target.value)}
           fullWidth
           margin="normal"
-        />
-        <TextField
-          label="Note"
-          variant="outlined"
-          value={Note}
-          onChange={(e) => setNote(e.target.value)}
-          fullWidth
-          margin="normal"
+          InputLabelProps={{
+            shrink: true,
+          }}
         />
         <Button
           type="submit"

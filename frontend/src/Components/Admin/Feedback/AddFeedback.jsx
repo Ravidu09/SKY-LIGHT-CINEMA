@@ -1,17 +1,15 @@
-/* eslint-disable react/prop-types */
-/* eslint-disable no-unused-vars */
 import React, { useState } from 'react';
 import axios from 'axios';
 import { Box, TextField, Button, Typography } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 
-const URL = "http://localhost:4000/feedback";
+const URL = "http://localhost:4001/feedback";
 
 function AddFeedback({ onBack }) {
   const [feedback, setFeedback] = useState({
     feedbackId: '',
     customerId: '',
-    MovieId: '',
+    movieId: '',
     rating: 1,
     comment: ''
   });
@@ -52,9 +50,9 @@ function AddFeedback({ onBack }) {
           margin="normal"
         />
         <TextField
-          label="MovieID"
-          name="MovieId"
-          value={feedback.MovieId}
+          label="Movie ID"
+          name="movieId"
+          value={feedback.movieId}
           onChange={handleChange}
           fullWidth
           margin="normal"

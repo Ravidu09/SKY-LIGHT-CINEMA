@@ -1,118 +1,175 @@
-/* eslint-disable no-unused-vars */
-import React from 'react';
-import { Box, Grid, Typography, Card, CardMedia, CardContent, Button } from '@mui/material';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import Header from '../Navbar/Navbar';
 import Footer from '../Footer/Footer';
+import { Container, Typography, TextField, Button, Grid, Card, CardMedia, CardContent, CircularProgress } from '@mui/material';
+import { Link } from 'react-router-dom';
+import { Swiper, SwiperSlide } from 'swiper/react';
+import 'swiper/css';
 
-// Import images from the Images folder
-import movie1 from '../Images/movie1.jpg'; // Adjust these paths according to your file structure
-import movie2 from '../Images/movie2.jpg';
-import movie3 from '../Images/movie3.jpg';
-import movie4 from '../Images/movie4.jpg';
+const URL = "http://localhost:4001/movies";
 
-const movies = [
-  {
-    title: 'Planet of Apes',
-    image: movie1,
-    description: 'This is a brief description of Movie 1.'
-  },
-  {
-    title: 'The Garfield Movie',
-    image: movie2,
-    description: 'This is a brief description of Movie 2.'
-  },
-  {
-    title: 'Deadpool x Vouwariene',
-    image: movie3,
-    description: 'This is a brief description of Movie 3.'
-  },
-  {
-    title: 'The Garfield Movie',
-    image: movie4,
-    description: 'This is a brief description of Movie 4.'
-  },
-];
+const fetchMovies = async () => {
+  try {
+    const response = await axios.get(URL);
+    return Array.isArray(response.data) ? response.data : [response.data];
+  } catch (error) {
+    console.error("Error fetching data:", error);
+    throw error;
+  }
+};
 
-function Movie() {
-  const navigate = useNavigate();
+function MoviePage() {
+  const [movies, setMovies] = useState([]);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [loading, setLoading] = useState(true); // Add loading state
 
-  const handleBooking = (title) => {
-    navigate('/Show', { state: { movieTitle: title } });
+  useEffect(() => {
+    fetchMovies().then(data => {
+      setMovies(data);
+      setLoading(false); // Set loading to false once data is fetched
+    }).catch(error => {
+      console.error("Error fetching movies:", error);
+      setLoading(false); // Ensure loading is set to false on error
+    });
+  }, []);
+
+  const handleSearch = (query = searchQuery) => {
+    if (query.trim() === "") {
+      fetchMovies().then(data => {
+        setMovies(data);
+      }).catch(error => {
+        console.error("Error fetching movies:", error);
+      });
+      return;
+    }
+
+    const filteredMovies = movies.filter(item =>
+      item.name && item.name.toLowerCase().includes(query.toLowerCase())
+    );
+    setMovies(filteredMovies);
   };
 
   return (
-    <div>
+    <div style={{ backgroundColor: '#f5f5f5', minHeight: '100vh' }}>
       <Header />
-      <Box sx={{ padding: 4, backgroundColor: '#000000' }}>
-        <Typography variant="h3" align="center" color="red" gutterBottom>
-          Now Showing
+      <Container sx={{ padding: '40px 0' }}>
+        <Typography variant="h4" align="left" gutterBottom sx={{ marginTop: '20px', fontWeight: 'bold' }}>
+          Now Showing!
         </Typography>
-        <Grid container spacing={4}>
-          {movies.map((movie, index) => (
-            <Grid item xs={12} sm={6} md={3} key={index}>
-              <Card sx={{ borderRadius: 2, boxShadow: 3 }}>
-                <CardMedia
-                  component="img"
-                  height="300"
-                  image={movie.image}
-                  alt={movie.title}
-                />
-                <CardContent>
-                  <Typography variant="h6" gutterBottom>
-                    {movie.title}
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    {movie.description}
-                  </Typography>
-                  <Button
-                    variant="contained"
-                    sx={{ marginTop: 2 }}
-                    onClick={() => handleBooking(movie.title)}
+        
+        {loading ? (
+          <CircularProgress sx={{ display: 'block', margin: 'auto', marginTop: '40px' }} />
+        ) : (
+          <Swiper
+            spaceBetween={20}
+            width="600"
+            slidesPerView={4}
+            navigation
+            breakpoints={{
+              320: { slidesPerView: 1 },
+              600: { slidesPerView: 2 },
+              960: { slidesPerView: 3 },
+              1280: { slidesPerView: 4 }
+            }}
+          >
+            {movies
+              .filter(item => item.status === 'available') // Filter for available movies
+              .map(item => (
+                <SwiperSlide key={item._id}>
+                  <Card
+                    sx={{
+                      boxShadow: '0 4px 8px rgba(0,0,0,0.2)',
+                      transition: 'transform 0.2s',
+                      '&:hover': {
+                        transform: 'scale(1.05)',
+                      }
+                    }}
                   >
-                    Book Now
-                  </Button>
-                </CardContent>
-              </Card>
-            </Grid>
-          ))}
-        </Grid>
-        <Typography variant="h3" align="center" color="red" gutterBottom>
-          <br></br>Upcoming Movies
+                    <Link to={`/movies/${item._id}`}>
+                      <CardMedia
+                        component="img"
+                        alt={item.name}
+                        height="200"
+                        image={item.image || 'http://localhost:5173/src/Components/Images/3.png'}
+                        title={item.name}
+                      />
+                    </Link>
+                    <CardContent>
+                      <Typography variant="h6" component="div" sx={{ fontWeight: 'bold' }}>
+                        Title: {item.name}
+                      </Typography>
+                      <Typography variant="body2" color="text.secondary">
+                        IMDB Rate: {item.rate}
+                      </Typography>
+                    </CardContent>
+                  </Card>
+                </SwiperSlide>
+              ))}
+          </Swiper>
+        )}
+      </Container>
+      
+      <Container sx={{ padding: '40px 0' }}>
+        <Typography variant="h4" align="left" gutterBottom sx={{ marginTop: '20px', fontWeight: 'bold' }}>
+          Up Coming!
         </Typography>
-        <Grid container spacing={4}>
-          {movies.map((movie, index) => (
-            <Grid item xs={12} sm={6} md={3} key={index}>
-              <Card sx={{ borderRadius: 2, boxShadow: 3 }}>
-                <CardMedia
-                  component="img"
-                  height="300"
-                  image={movie.image}
-                  alt={movie.title}
-                />
-                <CardContent>
-                  <Typography variant="h6" gutterBottom>
-                    {movie.title}
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    {movie.description}
-                  </Typography>
-                  <Button
-                    variant="contained"
-                    sx={{ marginTop: 2 }}
-                    onClick={() => handleBooking(movie.title)}
+        
+        {loading ? (
+          <CircularProgress sx={{ display: 'block', margin: 'auto', marginTop: '40px' }} />
+        ) : (
+          <Swiper
+            spaceBetween={20}
+            slidesPerView={4}
+            width="700"
+            navigation
+            breakpoints={{
+              320: { slidesPerView: 1 },
+              600: { slidesPerView: 2 },
+              960: { slidesPerView: 3 },
+              1280: { slidesPerView: 4 }
+            }}
+          >
+            {movies
+              .filter(item => item.status === 'Up Coming!') // Filter for upcoming movies
+              .map(item => (
+                <SwiperSlide key={item._id}>
+                  <Card
+                    sx={{
+                      boxShadow: '0 4px 8px rgba(0,0,0,0.2)',
+                      transition: 'transform 0.2s',
+                      '&:hover': {
+                        transform: 'scale(1.05)',
+                      }
+                    }}
                   >
-                    Book Now
-                  </Button>
-                </CardContent>
-              </Card>
-            </Grid>
-          ))}
-        </Grid>
-      </Box>
+                    <Link to={`/movies/${item._id}`}>
+                      <CardMedia
+                        component="img"
+                        alt={item.name}
+                        height="200"
+                        image={item.image || 'http://localhost:5173/src/Components/Images/3.png'}
+                        title={item.name}
+                      />
+                    </Link>
+                    <CardContent>
+                      <Typography variant="h6" component="div" sx={{ fontWeight: 'bold' }}>
+                        Title: {item.name}
+                      </Typography>
+                      <Typography variant="body2" color="text.secondary">
+                        IMDB Rate: {item.rate}
+                      </Typography>
+                    </CardContent>
+                  </Card>
+                </SwiperSlide>
+              ))}
+          </Swiper>
+        )}
+      </Container>
+
       <Footer />
     </div>
   );
 }
 
-export default Movie;
+export default MoviePage;

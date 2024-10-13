@@ -4,14 +4,14 @@ import axios from 'axios';
 import { Box, TextField, Button, Typography } from '@mui/material';
 import { useParams, useNavigate } from 'react-router-dom';
 
-const URL = "http://localhost:4000/feedback";
+const URL = "http://localhost:4001/feedback";
 
 function UpdateFeedback() {
   const { id } = useParams();
   const [feedback, setFeedback] = useState({
     feedbackId: '',
     customerId: '',
-    jewelleryId: '',
+    movieId: '',
     rating: 1,
     comment: ''
   });
@@ -74,9 +74,9 @@ function UpdateFeedback() {
         margin="normal"
       />
       <TextField
-        label="Jewellery ID"
-        name="jewelleryId"
-        value={feedback.jewelleryId}
+        label="Movie ID"
+        name="movieId"
+        value={feedback.movieId}
         onChange={handleChange}
         fullWidth
         margin="normal"
