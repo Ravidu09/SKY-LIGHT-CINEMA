@@ -1,7 +1,6 @@
-/* eslint-disable no-unused-vars */
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Box, Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField, Paper, IconButton } from '@mui/material';
+import { Box, Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField, Paper, IconButton, Typography, ToggleButton, ToggleButtonGroup } from '@mui/material';
 import { Edit, Delete, Print, Add } from '@mui/icons-material';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
@@ -25,7 +24,7 @@ function PaymentDetails() {
   const [searchQuery, setSearchQuery] = useState('');
   const [noResults, setNoResults] = useState(false);
   const [showAddPaymentForm, setShowAddPaymentForm] = useState(false);
-
+  const [view, setView] = useState('table'); // For toggling views (table or stats)
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -101,6 +100,47 @@ function PaymentDetails() {
     setShowAddPaymentForm(false);
   };
 
+  // Calculate statistics
+  const totalPayments = payments.reduce((acc, curr) => acc + curr.amount, 0);
+  const avgPayment = (totalPayments / payments.length) || 0;
+  const methodDistribution = payments.reduce((acc, curr) => {
+    acc[curr.method] = (acc[curr.method] || 0) + 1;
+    return acc;
+  }, {});
+
+  // Render the statistics view
+  const renderStatsView = () => (
+    <Box sx={{ padding: 3, backgroundColor: 'white', borderRadius: 1 }}>
+      <Typography variant="h5" gutterBottom>Total Payments: {payments.length}</Typography>
+      <Typography variant="h6" gutterBottom>Total Amount: ${totalPayments.toFixed(2)}</Typography>
+      <br></br>
+      <Typography variant="h6" gutterBottom>Payment Methods Distribution:</Typography>
+      <TableContainer component={Paper} sx={{ border: '1px solid', borderColor: 'divider' }}>
+        <Table>
+          <TableHead>
+            <TableRow>
+              <TableCell>Payment Method</TableCell>
+              <TableCell>Count</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {Object.keys(methodDistribution).map((method) => (
+              <TableRow key={method}>
+                <TableCell>{method}</TableCell>
+                <TableCell>{methodDistribution[method]}</TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
+    </Box>
+  );
+
+  // Handle view change
+  const handleViewChange = (event, newView) => {
+    setView(newView);
+  };
+
   return (
     <Box>
       {showAddPaymentForm ? (
@@ -133,75 +173,72 @@ function PaymentDetails() {
                 },
               }}
             />
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={handleSearch}
-              sx={{ borderRadius: 2 }}
-            >
+            <Button variant="contained" color="primary" onClick={handleSearch} sx={{ borderRadius: 2 }}>
               Search
             </Button>
-            <Button
-              variant="contained"
-              color="secondary"
-              onClick={handleAddPayment}
-              sx={{ borderRadius: 2, marginLeft: 'auto' }}
-              startIcon={<Add />}
+            <ToggleButtonGroup
+              value={view}
+              exclusive
+              onChange={handleViewChange}
+              sx={{ marginLeft: 'auto' }}
             >
+              <ToggleButton value="table">Table View</ToggleButton>
+              <ToggleButton value="stats">Stats View</ToggleButton>
+            </ToggleButtonGroup>
+            <Button variant="contained" color="secondary" onClick={handleAddPayment} sx={{ borderRadius: 2 }} startIcon={<Add />}>
               Add Payment
             </Button>
           </Box>
 
-          <Box sx={{ padding: 3, backgroundColor: 'white', borderRadius: 1 }}>
-            <TableContainer component={Paper} sx={{ border: '1px solid', borderColor: 'divider' }}>
-              <Table>
-                <TableHead>
-                  <TableRow>
-                    <TableCell>Payment ID</TableCell>
-                    <TableCell>Amount</TableCell>
-                    <TableCell>Method</TableCell>
-                    <TableCell>Status</TableCell>
-                    <TableCell>Transaction Date</TableCell>
-                    <TableCell>Actions</TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {noResults ? (
+          {view === 'table' ? (
+            <Box sx={{ padding: 3, backgroundColor: 'white', borderRadius: 1 }}>
+              <TableContainer component={Paper} sx={{ border: '1px solid', borderColor: 'divider' }}>
+                <Table>
+                  <TableHead>
                     <TableRow>
-                      <TableCell colSpan={6} align="center">No payments found.</TableCell>
+                      <TableCell>Payment ID</TableCell>
+                      <TableCell>Amount</TableCell>
+                      <TableCell>Method</TableCell>
+                      <TableCell>Status</TableCell>
+                      <TableCell>Transaction Date</TableCell>
+                      <TableCell>Actions</TableCell>
                     </TableRow>
-                  ) : (
-                    payments.map((item) => (
-                      <TableRow key={item._id}>
-                        <TableCell>{item.PID}</TableCell>
-                        <TableCell>{item.amount}</TableCell>
-                        <TableCell>{item.method}</TableCell>
-                        <TableCell>{item.status}</TableCell>
-                        <TableCell>{new Date(item.transactionDate).toLocaleDateString()}</TableCell>
-                        <TableCell>
-                          <IconButton onClick={() => handleEdit(item._id)} sx={{ color: 'primary.main' }}>
-                            <Edit />
-                          </IconButton>
-                          <IconButton onClick={() => deletePayment(item._id)} sx={{ color: 'error.main' }}>
-                            <Delete />
-                          </IconButton>
-                        </TableCell>
+                  </TableHead>
+                  <TableBody>
+                    {noResults ? (
+                      <TableRow>
+                        <TableCell colSpan={6} align="center">No payments found.</TableCell>
                       </TableRow>
-                    ))
-                  )}
-                </TableBody>
-              </Table>
-            </TableContainer>
+                    ) : (
+                      payments.map((item) => (
+                        <TableRow key={item._id}>
+                          <TableCell>{item.PID}</TableCell>
+                          <TableCell>{item.amount}</TableCell>
+                          <TableCell>{item.method}</TableCell>
+                          <TableCell>{item.status}</TableCell>
+                          <TableCell>{new Date(item.transactionDate).toLocaleDateString()}</TableCell>
+                          <TableCell>
+                            <IconButton onClick={() => handleEdit(item._id)} sx={{ color: 'primary.main' }}>
+                              <Edit />
+                            </IconButton>
+                            <IconButton onClick={() => deletePayment(item._id)} sx={{ color: 'error.main' }}>
+                              <Delete />
+                            </IconButton>
+                          </TableCell>
+                        </TableRow>
+                      ))
+                    )}
+                  </TableBody>
+                </Table>
+              </TableContainer>
 
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={handlePDF}
-              sx={{ marginTop: 2, borderRadius: 2 }}
-            >
-              <Print /> Download
-            </Button>
-          </Box>
+              <Button variant="contained" color="primary" onClick={handlePDF} sx={{ marginTop: 2, borderRadius: 2 }}>
+                <Print /> Download
+              </Button>
+            </Box>
+          ) : (
+            renderStatsView()
+          )}
         </>
       )}
     </Box>

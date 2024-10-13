@@ -1,12 +1,15 @@
 const express = require('express');
 const router = express.Router();
-const EmployeeController = require('../Controllers/EmployeeController');
+const employeeController = require('../Controllers/EmployeeController');
 
+// Routes for employee operations
+router.post('/create', employeeController.createEmployee);
+router.get('/', employeeController.getEmployees);
+router.get('/:id', employeeController.getEmployeeById);
+router.put('/:id', employeeController.updateEmployee);
+router.delete('/:id', employeeController.deleteEmployee);
 
-router.post('/', EmployeeController.createEmployee);
-router.get('/', EmployeeController.getEmployees);
-router.get('/:id', EmployeeController.getEmployeeById);
-router.put('/:id', EmployeeController.updateEmployee);
-router.delete('/:id', EmployeeController.deleteEmployee);
+// Route for salary calculation
+router.post('/calculate-salary', employeeController.calculateSalary);
 
 module.exports = router;

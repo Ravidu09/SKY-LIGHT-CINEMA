@@ -28,7 +28,7 @@ function AdminDashboard() {
     { text: 'User Management', icon: <PeopleIcon />, path: '/admindashboard/user-management' },
     { text: 'Movie Management', icon: <AssignmentIcon />, path: '/admindashboard/movie-management' },
     { text: 'Maintanance Management', icon: <InventoryIcon />, path: '/admindashboard/inventory-management' },
-    { text: 'Staff Management', icon: <PeopleIcon />, path: '/admindashboard/employee-management' },
+    { text: 'Staff Management', icon: <PeopleIcon />, path: '/admindashboard/employee-details' },
     { text: 'Supplier Management', icon: <BusinessIcon />, path: '/admindashboard/supplier-management' },
     { text: 'Booking Management', icon: <BusinessIcon />, path: '/admindashboard/booking-management' },
     { text: 'Promortion Management', icon: <EventIcon />, path: '/admindashboard/promotion-management' },

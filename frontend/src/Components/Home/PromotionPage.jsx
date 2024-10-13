@@ -107,7 +107,7 @@ function PromotionPage() {
           <Swiper
             spaceBetween={20}
             slidesPerView={5} // You can change this for multiple cards on larger screens
-            navigation
+            
           >
             {promotions.map(item => (
               <SwiperSlide key={item._id}>

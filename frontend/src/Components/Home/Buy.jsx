@@ -1,4 +1,3 @@
-/* eslint-disable no-unused-vars */
 import React, { useState } from 'react';
 import axios from 'axios';
 import { TextField, Box, Grid, Typography, MenuItem, FormControl, InputLabel, Select, Button, List, ListItem, ListItemText, Divider } from '@mui/material';
@@ -32,8 +31,8 @@ const generateSeats = (num) => {
   return seats;
 };
 
-const seats = generateSeats(50);
-const SEAT_PRICE = 750; // Price per seat
+const seats = generateSeats(60);
+const SEAT_PRICE = 650; // Price per seat
 
 function Buy() {
   const [selectedMovie, setSelectedMovie] = useState('');
@@ -45,8 +44,19 @@ function Buy() {
   const [transactionDate, setTransactionDate] = useState('');
   const [error, setError] = useState(null);
 
+  // Card details state
+  const [cardNumber, setCardNumber] = useState('');
+  const [cardHolder, setCardHolder] = useState('');
+  const [expiryDate, setExpiryDate] = useState('');
+  const [cvv, setCvv] = useState('');
+
+  // PayPal email state
+  const [paypalEmail, setPaypalEmail] = useState('');
+
   const navigate = useNavigate();
   const URL = "http://localhost:4001/payment";
+
+  const today = new Date().toISOString().split('T')[0]; // Get today's date in YYYY-MM-DD format
 
   const handleMovieChange = (e) => {
     setSelectedMovie(e.target.value);
@@ -67,7 +77,6 @@ function Buy() {
       return updatedSeats; // Return updated selected seats
     });
   };
-
 
   const handleSubmitPayment = async (e) => {
     e.preventDefault();
@@ -98,40 +107,6 @@ function Buy() {
           Buy Tickets
         </Typography>
         <Grid container spacing={4}>
-          <Grid item xs={12} md={4}>
-            <FormControl fullWidth>
-              <InputLabel id="movie-label" sx={{ color: 'white' }}>Select Movie</InputLabel>
-              <Select
-                labelId="movie-label"
-                value={selectedMovie}
-                onChange={handleMovieChange}
-                sx={{ backgroundColor: '#444444', color: 'white', '& .MuiSelect-icon': { color: 'red' } }}
-              >
-                {movies.map((movie) => (
-                  <MenuItem key={movie.id} value={movie.title} sx={{ backgroundColor: '#333333', color: 'white' }}>
-                    {movie.title}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          </Grid>
-          <Grid item xs={12} md={4}>
-            <FormControl fullWidth>
-              <InputLabel id="showtime-label" sx={{ color: 'white' }}>Select Showtime</InputLabel>
-              <Select
-                labelId="showtime-label"
-                value={selectedShowtime}
-                onChange={handleShowtimeChange}
-                sx={{ backgroundColor: '#444444', color: 'white', '& .MuiSelect-icon': { color: 'red' } }}
-              >
-                {showtimes.map((showtime) => (
-                  <MenuItem key={showtime.id} value={showtime.time} sx={{ backgroundColor: '#333333', color: 'white' }}>
-                    {showtime.time}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          </Grid>
           <Grid item xs={12} md={8}>
             <Typography variant="h6" color="white">Select Seats</Typography>
             <Grid container spacing={1}>
@@ -155,7 +130,6 @@ function Buy() {
                   </Button>
                 </Grid>
               ))}
-
             </Grid>
           </Grid>
           <Grid item xs={12} md={4}>
@@ -229,8 +203,6 @@ function Buy() {
                   sx={{ backgroundColor: '#444444', color: 'white', '& .MuiSelect-icon': { color: 'red' } }}
                 >
                   <MenuItem value="pending" sx={{ backgroundColor: '#333333', color: 'white' }}>Pending</MenuItem>
-                  <MenuItem value="completed" sx={{ backgroundColor: '#333333', color: 'white' }}>Completed</MenuItem>
-                  <MenuItem value="failed" sx={{ backgroundColor: '#333333', color: 'white' }}>Failed</MenuItem>
                 </Select>
               </FormControl>
               <TextField
@@ -248,6 +220,7 @@ function Buy() {
                 }}
                 inputProps={{
                   style: { color: 'white' }, // Set input text color to white
+                  min: today, // Restrict selection to today and future dates
                 }}
                 sx={{
                   backgroundColor: '#444444',
@@ -262,6 +235,130 @@ function Buy() {
                   },
                 }}
               />
+
+              {/* Conditional rendering based on payment method */}
+              {method === 'credit card' && (
+                <Box>
+                  <TextField
+                    label="Card Number"
+                    variant="outlined"
+                    type="text"
+                    value={cardNumber}
+                    onChange={(e) => setCardNumber(e.target.value)}
+                    
+                    margin="normal"
+                    required
+                    inputProps={{ style: { color: 'white' } }}
+                    InputLabelProps={{ style: { color: 'white' } }}
+                    sx={{
+                      backgroundColor: '#444444',
+                      '& .MuiOutlinedInput-notchedOutline': {
+                        borderColor: 'white',
+                      },
+                    }}
+                  />
+                  <TextField
+                    label="Card Holder Name"
+                    variant="outlined"
+                    type="text"
+                    value={cardHolder}
+                    onChange={(e) => setCardHolder(e.target.value)}
+                    
+                    margin="normal"
+                    required
+                    inputProps={{ style: { color: 'white' } }}
+                    InputLabelProps={{ style: { color: 'white' } }}
+                    sx={{
+                      backgroundColor: '#444444',
+                      '& .MuiOutlinedInput-notchedOutline': {
+                        borderColor: 'white',
+                      },
+                    }}
+                  />
+                  <TextField
+                    label="Expiry Date (MM/YY)"
+                    variant="outlined"
+                    type="text"
+                    value={expiryDate}
+                    onChange={(e) => setExpiryDate(e.target.value)}
+                    
+                    margin="normal"
+                    required
+                    inputProps={{ style: { color: 'white' } }}
+                    InputLabelProps={{ style: { color: 'white' } }}
+                    sx={{
+                      backgroundColor: '#444444',
+                      '& .MuiOutlinedInput-notchedOutline': {
+                        borderColor: 'white',
+                      },
+                    }}
+                  />
+                  <TextField
+                    label="CVV"
+                    variant="outlined"
+                    type="text"
+                    value={cvv}
+                    onChange={(e) => setCvv(e.target.value)}
+                    
+                    margin="normal"
+                    required
+                    inputProps={{ style: { color: 'white' } }}
+                    InputLabelProps={{ style: { color: 'white' } }}
+                    sx={{
+                      backgroundColor: '#444444',
+                      '& .MuiOutlinedInput-notchedOutline': {
+                        borderColor: 'white',
+                      },
+                    }}
+                  />
+                </Box>
+              )}
+
+              {method === 'PayPal' && (
+                <Box>
+                  <TextField
+                    label="PayPal Email"
+                    variant="outlined"
+                    type="email"
+                    value={paypalEmail}
+                    onChange={(e) => setPaypalEmail(e.target.value)}
+                    fullWidth
+                    margin="normal"
+                    required
+                    inputProps={{ style: { color: 'white' } }}
+                    InputLabelProps={{ style: { color: 'white' } }}
+                    sx={{
+                      backgroundColor: '#444444',
+                      '& .MuiOutlinedInput-notchedOutline': {
+                        borderColor: 'white',
+                      },
+                    }}
+                  />
+                </Box>
+              )}
+
+              {method === 'bank transfer' && (
+                <Box>
+                  <Typography color="white" marginBottom={2}>
+                    Please upload your payment slip:
+                  </Typography>
+                  <Button variant="contained" component="label" sx={{ marginTop: 2 }}>
+                    Upload Slip
+                    <input type="file" hidden />
+                  </Button>
+                </Box>
+              )}
+
+              {method === 'cash' && (
+                <Box>
+                  <Typography color="white" marginBottom={2}>
+                    Please proceed to the cashier to complete the payment.
+                  </Typography>
+                  <Button type="submit" variant="contained" color="primary" fullWidth sx={{ marginTop: 2 }}>
+                    Proceed
+                  </Button>
+                </Box>
+              )}
 
               {error && (
                 <Typography color="error" sx={{ marginTop: 2 }}>

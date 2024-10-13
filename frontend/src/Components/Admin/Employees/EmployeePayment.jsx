@@ -19,7 +19,7 @@ const fetchEmployees = async () => {
   }
 };
 
-function EmployeeDetails() {
+function EmployeePayment() {
   const [employees, setEmployees] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [noResults, setNoResults] = useState(false);
@@ -55,8 +55,8 @@ function EmployeeDetails() {
     doc.text("Employee Details Report", 10, 10);
 
     doc.autoTable({
-      head: [['ID', 'Name', 'Email', 'Position', 'Phone', 'Address']],
-      body: employees.map(employee => [employee.EMPID, employee.name, employee.email, employee.position, employee.phone, employee.address]),
+      head: [['ID', 'Name', 'Email', 'Position', 'Phone', 'Address', 'Salary']],
+      body: employees.map(employee => [employee.EMPID, employee.name, employee.email, employee.position, employee.phone, employee.address, employee.salary]),
       startY: 20,
       margin: { top: 20 },
       styles: {
@@ -100,7 +100,13 @@ function EmployeeDetails() {
     setShowAddEmployeeForm(false);
   };
 
-  
+  const handleAddSalary = (id) => {
+    navigate(`/admindashboard/add-salary/${id}`); // Redirect to Add Salary page
+  };
+
+  const handleSummaryReport = () => {
+    navigate('/admindashboard/summary-report'); // Navigate to the Summary Report page
+  };
 
   return (
     <Box
@@ -152,15 +158,7 @@ function EmployeeDetails() {
             >
               Search
             </Button>
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={handleAddEmployee}
-              sx={{ borderRadius: 2, marginLeft: 'auto' }}
-              startIcon={<Add />}
-            >
-              Add Employee
-            </Button>
+            
           </Box>
 
           <Box sx={{ padding: 3, backgroundColor: 'white', borderRadius: 1 }}>
@@ -170,10 +168,8 @@ function EmployeeDetails() {
                   <TableRow>
                     <TableCell>ID</TableCell>
                     <TableCell>Name</TableCell>
-                    <TableCell>Email</TableCell>
                     <TableCell>Position</TableCell>
-                    <TableCell>Phone</TableCell>
-                    <TableCell>Address</TableCell>
+                    <TableCell>Salary</TableCell>
                     <TableCell>Actions</TableCell>
                   </TableRow>
                 </TableHead>
@@ -187,17 +183,18 @@ function EmployeeDetails() {
                       <TableRow key={employee._id}>
                         <TableCell>{employee.EMPID}</TableCell>
                         <TableCell>{employee.name}</TableCell>
-                        <TableCell>{employee.email}</TableCell>
                         <TableCell>{employee.position}</TableCell>
-                        <TableCell>{employee.phone}</TableCell>
-                        <TableCell>{employee.address}</TableCell>
+                        <TableCell>{employee.salary}</TableCell>
                         <TableCell>
-                          <IconButton onClick={() => handleEdit(employee._id)} sx={{ color: 'primary.main' }}>
-                            <Edit />
-                          </IconButton>
-                          <IconButton onClick={() => deleteEmployee(employee)} sx={{ color: 'error.main' }}>
-                            <Delete />
-                          </IconButton>
+                          
+                          <Button
+                            variant="contained"
+                            color="info"
+                            onClick={() => handleAddSalary(employee._id)} // Redirect to Add Salary
+                            sx={{ marginLeft: 1 }}
+                          >
+                            Add Salary
+                          </Button>
                         </TableCell>
                       </TableRow>
                     ))
@@ -208,8 +205,8 @@ function EmployeeDetails() {
           </Box>
 
           <Box sx={{ display: 'flex', gap: 2, marginTop: 2 }}>
-            <Button variant="contained" color="primary" onClick={handlePDF}>
-              Generate PDF Report
+            <Button variant="contained" color="primary" onClick={handleSummaryReport}>
+              Summary Report
             </Button>
           </Box>
         </Box>
@@ -218,4 +215,4 @@ function EmployeeDetails() {
   );
 }
 
-export default EmployeeDetails;
+export default EmployeePayment;

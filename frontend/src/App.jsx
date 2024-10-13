@@ -42,11 +42,15 @@ import PaymentDetails from './Components/Admin/Payment/PaymentDetails';
 import AddPayment from './Components/Admin/Payment/AddPayment';
 import UpdatePayment from './Components/Admin/Payment/UpdatePayment';
 import Payment from './Components/Admin/Payment/Payment';
+import EmployeePayment from './Components/Admin/Employees/EmployeePayment'
+
 
 import EmployeeDetails from './Components/Admin/Employees/EmployeeDetails';
 import AddEmployee from './Components/Admin/Employees/AddEmployee';
 import UpdateEmployee from './Components/Admin/Employees/UpdateEmployee';
 import Employee from './Components/Admin/Employees/Employee';
+import AddSalary from './Components/Admin/Employees/AddSalary';
+
 
 import PromotionDetails from './Components/Admin/Promotions/PromotionDetails';
 import AddPromotion from './Components/Admin/Promotions/AddPromotion';
@@ -70,6 +74,9 @@ import OrderDetails from './Components/Admin/Order/OrderDetails';
 import { AuthProvider } from './Components/Auth/AuthContext';  // Import AuthProvider
 
 import PromotionPage from './Components/Home/PromotionPage';
+
+import SummaryReport from './Components/Admin/Employees/SummaryReport'; // Adjust path as necessary
+
 
 function App() {
   return (
@@ -113,6 +120,7 @@ function App() {
             <Route path="payment-management" element={<PaymentDetails />} />
             <Route path="payments" element={<Payment />} />
             <Route path="update-payment/:id" element={<UpdatePayment />} />
+            <Route path="EmpPay" element={<EmployeePayment />} />
 
             <Route path="Movie-management" element={<MovieDetails />} />
             <Route path="Movie/:MID" element={<Movie />} />
@@ -129,10 +137,14 @@ function App() {
             <Route path="add-inventory" element={<AddInventory />} />
             <Route path="update-inventory/:id" element={<UpdateInventory />} />
 
-            <Route path="employee-management" element={<EmployeeDetails />} />
+            <Route path="employee-details" element={<EmployeeDetails />} />
             <Route path="employee/:id" element={<Employee />} />
             <Route path="add-employee" element={<AddEmployee />} />
             <Route path="update-employee/:id" element={<UpdateEmployee />} />
+            <Route path="add-salary/:id" element={<AddSalary />} />
+            <Route path="summary-report" element={<SummaryReport />} />
+
+
 
             <Route path="promotion-management" element={<PromotionDetails />} />
             <Route path="promotion/:id" element={<Promotion />} />
