@@ -17,6 +17,8 @@ function UpdateUser() {
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [phoneError, setPhoneError] = useState(''); // Phone validation error state
+  const [nameError, setNameError] = useState(''); // Name validation error state
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -38,10 +40,35 @@ function UpdateUser() {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
+
+    // Validate name (only letters and spaces allowed)
+    if (name === 'name') {
+      if (!/^[a-zA-Z\s]*$/.test(value)) {
+        setNameError('Name must contain only letters and spaces.');
+      } else {
+        setNameError(''); // Clear error if valid
+      }
+    }
+
+    // Validate phone number (only digits allowed, and exactly 10 digits)
+    if (name === 'phone') {
+      if (!/^\d{0,10}$/.test(value)) {
+        setPhoneError('Phone number must contain only digits and be up to 10 digits long.');
+      } else if (value.length !== 10) {
+        setPhoneError('Phone number must be exactly 10 digits long.');
+      } else {
+        setPhoneError(''); // Clear error if valid
+      }
+    }
+
     setUser({ ...user, [name]: value });
   };
 
   const handleUpdate = async () => {
+    if (phoneError || nameError) {
+      alert('Please correct the errors before submitting.');
+      return;
+    }
     try {
       console.log('Update Payload:', user); // Check the payload
       await axios.put(`${URL}/${id}`, user);
@@ -79,6 +106,8 @@ function UpdateUser() {
         onChange={handleChange}
         fullWidth
         margin="normal"
+        error={!!nameError} // Display error state if there's a name validation error
+        helperText={nameError} // Show error message below the input
       />
       <TextField
         label="Email"
@@ -104,6 +133,8 @@ function UpdateUser() {
         onChange={handleChange}
         fullWidth
         margin="normal"
+        error={!!phoneError} // Display error state if there's a phone validation error
+        helperText={phoneError} // Show error message below the input
       />
       <FormControl fullWidth margin="normal">
         <InputLabel>User Type</InputLabel>
@@ -122,6 +153,7 @@ function UpdateUser() {
         color="primary"
         onClick={handleUpdate}
         sx={{ marginTop: 2 }}
+        disabled={!!phoneError || !!nameError} // Disable button if there's a validation error
       >
         Update
       </Button>
