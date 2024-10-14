@@ -56,12 +56,19 @@ function MovieDetails() {
 
   const handlePDF = () => {
     const doc = new jsPDF();
-    doc.text("Movie Details Report", 10, 10);
+    
+    // Add the main topic as the title
+    doc.setFontSize(18);
+    doc.text("SKY LIGHT CINEMA", 10, 10);
+    
+    // Add a subtitle or description if needed
+    doc.setFontSize(12);
+    doc.text("Movie Details Report", 10, 20);
 
     doc.autoTable({
       head: [['Movie ID', 'Name', 'Rate', 'Description', 'Status']],
       body: movie.map(item => [item.MID, item.name, item.rate, item.description, item.status]),
-      startY: 20,
+      startY: 30, // Adjust the starting position to leave space for the title
       margin: { top: 20 },
       styles: {
         overflow: 'linebreak',
@@ -76,8 +83,11 @@ function MovieDetails() {
     doc.save('movie-details.pdf');
   };
 
-  const handleSearch = () => {
-    if (searchQuery.trim() === "") {
+  const handleSearch = (e) => {
+    const query = e.target.value;
+    setSearchQuery(query);
+
+    if (query.trim() === "") {
       fetchMovie().then(data => {
         setMovie(data);
         setNoResults(false);
@@ -89,7 +99,7 @@ function MovieDetails() {
 
     const filteredMovie = movie.filter(item =>
       Object.values(item).some(field =>
-        field && field.toString().toLowerCase().includes(searchQuery.toLowerCase())
+        field && field.toString().toLowerCase().includes(query.toLowerCase())
       )
     );
     setMovie(filteredMovie);
@@ -106,7 +116,7 @@ function MovieDetails() {
 
   // Calculate statistics
   const totalMovies = movie.length;
-  const averageRating = movie.reduce((acc, item) => acc + item.rate, 0) / totalMovies || 0;
+  const averageRating = totalMovies > 0 ? (movie.reduce((acc, item) => acc + item.rate, 0) / totalMovies) : 0;
   const statusDistribution = movie.reduce((acc, item) => {
     acc[item.status] = (acc[item.status] || 0) + 1;
     return acc;
@@ -157,7 +167,7 @@ function MovieDetails() {
               label="Search"
               variant="outlined"
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              onChange={handleSearch} // Update to call handleSearch on change
               sx={{
                 flexShrink: 1,
                 width: '200px',
@@ -176,14 +186,6 @@ function MovieDetails() {
                 },
               }}
             />
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={handleSearch}
-              sx={{ borderRadius: 2 }}
-            >
-              Search
-            </Button>
             <ToggleButtonGroup
               value={view}
               exclusive

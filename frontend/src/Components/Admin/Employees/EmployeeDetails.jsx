@@ -179,6 +179,9 @@ function EmployeeDetails() {
             >
               Search
             </Button>
+            <Button variant="contained" color="primary" onClick={handlePDF} sx={{ borderRadius: 2 }}>
+              Download Employee Details
+            </Button>
             <ToggleButtonGroup
               value={view}
               exclusive
