@@ -1,4 +1,3 @@
-/* eslint-disable no-unused-vars */
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
@@ -33,9 +32,11 @@ function Register() {
             tempErrors.userName = "Username is required.";
         }
 
-        // Name validation
+        // Name validation - only letters and spaces allowed
         if (!user.name.trim()) {
             tempErrors.name = "Name is required.";
+        } else if (!/^[a-zA-Z\s]*$/.test(user.name)) {
+            tempErrors.name = "Name can only contain letters and spaces.";
         }
 
         // Email validation
@@ -219,13 +220,18 @@ function Register() {
                                 />
                                 <FormControlLabel
                                     control={
-                                        <Checkbox backgroundColor="white" color="error"
+                                        <Checkbox
                                             checked={termsAccepted}
                                             onChange={(e) => setTermsAccepted(e.target.checked)}
+                                            sx={{
+                                                color: 'white',
+                                                '&.Mui-checked': { color: '#FF0000' }, // Checkbox color when checked
+                                                '& .MuiSvgIcon-root': { color: 'white' }, // Checkbox frame color when unchecked
+                                            }}
                                         />
                                     }
                                     label="Accept Terms and Conditions"
-                                    sx={{ color:'white',marginBottom: 2 }}
+                                    sx={{ color: 'white', marginBottom: 2 }}
                                 />
                                 {errors.termsAccepted && (
                                     <Typography variant="body2" color="error" sx={{ marginBottom: 2 }}>
