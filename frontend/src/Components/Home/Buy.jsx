@@ -105,19 +105,43 @@ function Buy() {
     }
   };
 
-  // Function to generate PDF slip
-  const generatePDF = () => {
-    const doc = new jsPDF();
+ // Function to generate PDF slip
+ const generatePDF = () => {
+  const doc = new jsPDF();
 
-    // Set PDF content
-    doc.setFontSize(16);
-    doc.text('Payment Confirmation', 20, 20);
-    doc.setFontSize(12);
-    doc.text(`Selected Seats: ${selectedSeats.join(', ')}`, 20, 60);
-    doc.text(`Amount Paid: Rs. ${amount}`, 20, 70);
-    doc.text(`Payment Method: ${method}`, 20, 80);
-    doc.save('payment_confirmation.pdf'); // Save the PDF
-  };
+  // Add a background color (light gray) for the PDF
+  doc.setFillColor(240, 240, 240);
+  doc.rect(0, 0, 210, 297, 'F'); // Fills the entire page with light gray
+
+  // Add the company name in a colorful style
+  doc.setFontSize(24);
+  doc.setTextColor(0, 102, 204); // SKY LIGHT CINEMA in blue color
+  doc.text('SKY LIGHT CINEMA', 105, 30, { align: 'center' });
+
+  // Add a line separator
+  doc.setDrawColor(255, 0, 0); // Red line
+  doc.line(20, 40, 190, 40);
+
+  // Add Payment Confirmation title in bold
+  doc.setFontSize(18);
+  doc.setFont('helvetica', 'bold');
+  doc.setTextColor(0, 0, 0); // Black color for text
+  doc.text('Payment Confirmation', 105, 50, { align: 'center' });
+
+  // Add detailed payment information
+  doc.setFontSize(12);
+  doc.setFont('helvetica', 'normal');
+  doc.setTextColor(0, 0, 0);
+
+  
+  doc.text(`Selected Seats: ${selectedSeats.join(', ')}`, 20, 90);
+  doc.text(`Amount Paid: Rs. ${amount}`, 20, 100);
+  doc.text(`Payment Method: ${method}`, 20, 110);
+  doc.text(`Transaction Date: ${transactionDate || today}`, 20, 120);
+
+  // Save the colorful PDF
+  doc.save('payment_confirmation.pdf'); // Save the PDF
+};
 
   return (
     <div>

@@ -1,4 +1,3 @@
-/* eslint-disable no-unused-vars */
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Box, TextField, Button, Typography } from '@mui/material';
@@ -41,6 +40,16 @@ function UpdateInventory() {
   };
 
   const handleUpdate = async () => {
+    // Validate that the date is in the future
+    const selectedDate = new Date(inventory.Date);
+    const currentDate = new Date();
+    currentDate.setHours(0, 0, 0, 0); // Set current date to the start of the day
+
+    if (selectedDate <= currentDate) {
+      setError('The date must be in the future.');
+      return;
+    }
+
     try {
       await axios.put(`${URL}/${id}`, inventory);
       alert('Inventory updated successfully');
@@ -74,7 +83,7 @@ function UpdateInventory() {
         margin="normal"
       />
       <TextField
-        label="Order ID"
+        label="Maintenance ID"
         name="MaintananceID"
         value={inventory.MaintananceID}
         onChange={handleChange}
@@ -98,6 +107,9 @@ function UpdateInventory() {
         onChange={handleChange}
         fullWidth
         margin="normal"
+        inputProps={{
+          min: new Date().toISOString().split('T')[0], // Prevent past dates
+        }}
       />
       <TextField
         label="Note"

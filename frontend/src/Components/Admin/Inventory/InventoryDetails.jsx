@@ -36,6 +36,30 @@ function InventoryDetails() {
     });
   }, []);
 
+  useEffect(() => {
+    const handleSearch = () => {
+      if (searchQuery.trim() === "") {
+        fetchInventory().then(data => {
+          setInventory(data);
+          setNoResults(false);
+        }).catch(error => {
+          console.error("Error fetching Maintanance:", error);
+        });
+        return;
+      }
+
+      const filteredInventory = inventory.filter(item =>
+        Object.values(item).some(field =>
+          field && field.toString().toLowerCase().startsWith(searchQuery.toLowerCase())
+        )
+      );
+      setInventory(filteredInventory);
+      setNoResults(filteredInventory.length === 0);
+    };
+
+    handleSearch();
+  }, [searchQuery]);
+
   const handleEdit = (id) => {
     navigate(`/admindashboard/update-inventory/${id}`);
   };
@@ -64,12 +88,27 @@ function InventoryDetails() {
 
   const handlePDF = () => {
     const doc = new jsPDF();
-    doc.text("Maintanance Details Report", 10, 10);
 
+    // Add a title and subtitle for Skylight Cinema
+    doc.setFontSize(18);
+    doc.text("Skylight Cinema", 10, 10);
+    
+    doc.setFontSize(14);
+    doc.text("Maintenance Details Report", 10, 20);
+
+    // Create the table with maintenance details
     doc.autoTable({
-      head: [['ID', 'Item Name', 'Type', 'Maintanance ID', 'Cost', 'Date', 'Note']],
-      body: inventory.map(item => [item.InvID, item.ItemName, item.type, item.MaintananceID, item.Cost, item.Date, item.Note || 'No Note']),
-      startY: 20,
+      head: [['ID', 'Item Name', 'Type', 'Maintenance ID', 'Cost', 'Date', 'Note']],
+      body: inventory.map(item => [
+        item.InvID, 
+        item.ItemName, 
+        item.type, 
+        item.MaintananceID, 
+        item.Cost, 
+        new Date(item.Date).toLocaleDateString(), 
+        item.Note || 'No Note'
+      ]),
+      startY: 30,
       margin: { top: 20 },
       styles: {
         overflow: 'linebreak',
@@ -81,27 +120,8 @@ function InventoryDetails() {
       },
     });
 
-    doc.save('Maintanance-details.pdf');
-  };
-
-  const handleSearch = () => {
-    if (searchQuery.trim() === "") {
-      fetchInventory().then(data => {
-        setInventory(data);
-        setNoResults(false);
-      }).catch(error => {
-        console.error("Error fetching Maintanance:", error);
-      });
-      return;
-    }
-
-    const filteredInventory = inventory.filter(item =>
-      Object.values(item).some(field =>
-        field && field.toString().toLowerCase().includes(searchQuery.toLowerCase())
-      )
-    );
-    setInventory(filteredInventory);
-    setNoResults(filteredInventory.length === 0);
+    // Save the PDF with a custom filename
+    doc.save('Skylight_Cinema_Maintenance_Details.pdf');
   };
 
   const handleAddInventory = () => {
@@ -146,20 +166,12 @@ function InventoryDetails() {
             />
             <Button
               variant="contained"
-              color="primary"
-              onClick={handleSearch}
-              sx={{ borderRadius: 2 }}
-            >
-              Search
-            </Button>
-            <Button
-              variant="contained"
               color="secondary"
               onClick={handleAddInventory}
               sx={{ borderRadius: 2, marginLeft: 'auto' }}
               startIcon={<Add />}
             >
-              Add Maintanance
+              Add Maintenance
             </Button>
           </Box>
 
@@ -171,7 +183,7 @@ function InventoryDetails() {
                     <TableCell>ID</TableCell>
                     <TableCell>Item Name</TableCell>
                     <TableCell>Type</TableCell>
-                    <TableCell>Maintanance ID</TableCell>
+                    <TableCell>Maintenance ID</TableCell>
                     <TableCell>Cost</TableCell>
                     <TableCell>Date</TableCell>
                     <TableCell>Note</TableCell>
@@ -181,7 +193,7 @@ function InventoryDetails() {
                 <TableBody>
                   {noResults ? (
                     <TableRow>
-                      <TableCell colSpan={8} align="center">No Maintanance found.</TableCell>
+                      <TableCell colSpan={8} align="center">No Maintenance found.</TableCell>
                     </TableRow>
                   ) : (
                     inventory.map((item) => (
