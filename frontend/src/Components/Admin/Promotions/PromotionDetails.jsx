@@ -52,7 +52,7 @@ function PromotionDetails() {
 
   const handlePDF = () => {
     const doc = new jsPDF();
-    doc.text("Promotion Details Report", 10, 10);
+    doc.text("SKY LIGHT CINEMA - Promotion Details Report", 10, 10); // Updated title
 
     doc.autoTable({
       head: [['ID', 'Title', 'Description', 'Discount Percentage', 'Valid From', 'Valid To', 'Payment Methods']],
@@ -80,8 +80,11 @@ function PromotionDetails() {
     doc.save('promotion-details.pdf');
   };
 
-  const handleSearch = () => {
-    if (searchQuery.trim() === "") {
+  const handleSearch = (e) => {
+    const value = e.target.value;
+    setSearchQuery(value);
+
+    if (value.trim() === "") {
       fetchPromotions().then(data => {
         setPromotions(data);
         setNoResults(false);
@@ -93,7 +96,7 @@ function PromotionDetails() {
 
     const filteredPromotions = promotions.filter(promotion =>
       Object.values(promotion).some(field =>
-        field && field.toString().toLowerCase().includes(searchQuery.toLowerCase())
+        field && field.toString().toLowerCase().includes(value.toLowerCase())
       )
     );
     setPromotions(filteredPromotions);
@@ -139,7 +142,7 @@ function PromotionDetails() {
               label="Search"
               variant="outlined"
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              onChange={handleSearch} // Call handleSearch directly on input change
               sx={{
                 width: '200px',
                 backgroundColor: 'white',
@@ -157,9 +160,6 @@ function PromotionDetails() {
                 },
               }}
             />
-            <Button variant="contained" color="primary" onClick={handleSearch} sx={{ borderRadius: 2 }}>
-              Search
-            </Button>
             <FormControlLabel
               control={<Switch checked={viewMode === 'analysis'} onChange={handleToggleView} />}
               label={viewMode === 'analysis' ? "Switch to Table View" : "Switch to Analysis View"}

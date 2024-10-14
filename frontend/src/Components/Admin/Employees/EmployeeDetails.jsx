@@ -52,13 +52,32 @@ function EmployeeDetails() {
   };
 
   const handlePDF = () => {
+    if (employees.length === 0) {
+      alert("No employee data available to generate PDF.");
+      return;
+    }
+
     const doc = new jsPDF();
-    doc.text("Employee Details Report", 10, 10);
+    doc.text("SKY LIGHT CINEMA", 10, 10); // Updated title
+
+    // Add a subtitle or description if needed
+    doc.setFontSize(12);
+    doc.text("Employee Details Report", 10, 20);
+
+    // Ensure employees data is formatted correctly
+    const employeeData = employees.map(employee => [
+      employee.EMPID,
+      employee.name,
+      employee.email,
+      employee.position,
+      employee.phone,
+      employee.address
+    ]);
 
     doc.autoTable({
       head: [['ID', 'Name', 'Email', 'Position', 'Phone', 'Address']],
-      body: employees.map(employee => [employee.EMPID, employee.name, employee.email, employee.position, employee.phone, employee.address]),
-      startY: 20,
+      body: employeeData,
+      startY: 30, // Adjusted startY for spacing
       margin: { top: 20 },
       styles: {
         overflow: 'linebreak',
@@ -70,27 +89,31 @@ function EmployeeDetails() {
       },
     });
 
+    // Save the PDF
     doc.save('employee-details.pdf');
   };
 
-  const handleSearch = () => {
-    if (searchQuery.trim() === "") {
+  // Handle live search
+  const handleSearch = (e) => {
+    const query = e.target.value;
+    setSearchQuery(query);
+
+    if (query.trim() === "") {
       fetchEmployees().then(data => {
         setEmployees(data);
         setNoResults(false);
       }).catch(error => {
         console.error("Error fetching employees:", error);
       });
-      return;
+    } else {
+      const filteredEmployees = employees.filter(employee =>
+        Object.values(employee).some(field =>
+          field && field.toString().toLowerCase().includes(query.toLowerCase())
+        )
+      );
+      setEmployees(filteredEmployees);
+      setNoResults(filteredEmployees.length === 0);
     }
-
-    const filteredEmployees = employees.filter(employee =>
-      Object.values(employee).some(field =>
-        field && field.toString().toLowerCase().includes(searchQuery.toLowerCase())
-      )
-    );
-    setEmployees(filteredEmployees);
-    setNoResults(filteredEmployees.length === 0);
   };
 
   const handleAddEmployee = () => {
@@ -152,7 +175,7 @@ function EmployeeDetails() {
               label="Search"
               variant="outlined"
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              onChange={handleSearch} // Live search
               sx={{
                 flexShrink: 1,
                 width: '300px', // Increased width for the search bar
@@ -174,12 +197,9 @@ function EmployeeDetails() {
             <Button
               variant="contained"
               color="primary"
-              onClick={handleSearch}
+              onClick={handlePDF} // Moved PDF download button
               sx={{ borderRadius: 2 }}
             >
-              Search
-            </Button>
-            <Button variant="contained" color="primary" onClick={handlePDF} sx={{ borderRadius: 2 }}>
               Download Employee Details
             </Button>
             <ToggleButtonGroup
@@ -220,7 +240,7 @@ function EmployeeDetails() {
                   <TableBody>
                     {noResults ? (
                       <TableRow>
-                        <TableCell colSpan={8} align="center">No employee found.</TableCell>
+                        <TableCell colSpan={7} align="center">No employee found.</TableCell>
                       </TableRow>
                     ) : (
                       employees.map((employee) => (

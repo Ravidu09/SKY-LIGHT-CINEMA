@@ -18,10 +18,9 @@ import {
   List,
 } from '@mui/material';
 import { Edit, Delete, Print, Add } from '@mui/icons-material';
-import { BarChartOutlined } from '@mui/icons-material'; // Corrected import
+import { BarChartOutlined } from '@mui/icons-material';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
-import AddBooking from './AddBooking'; // Ensure this component is correctly set up
 import { useNavigate } from 'react-router-dom';
 
 const URL = "http://localhost:4001/bookings";
@@ -41,12 +40,11 @@ function BookingDetails() {
   const [searchQuery, setSearchQuery] = useState('');
   const [noResults, setNoResults] = useState(false);
   const [showAddBookingForm, setShowAddBookingForm] = useState(false);
-  const [editBooking, setEditBooking] = useState(null); // State to manage edit mode
-  const [viewMode, setViewMode] = useState('bookings'); // State for toggle view
+  const [editBooking, setEditBooking] = useState(null);
+  const [viewMode, setViewMode] = useState('bookings');
 
   const navigate = useNavigate();
 
-  // Function to load bookings
   const loadBookings = async () => {
     try {
       const data = await fetchBookings();
@@ -58,7 +56,7 @@ function BookingDetails() {
   };
 
   useEffect(() => {
-    loadBookings(); // Load bookings on component mount
+    loadBookings();
   }, []);
 
   const handleEdit = (id) => {
@@ -69,7 +67,7 @@ function BookingDetails() {
     try {
       const response = await axios.delete(`${URL}/${id}`);
       if (response.status === 200) {
-        loadBookings(); // Reload bookings to get updated list
+        loadBookings();
         alert("Booking deleted successfully");
       }
     } catch (error) {
@@ -78,8 +76,15 @@ function BookingDetails() {
   };
 
   const handlePDF = () => {
+    if (bookings.length === 0) {
+      alert("No bookings available for download.");
+      return; // Early exit if no bookings to generate PDF
+    }
+
     const doc = new jsPDF();
-    doc.text("Booking Details Report", 10, 10);
+    doc.text("SKY LIGHT CINEMA", 10, 10);
+    doc.setFontSize(12);
+    doc.text("Booking Details Report", 10, 20);
 
     doc.autoTable({
       head: [['Booking ID', 'Count', 'Movie Name', 'Show Time', 'Date', 'Seat Type']],
@@ -91,7 +96,7 @@ function BookingDetails() {
         new Date(item.date).toLocaleDateString(),
         item.seat,
       ]),
-      startY: 20,
+      startY: 30, // Start Y position for the table
       margin: { top: 20 },
       styles: {
         overflow: 'linebreak',
@@ -106,23 +111,18 @@ function BookingDetails() {
     doc.save('booking-details.pdf');
   };
 
-  const handleSearch = useCallback(() => {
-    if (searchQuery.trim() === "") {
-      loadBookings(); // Reload bookings if search is empty
-      return;
-    }
-
+  useEffect(() => {
     const filteredBookings = bookings.filter(item =>
       Object.values(item).some(field =>
         field && field.toString().toLowerCase().includes(searchQuery.toLowerCase())
       )
     );
-    setBookings(filteredBookings);
     setNoResults(filteredBookings.length === 0);
-  }, [searchQuery, bookings]);
+    setBookings(filteredBookings);
+  }, [searchQuery]);
 
   const handleAddBooking = () => {
-    setEditBooking(null); // Clear any existing booking for adding a new one
+    setEditBooking(null);
     setShowAddBookingForm(true);
   };
 
@@ -139,24 +139,20 @@ function BookingDetails() {
   const renderAnalysisView = () => {
     const totalBookings = bookings.length;
 
-    // Get the most booked movie
     const popularMovie = bookings
       .map(item => item.movieId)
       .reduce((acc, movie) => ({ ...acc, [movie]: (acc[movie] || 0) + 1 }), {});
     const mostBookedMovie = Object.keys(popularMovie).reduce((a, b) => (popularMovie[a] > popularMovie[b] ? a : b), '');
 
-    // Get the most popular show time
     const popularShowTime = bookings
       .map(item => item.showTimeId)
       .reduce((acc, showTime) => ({ ...acc, [showTime]: (acc[showTime] || 0) + 1 }), {});
     const mostPopularShowTime = Object.keys(popularShowTime).reduce((a, b) => (popularShowTime[a] > popularShowTime[b] ? a : b), '');
 
-    // Get booking trends by date
     const bookingByDate = bookings
       .map(item => new Date(item.date).toLocaleDateString())
       .reduce((acc, date) => ({ ...acc, [date]: (acc[date] || 0) + 1 }), {});
 
-    // Get seat type distribution
     const seatTypeDistribution = bookings
       .map(item => item.seat)
       .reduce((acc, seat) => ({ ...acc, [seat]: (acc[seat] || 0) + 1 }), {});
@@ -231,13 +227,11 @@ function BookingDetails() {
           <ToggleButton value="analysis" aria-label="Analysis">
             <BarChartOutlined /> Analysis
           </ToggleButton>
-
         </ToggleButtonGroup>
       </Box>
 
       {viewMode === 'bookings' ? (
         <Box>
-          {/* Existing booking list view */}
           <Box sx={{ display: 'flex', gap: 2, marginBottom: 2, alignItems: 'center' }}>
             <TextField
               label="Search"
@@ -246,9 +240,6 @@ function BookingDetails() {
               onChange={(e) => setSearchQuery(e.target.value)}
               sx={{ flexShrink: 1, width: '200px', backgroundColor: 'white', borderRadius: 1 }}
             />
-            <Button variant="contained" color="primary" onClick={handleSearch}>
-              Search
-            </Button>
             <Button variant="contained" color="secondary" onClick={handleAddBooking} startIcon={<Add />}>
               Add Booking
             </Button>

@@ -4,6 +4,7 @@ import { TextField, Box, Grid, Typography, MenuItem, FormControl, InputLabel, Se
 import Header from '../Navbar/Navbar';
 import Footer from '../Footer/Footer';
 import { useNavigate } from 'react-router-dom';
+import jsPDF from 'jspdf'; // Import jsPDF
 
 // Dummy data for movies and showtimes
 const movies = [
@@ -25,7 +26,9 @@ const generateSeats = (num) => {
   const seats = [];
   for (let i = 1; i <= num; i++) {
     const row = String.fromCharCode(65 + Math.floor((i - 1) / 10)); // Row letters (A, B, C, ...)
+
     const seatNumber = (i % 10 === 0 ? 10 : i % 10).toString().padStart(2, '0'); // Seat numbers (01, 02, ..., 10)
+
     seats.push({ id: `${row}${seatNumber}`, status: 'available' });
   }
   return seats;
@@ -90,13 +93,30 @@ function Buy() {
         transactionDate,
         seats: selectedSeats,
       });
+
       if (response.status === 201) {
+        // Generate PDF after successful payment
+        generatePDF();
         alert('Payment added successfully');
         navigate('/movie');
       }
     } catch (error) {
       setError(error.response ? error.response.data.message : 'An error occurred');
     }
+  };
+
+  // Function to generate PDF slip
+  const generatePDF = () => {
+    const doc = new jsPDF();
+
+    // Set PDF content
+    doc.setFontSize(16);
+    doc.text('Payment Confirmation', 20, 20);
+    doc.setFontSize(12);
+    doc.text(`Selected Seats: ${selectedSeats.join(', ')}`, 20, 60);
+    doc.text(`Amount Paid: Rs. ${amount}`, 20, 70);
+    doc.text(`Payment Method: ${method}`, 20, 80);
+    doc.save('payment_confirmation.pdf'); // Save the PDF
   };
 
   return (
@@ -179,6 +199,7 @@ function Buy() {
                   },
                 }}
               />
+              
 
               <FormControl fullWidth margin="normal">
                 <InputLabel id="method-label" sx={{ color: 'white' }}>Payment Method</InputLabel>
@@ -186,155 +207,142 @@ function Buy() {
                   labelId="method-label"
                   value={method}
                   onChange={(e) => setMethod(e.target.value)}
-                  sx={{ backgroundColor: '#444444', color: 'white', '& .MuiSelect-icon': { color: 'red' } }}
+                  sx={{
+                    backgroundColor: '#444444',
+                    '& .MuiOutlinedInput-notchedOutline': {
+                      borderColor: 'white',
+                    },
+                    '&:hover .MuiOutlinedInput-notchedOutline': {
+                      borderColor: 'red',
+                    },
+                    '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                      borderColor: 'red',
+                    },
+                  }}
                 >
-                  <MenuItem value="credit card" sx={{ backgroundColor: '#333333', color: 'white' }}>Credit Card</MenuItem>
-                  <MenuItem value="PayPal" sx={{ backgroundColor: '#333333', color: 'white' }}>PayPal</MenuItem>
-                  <MenuItem value="bank transfer" sx={{ backgroundColor: '#333333', color: 'white' }}>Bank Transfer</MenuItem>
-                  <MenuItem value="cash" sx={{ backgroundColor: '#333333', color: 'white' }}>Cash</MenuItem>
+                  <MenuItem value="credit card">Credit Card</MenuItem>
+                  <MenuItem value="paypal">PayPal</MenuItem>
+                  <MenuItem value="cash">Cash Pay</MenuItem>
+                  <MenuItem value="bank transfer">Bank Transfer</MenuItem>
                 </Select>
               </FormControl>
-              <FormControl fullWidth margin="normal">
-                <InputLabel id="status-label" sx={{ color: 'white' }}>Status</InputLabel>
-                <Select
-                  labelId="status-label"
-                  value={status}
-                  onChange={(e) => setStatus(e.target.value)}
-                  sx={{ backgroundColor: '#444444', color: 'white', '& .MuiSelect-icon': { color: 'red' } }}
-                >
-                  <MenuItem value="pending" sx={{ backgroundColor: '#333333', color: 'white' }}>Pending</MenuItem>
-                </Select>
-              </FormControl>
-              <TextField
-                label="Transaction Date"
-                variant="outlined"
-                type="date"
-                value={transactionDate}
-                onChange={(e) => setTransactionDate(e.target.value)}
-                fullWidth
-                margin="normal"
-                required
-                InputLabelProps={{
-                  shrink: true,
-                  style: { color: 'white' }, // Set label color to white
-                }}
-                inputProps={{
-                  style: { color: 'white' }, // Set input text color to white
-                  min: today, // Restrict selection to today and future dates
-                }}
-                sx={{
-                  backgroundColor: '#444444',
-                  '& .MuiOutlinedInput-notchedOutline': {
-                    borderColor: 'white', // Set border color to white
-                  },
-                  '&:hover .MuiOutlinedInput-notchedOutline': {
-                    borderColor: 'red', // Change border color on hover
-                  },
-                  '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                    borderColor: 'red', // Change border color when focused
-                  },
-                }}
-              />
 
-              {/* Conditional rendering based on payment method */}
+              {/* Conditional input fields for payment details */}
               {method === 'credit card' && (
-                <Box>
+                <>
                   <TextField
                     label="Card Number"
                     variant="outlined"
-                    type="text"
                     value={cardNumber}
                     onChange={(e) => setCardNumber(e.target.value)}
                     
                     margin="normal"
                     required
-                    inputProps={{ style: { color: 'white' } }}
-                    InputLabelProps={{ style: { color: 'white' } }}
                     sx={{
                       backgroundColor: '#444444',
                       '& .MuiOutlinedInput-notchedOutline': {
                         borderColor: 'white',
+                      },
+                      '&:hover .MuiOutlinedInput-notchedOutline': {
+                        borderColor: 'red',
+                      },
+                      '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                        borderColor: 'red',
                       },
                     }}
                   />
                   <TextField
                     label="Card Holder Name"
                     variant="outlined"
-                    type="text"
                     value={cardHolder}
                     onChange={(e) => setCardHolder(e.target.value)}
                     
                     margin="normal"
                     required
-                    inputProps={{ style: { color: 'white' } }}
-                    InputLabelProps={{ style: { color: 'white' } }}
                     sx={{
                       backgroundColor: '#444444',
                       '& .MuiOutlinedInput-notchedOutline': {
                         borderColor: 'white',
                       },
-                    }}
-                  />
-                  <TextField
-                    label="Expiry Date (MM/YY)"
-                    variant="outlined"
-                    type="text"
-                    value={expiryDate}
-                    onChange={(e) => setExpiryDate(e.target.value)}
-                    
-                    margin="normal"
-                    required
-                    inputProps={{ style: { color: 'white' } }}
-                    InputLabelProps={{ style: { color: 'white' } }}
-                    sx={{
-                      backgroundColor: '#444444',
-                      '& .MuiOutlinedInput-notchedOutline': {
-                        borderColor: 'white',
+                      '&:hover .MuiOutlinedInput-notchedOutline': {
+                        borderColor: 'red',
+                      },
+                      '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                        borderColor: 'red',
                       },
                     }}
                   />
-                  <TextField
-                    label="CVV"
-                    variant="outlined"
-                    type="text"
-                    value={cvv}
-                    onChange={(e) => setCvv(e.target.value)}
-                    
-                    margin="normal"
-                    required
-                    inputProps={{ style: { color: 'white' } }}
-                    InputLabelProps={{ style: { color: 'white' } }}
-                    sx={{
-                      backgroundColor: '#444444',
-                      '& .MuiOutlinedInput-notchedOutline': {
-                        borderColor: 'white',
-                      },
-                    }}
-                  />
-                </Box>
+                  <Grid container spacing={2}>
+                    <Grid item xs={6}>
+                      <TextField
+                        label="Expiry Date"
+                        variant="outlined"
+                        value={expiryDate}
+                        onChange={(e) => setExpiryDate(e.target.value)}
+                        
+                        margin="normal"
+                        required
+                        sx={{
+                          backgroundColor: '#444444',
+                          '& .MuiOutlinedInput-notchedOutline': {
+                            borderColor: 'white',
+                          },
+                          '&:hover .MuiOutlinedInput-notchedOutline': {
+                            borderColor: 'red',
+                          },
+                          '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                            borderColor: 'red',
+                          },
+                        }}
+                      />
+                      <TextField
+                        label="CVV"
+                        variant="outlined"
+                        value={cvv}
+                        onChange={(e) => setCvv(e.target.value)}
+                        
+                        margin="normal"
+                        required
+                        sx={{
+                          backgroundColor: '#444444',
+                          '& .MuiOutlinedInput-notchedOutline': {
+                            borderColor: 'white',
+                          },
+                          '&:hover .MuiOutlinedInput-notchedOutline': {
+                            borderColor: 'red',
+                          },
+                          '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                            borderColor: 'red',
+                          },
+                        }}
+                      />
+                    </Grid>
+                  </Grid>
+                </>
               )}
 
-              {method === 'PayPal' && (
-                <Box>
-                  <TextField
-                    label="PayPal Email"
-                    variant="outlined"
-                    type="email"
-                    value={paypalEmail}
-                    onChange={(e) => setPaypalEmail(e.target.value)}
-                    fullWidth
-                    margin="normal"
-                    required
-                    inputProps={{ style: { color: 'white' } }}
-                    InputLabelProps={{ style: { color: 'white' } }}
-                    sx={{
-                      backgroundColor: '#444444',
-                      '& .MuiOutlinedInput-notchedOutline': {
-                        borderColor: 'white',
-                      },
-                    }}
-                  />
-                </Box>
+              {method === 'paypal' && (
+                <TextField
+                  label="PayPal Email"
+                  variant="outlined"
+                  value={paypalEmail}
+                  onChange={(e) => setPaypalEmail(e.target.value)}
+                  fullWidth
+                  margin="normal"
+                  required
+                  sx={{
+                    backgroundColor: '#444444',
+                    '& .MuiOutlinedInput-notchedOutline': {
+                      borderColor: 'white',
+                    },
+                    '&:hover .MuiOutlinedInput-notchedOutline': {
+                      borderColor: 'red',
+                    },
+                    '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                      borderColor: 'red',
+                    },
+                  }}
+                />
               )}
 
               {method === 'bank transfer' && (
@@ -360,20 +368,16 @@ function Buy() {
                 </Box>
               )}
 
-              {error && (
-                <Typography color="error" sx={{ marginTop: 2 }}>
-                  {error}
-                </Typography>
-              )}
               <Button
                 type="submit"
                 variant="contained"
                 color="primary"
-                fullWidth
-                sx={{ marginTop: 2, borderRadius: 2 }}
+                sx={{ marginTop: 2 }}
               >
                 Pay For Tickets
               </Button>
+
+              {error && <Typography color="error">{error}</Typography>}
             </form>
           </Grid>
         </Grid>

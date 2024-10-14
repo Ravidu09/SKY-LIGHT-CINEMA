@@ -53,7 +53,7 @@ function FeedbackDetails() {
 
   const handlePDF = () => {
     const doc = new jsPDF();
-    doc.text("Feedback Details Report", 10, 10);
+    doc.text("SKY LIGHT CINEMA - Feedback Details Report", 10, 10); // Updated title
 
     doc.autoTable({
       head: [['ID', 'Customer ID', 'Movie ID', 'Rating', 'Comment']],
@@ -73,8 +73,11 @@ function FeedbackDetails() {
     doc.save('feedback-details.pdf');
   };
 
-  const handleSearch = () => {
-    if (searchQuery.trim() === "") {
+  const handleSearch = (e) => {
+    const value = e.target.value;
+    setSearchQuery(value);
+
+    if (value.trim() === "") {
       fetchFeedbacks().then(data => {
         setFeedbacks(data);
         setNoResults(false);
@@ -86,7 +89,7 @@ function FeedbackDetails() {
 
     const filteredFeedbacks = feedbacks.filter(feedback =>
       Object.values(feedback).some(field =>
-        field && field.toString().toLowerCase().includes(searchQuery.toLowerCase())
+        field && field.toString().toLowerCase().includes(value.toLowerCase())
       )
     );
     setFeedbacks(filteredFeedbacks);
@@ -114,7 +117,7 @@ function FeedbackDetails() {
               label="Search"
               variant="outlined"
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              onChange={handleSearch} // Call handleSearch directly on input change
               sx={{
                 flexShrink: 1,
                 width: '200px',
@@ -133,14 +136,6 @@ function FeedbackDetails() {
                 },
               }}
             />
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={handleSearch}
-              sx={{ borderRadius: 2 }}
-            >
-              Search
-            </Button>
             <Button
               variant="contained"
               color="secondary"
