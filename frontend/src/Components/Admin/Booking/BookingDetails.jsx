@@ -240,9 +240,7 @@ function BookingDetails() {
               onChange={(e) => setSearchQuery(e.target.value)}
               sx={{ flexShrink: 1, width: '200px', backgroundColor: 'white', borderRadius: 1 }}
             />
-            <Button variant="contained" color="secondary" onClick={handleAddBooking} startIcon={<Add />}>
-              Add Booking
-            </Button>
+            
           </Box>
 
           <Box sx={{ padding: 3, backgroundColor: 'white', borderRadius: 1 }}>

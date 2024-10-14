@@ -20,6 +20,17 @@ function AddPayment({ onBack }) {
     e.preventDefault();
     setError(null); // Reset error state
 
+    // Validation for transaction date
+    const today = new Date().toISOString().split('T')[0]; // Today's date in 'YYYY-MM-DD' format
+    if (!transactionDate) {
+      setError('Transaction date is required.');
+      return;
+    }
+    if (transactionDate < today) {
+      setError('Transaction date must be today or in the future.');
+      return;
+    }
+
     try {
       const response = await axios.post(URL, { amount, method, status, transactionDate });
       if (response.status === 201) {
@@ -29,6 +40,11 @@ function AddPayment({ onBack }) {
     } catch (error) {
       setError(error.response ? error.response.data.message : 'An error occurred');
     }
+  };
+
+  const getTodayDate = () => {
+    const today = new Date();
+    return today.toISOString().split('T')[0]; // Get date in 'YYYY-MM-DD' format
   };
 
   return (
@@ -85,6 +101,9 @@ function AddPayment({ onBack }) {
           margin="normal"
           InputLabelProps={{
             shrink: true,
+          }}
+          inputProps={{
+            min: getTodayDate(), // Set minimum date to today
           }}
         />
         <Button

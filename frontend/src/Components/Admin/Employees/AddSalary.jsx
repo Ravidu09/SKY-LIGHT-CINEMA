@@ -93,8 +93,8 @@ const AddSalary = () => {
 
     // Company name and description (centered)
     doc.setFontSize(16);
-    const companyName = "CRYSTAL ELEGANCE";
-    const companyDescription = "                            We add elegance to your freedom";
+    const companyName = "SKY LIGHT CINEMA";
+    const companyDescription = "                            Thank you for your service";
     const pageWidth = doc.internal.pageSize.getWidth();
     const nameWidth = doc.getStringUnitWidth(companyName) * doc.internal.getFontSize() / doc.internal.scaleFactor;
     const descriptionWidth = doc.getStringUnitWidth(companyDescription) * doc.internal.getFontSize() / doc.internal.scaleFactor;

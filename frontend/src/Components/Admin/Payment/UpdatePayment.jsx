@@ -52,6 +52,11 @@ function UpdatePayment() {
     }
   };
 
+  const getTodayDate = () => {
+    const today = new Date();
+    return today.toISOString().split('T')[0]; // Get date in 'YYYY-MM-DD' format
+  };
+
   if (loading) {
     return <Typography>Loading...</Typography>;
   }
@@ -95,6 +100,9 @@ function UpdatePayment() {
         margin="normal"
         InputLabelProps={{
           shrink: true,
+        }}
+        inputProps={{
+          min: getTodayDate(), // Set minimum date to today
         }}
       />
       <TextField

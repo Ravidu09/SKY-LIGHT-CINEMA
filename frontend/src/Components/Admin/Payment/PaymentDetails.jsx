@@ -82,8 +82,10 @@ function PaymentDetails() {
 
     // Set the title and subheading
     doc.setFontSize(20);
+    doc.setTextColor(0, 102, 204); // Set title color
     doc.text('SKY LIGHT CINEMA', pageWidth / 2, 20, { align: 'center' });
     doc.setFontSize(16);
+    doc.setTextColor(0, 0, 0); // Set subtitle color to black
     doc.text('Payment Details Report', pageWidth / 2, 30, { align: 'center' });
 
     // AutoTable to handle data
@@ -99,8 +101,9 @@ function PaymentDetails() {
       ]),
       margin: { top: 10 },
       headStyles: {
-        fillColor: [0, 0, 0],
-        textColor: [255, 255, 255],
+        fillColor: [0, 102, 204], // Header background color
+        textColor: [255, 255, 255], // Header text color
+        fontStyle: 'bold', // Bold header text
       },
       styles: {
         overflow: 'linebreak',
@@ -120,6 +123,7 @@ function PaymentDetails() {
         // Footer
         const date = new Date().toLocaleDateString();
         doc.setFontSize(10);
+        doc.setTextColor(0, 0, 0); // Footer text color
         doc.text(`Report generated on: ${date}`, 10, pageHeight - 10); // Left-aligned footer
         const pageNumber = doc.internal.getCurrentPageInfo().pageNumber;
         doc.text(`Page ${pageNumber}`, pageWidth - 20, pageHeight - 10); // Right-aligned footer
@@ -137,7 +141,7 @@ function PaymentDetails() {
     setShowAddPaymentForm(false);
   };
 
-  const handleEmpPay = () =>{
+  const handleEmpPay = () => {
     navigate('/admindashboard/EmpPay');
   };
 
@@ -154,7 +158,7 @@ function PaymentDetails() {
     <Box sx={{ padding: 3, backgroundColor: 'white', borderRadius: 1 }}>
       <Typography variant="h5" gutterBottom>Total Payments: {payments.length}</Typography>
       <Typography variant="h6" gutterBottom>Total Amount: LKR {totalPayments.toFixed(2)}</Typography>
-      <br></br>
+      <br />
       <Typography variant="h6" gutterBottom>Payment Methods Distribution:</Typography>
       <TableContainer component={Paper} sx={{ border: '1px solid', borderColor: 'divider' }}>
         <Table>
@@ -246,43 +250,49 @@ function PaymentDetails() {
                     </TableRow>
                   </TableHead>
                   <TableBody>
-                    {payments.map((row) => (
-                      <TableRow key={row._id}>
-                        <TableCell>{row.PID}</TableCell>
-                        <TableCell>LKR {row.amount.toFixed(2)}</TableCell>
-                        <TableCell>{row.method}</TableCell>
-                        <TableCell>{row.status}</TableCell>
-                        <TableCell>{new Date(row.transactionDate).toLocaleDateString()}</TableCell>
-                        <TableCell>
-                          <IconButton
-                            onClick={() => handleEdit(row._id)}
-                            sx={{ color: 'blue' }} // Set Edit button to blue
-                          >
-                            <Edit />
-                          </IconButton>
-                          <IconButton
-                            onClick={() => deletePayment(row._id)}
-                            sx={{ color: 'red' }} // Set Delete button to red
-                          >
-                            <Delete />
-                          </IconButton>
-                        </TableCell>
+                    {noResults ? (
+                      <TableRow>
+                        <TableCell colSpan={6} align="center">No results found</TableCell>
                       </TableRow>
-                    ))}
+                    ) : (
+                      payments.map((item) => (
+                        <TableRow key={item._id}>
+                          <TableCell>{item.PID}</TableCell>
+                          <TableCell>LKR {item.amount.toFixed(2)}</TableCell>
+                          <TableCell>{item.method}</TableCell>
+                          <TableCell>{item.status}</TableCell>
+                          <TableCell>{new Date(item.transactionDate).toLocaleDateString()}</TableCell>
+                          <TableCell>
+                            <IconButton 
+                              onClick={() => handleEdit(item._id)} 
+                              sx={{ color: 'blue' }} // Change the color for edit action
+                            >
+                              <Edit />
+                            </IconButton>
+                            <IconButton 
+                              onClick={() => deletePayment(item._id)} 
+                              sx={{ color: 'red' }} // Change the color for delete action
+                            >
+                              <Delete />
+                            </IconButton>
+                          </TableCell>
+                        </TableRow>
+                      ))
+                    )}
                   </TableBody>
                 </Table>
               </TableContainer>
-              <Box sx={{ display: 'flex', justifyContent: 'flex-end', marginTop: 2 }}>
-                <Button variant="contained" color="primary" onClick={handlePDF} startIcon={<Print />}>
-                  Download PDF
-                </Button>
-              </Box>
+              <Button 
+                variant="contained" 
+                color="primary" 
+                onClick={handlePDF} 
+                sx={{ marginTop: 2 }} 
+                startIcon={<Print />}
+              >
+                Download
+              </Button>
             </Box>
-          ) : (
-            renderStatsView()
-          )}
-
-          {noResults && <Typography variant="body1" sx={{ mt: 2 }}>No results found</Typography>}
+          ) : renderStatsView()}
         </>
       )}
     </Box>
