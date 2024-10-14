@@ -58,12 +58,19 @@ function UserDetails() {
 
   const handlePDF = () => {
     const doc = new jsPDF();
-    doc.text("User Details Report", 10, 10);
+    
+    // Add the main topic as the title
+    doc.setFontSize(18);
+    doc.text("SKY LIGHT CINEMA", 10, 10);
+    
+    // Add a subtitle or description if needed
+    doc.setFontSize(12);
+    doc.text("User Details Report", 10, 20);
 
     doc.autoTable({
       head: [['User ID', 'Username', 'Name', 'Email', 'Phone', 'Type']],
       body: users.map(user => [user.userId, user.userName, user.name, user.email, user.phone, user.type]),
-      startY: 20,
+      startY: 30, // Adjust the starting position to leave space for the title
       margin: { top: 20 },
       styles: {
         overflow: 'linebreak',
@@ -78,8 +85,11 @@ function UserDetails() {
     doc.save('user-details.pdf');
   };
 
-  const handleSearch = () => {
-    if (searchQuery.trim() === "") {
+  const handleSearch = (e) => {
+    const query = e.target.value;
+    setSearchQuery(query);
+
+    if (query.trim() === "") {
       setUsers(allUsers);
       setNoResults(false);
       return;
@@ -87,7 +97,7 @@ function UserDetails() {
 
     const filteredUsers = allUsers.filter(user =>
       Object.values(user).some(field =>
-        field && field.toString().toLowerCase().includes(searchQuery.toLowerCase())
+        field && field.toString().toLowerCase().includes(query.toLowerCase())
       )
     );
     setUsers(filteredUsers);
@@ -153,7 +163,7 @@ function UserDetails() {
               label="Search"
               variant="outlined"
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              onChange={handleSearch} // Update to call handleSearch on change
               sx={{
                 flexShrink: 1,
                 width: '200px',
@@ -172,14 +182,6 @@ function UserDetails() {
                 },
               }}
             />
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={handleSearch}
-              sx={{ borderRadius: 2 }}
-            >
-              Search
-            </Button>
             <ToggleButtonGroup
               value={view}
               exclusive

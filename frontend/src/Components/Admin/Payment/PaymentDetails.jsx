@@ -35,6 +35,31 @@ function PaymentDetails() {
     });
   }, []);
 
+  // Debounce effect for live search
+  useEffect(() => {
+    const delayDebounceFn = setTimeout(() => {
+      if (searchQuery.trim() === "") {
+        fetchPayments()
+          .then((data) => {
+            setPayments(data);
+            setNoResults(false);
+          })
+          .catch((error) => console.error("Error fetching payments:", error));
+      } else {
+        const filteredPayments = payments.filter(item =>
+          Object.values(item).some(field =>
+            field && field.toString().toLowerCase().includes(searchQuery.toLowerCase())
+          )
+        );
+        setPayments(filteredPayments);
+        setNoResults(filteredPayments.length === 0);
+      }
+    }, 300); // Debounce search for 300ms
+
+    // Cleanup function
+    return () => clearTimeout(delayDebounceFn);
+  }, [searchQuery]);
+
   const handleEdit = (id) => {
     navigate(`/admindashboard/update-payment/${id}`);
   };
@@ -52,44 +77,56 @@ function PaymentDetails() {
 
   const handlePDF = () => {
     const doc = new jsPDF();
-    doc.text("Payment Details Report", 10, 10);
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const pageHeight = doc.internal.pageSize.getHeight();
 
+    // Set the title and subheading
+    doc.setFontSize(20);
+    doc.text('SKY LIGHT CINEMA', pageWidth / 2, 20, { align: 'center' });
+    doc.setFontSize(16);
+    doc.text('Payment Details Report', pageWidth / 2, 30, { align: 'center' });
+
+    // AutoTable to handle data
     doc.autoTable({
+      startY: 40, // Adjust the start position for the table
       head: [['Payment ID', 'Amount', 'Method', 'Status', 'Transaction Date']],
-      body: payments.map(item => [item.PID, item.amount, item.method, item.status, new Date(item.transactionDate).toLocaleDateString()]),
-      startY: 20,
-      margin: { top: 20 },
-      styles: {
-        overflow: 'linebreak',
-        fontSize: 10,
-      },
+      body: payments.map(item => [
+        item.PID,
+        `LKR ${item.amount.toFixed(2)}`, // Format amount as LKR
+        item.method,
+        item.status,
+        new Date(item.transactionDate).toLocaleDateString(),
+      ]),
+      margin: { top: 10 },
       headStyles: {
         fillColor: [0, 0, 0],
         textColor: [255, 255, 255],
       },
+      styles: {
+        overflow: 'linebreak',
+        fontSize: 10,
+        cellPadding: 5, // Increase padding for readability
+        tableWidth: 'auto', // Adjust table width to content
+        valign: 'middle',
+      },
+      columnStyles: {
+        0: { cellWidth: 30 }, // Set specific widths to columns
+        1: { cellWidth: 30 },
+        2: { cellWidth: 40 },
+        3: { cellWidth: 40 },
+        4: { cellWidth: 30 },
+      },
+      didDrawPage: function (data) {
+        // Footer
+        const date = new Date().toLocaleDateString();
+        doc.setFontSize(10);
+        doc.text(`Report generated on: ${date}`, 10, pageHeight - 10); // Left-aligned footer
+        const pageNumber = doc.internal.getCurrentPageInfo().pageNumber;
+        doc.text(`Page ${pageNumber}`, pageWidth - 20, pageHeight - 10); // Right-aligned footer
+      }
     });
 
     doc.save('payment-details.pdf');
-  };
-
-  const handleSearch = () => {
-    if (searchQuery.trim() === "") {
-      fetchPayments().then(data => {
-        setPayments(data);
-        setNoResults(false);
-      }).catch(error => {
-        console.error("Error fetching payments:", error);
-      });
-      return;
-    }
-
-    const filteredPayments = payments.filter(item =>
-      Object.values(item).some(field =>
-        field && field.toString().toLowerCase().includes(searchQuery.toLowerCase())
-      )
-    );
-    setPayments(filteredPayments);
-    setNoResults(filteredPayments.length === 0);
   };
 
   const handleAddPayment = () => {
@@ -102,7 +139,7 @@ function PaymentDetails() {
 
   const handleEmpPay = () =>{
     navigate('/admindashboard/EmpPay');
-  };
+  };
 
   // Calculate statistics
   const totalPayments = payments.reduce((acc, curr) => acc + curr.amount, 0);
@@ -177,12 +214,9 @@ function PaymentDetails() {
                 },
               }}
             />
-            <Button variant="contained" color="primary" onClick={handleSearch} sx={{ borderRadius: 2 }}>
-              Search
-            </Button>
-            <Button variant="contained" color="secondary" onClick={handleEmpPay} sx={{ marginLeft: 2}}>
+            <Button variant="contained" color="secondary" onClick={handleEmpPay} sx={{ marginLeft: 2 }}>
               Employee Payments
-            </Button>
+            </Button>
             <ToggleButtonGroup
               value={view}
               exclusive
@@ -212,40 +246,43 @@ function PaymentDetails() {
                     </TableRow>
                   </TableHead>
                   <TableBody>
-                    {noResults ? (
-                      <TableRow>
-                        <TableCell colSpan={6} align="center">No payments found.</TableCell>
+                    {payments.map((row) => (
+                      <TableRow key={row._id}>
+                        <TableCell>{row.PID}</TableCell>
+                        <TableCell>LKR {row.amount.toFixed(2)}</TableCell>
+                        <TableCell>{row.method}</TableCell>
+                        <TableCell>{row.status}</TableCell>
+                        <TableCell>{new Date(row.transactionDate).toLocaleDateString()}</TableCell>
+                        <TableCell>
+                          <IconButton
+                            onClick={() => handleEdit(row._id)}
+                            sx={{ color: 'blue' }} // Set Edit button to blue
+                          >
+                            <Edit />
+                          </IconButton>
+                          <IconButton
+                            onClick={() => deletePayment(row._id)}
+                            sx={{ color: 'red' }} // Set Delete button to red
+                          >
+                            <Delete />
+                          </IconButton>
+                        </TableCell>
                       </TableRow>
-                    ) : (
-                      payments.map((item) => (
-                        <TableRow key={item._id}>
-                          <TableCell>{item.PID}</TableCell>
-                          <TableCell>{item.amount}</TableCell>
-                          <TableCell>{item.method}</TableCell>
-                          <TableCell>{item.status}</TableCell>
-                          <TableCell>{new Date(item.transactionDate).toLocaleDateString()}</TableCell>
-                          <TableCell>
-                            <IconButton onClick={() => handleEdit(item._id)} sx={{ color: 'primary.main' }}>
-                              <Edit />
-                            </IconButton>
-                            <IconButton onClick={() => deletePayment(item._id)} sx={{ color: 'error.main' }}>
-                              <Delete />
-                            </IconButton>
-                          </TableCell>
-                        </TableRow>
-                      ))
-                    )}
+                    ))}
                   </TableBody>
                 </Table>
               </TableContainer>
-
-              <Button variant="contained" color="primary" onClick={handlePDF} sx={{ marginTop: 2, borderRadius: 2 }}>
-                <Print /> Download
-              </Button>
+              <Box sx={{ display: 'flex', justifyContent: 'flex-end', marginTop: 2 }}>
+                <Button variant="contained" color="primary" onClick={handlePDF} startIcon={<Print />}>
+                  Download PDF
+                </Button>
+              </Box>
             </Box>
           ) : (
             renderStatsView()
           )}
+
+          {noResults && <Typography variant="body1" sx={{ mt: 2 }}>No results found</Typography>}
         </>
       )}
     </Box>

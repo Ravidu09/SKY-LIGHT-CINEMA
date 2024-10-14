@@ -46,9 +46,9 @@ const SummaryReport = () => {
   
     // Add the title and details to the PDF, centering the first two lines
     doc.setFontSize(20);
-    doc.text('CRYSTAL ELEGANCE', pageWidth / 2, 20, { align: 'center' }); // Centered title
+    doc.text('SKY LIGHT CINEMA', pageWidth / 2, 20, { align: 'center' }); // Centered title
     doc.setFontSize(16);
-    doc.text('We add elegance to your freedom', pageWidth / 2, 30, { align: 'center' }); // Centered subheading
+    doc.text('', pageWidth / 2, 30, { align: 'center' }); // Centered subheading
   
     // Add remaining details (aligned to the left)
     doc.setFontSize(14);
@@ -82,7 +82,6 @@ const SummaryReport = () => {
       left: 0,
       right: 0,
       bottom: 0,
-      backgroundImage: 'url(https://adornabride.com/cdn/shop/products/Copy2020-04-2711.52.04_697f9068-7b14-4696-b161-dd0aeff8d6b3.jpg?v=1639536050&width=1426)',
       backgroundSize: 'cover', // Cover the entire container
       backgroundPosition: 'center', // Center the background image
       filter: 'blur(4px)', // Apply blur effect
@@ -153,8 +152,7 @@ const SummaryReport = () => {
       <div style={styles.backgroundImage}></div>
       <div style={styles.content}>
         {/* Title and Subheading at the Top */}
-        <h1 style={styles.heading}>CRYSTAL ELEGANCE</h1>
-        <p style={styles.subheading}>We add elegance to your freedom</p><br></br>
+        <h1 style={styles.heading}>SKY LIGHT CINEMA</h1>
         
         {/* Transparent Box for the report details */}
         <div style={styles.reportBox}>

@@ -103,7 +103,15 @@ function PromotionPage() {
                     margin: '0 auto' // Center cards inside Swiper
                   }}
                 >
-                  <Link to={`/movie`}>
+                  <Link
+                    to={`/movie`}
+                    onClick={(e) => {
+                      e.preventDefault(); // Prevents immediate navigation
+                      alert(`${item.title} ${item.description} Activated!`); // Show the alert
+                      // After the alert, navigate to the link
+                      window.location.href = `/movie`;
+                    }}
+                  >
                     <CardMedia
                       component="img"
                       alt={item.title}
@@ -115,6 +123,7 @@ function PromotionPage() {
                       }}
                     />
                   </Link>
+
                   <CardContent sx={{ flexGrow: 1 }}>
                     <Typography variant="h6" component="div" sx={{ fontWeight: 'bold' }}>
                       {item.title}

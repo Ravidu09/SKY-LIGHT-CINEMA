@@ -1,10 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Box, Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField, Paper, IconButton } from '@mui/material';
-import { Edit, Delete, Add } from '@mui/icons-material';
-import jsPDF from 'jspdf';
-import 'jspdf-autotable';
-import AddEmployee from './AddEmployee'; // Adjust path as necessary
+import { Box, Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField, Paper } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 
 const URL = "http://localhost:4001/employees";
@@ -21,6 +17,7 @@ const fetchEmployees = async () => {
 
 function EmployeePayment() {
   const [employees, setEmployees] = useState([]);
+  const [originalEmployees, setOriginalEmployees] = useState([]); // Store the original employee list
   const [searchQuery, setSearchQuery] = useState('');
   const [noResults, setNoResults] = useState(false);
   const [showAddEmployeeForm, setShowAddEmployeeForm] = useState(false);
@@ -29,6 +26,7 @@ function EmployeePayment() {
   useEffect(() => {
     fetchEmployees().then(data => {
       setEmployees(data);
+      setOriginalEmployees(data); // Store the original employee list
     }).catch(error => {
       console.error("Error fetching employees:", error);
     });
@@ -50,44 +48,22 @@ function EmployeePayment() {
     }
   };
 
-  const handlePDF = () => {
-    const doc = new jsPDF();
-    doc.text("Employee Details Report", 10, 10);
-
-    doc.autoTable({
-      head: [['ID', 'Name', 'Email', 'Position', 'Phone', 'Address', 'Salary']],
-      body: employees.map(employee => [employee.EMPID, employee.name, employee.email, employee.position, employee.phone, employee.address, employee.salary]),
-      startY: 20,
-      margin: { top: 20 },
-      styles: {
-        overflow: 'linebreak',
-        fontSize: 10,
-      },
-      headStyles: {
-        fillColor: [0, 0, 0],
-        textColor: [255, 255, 255],
-      },
-    });
-
-    doc.save('employee-details.pdf');
-  };
-
-  const handleSearch = () => {
-    if (searchQuery.trim() === "") {
-      fetchEmployees().then(data => {
-        setEmployees(data);
-        setNoResults(false);
-      }).catch(error => {
-        console.error("Error fetching employees:", error);
-      });
+  const handleSearch = (e) => {
+    const query = e.target.value.toLowerCase();
+    setSearchQuery(query);
+    
+    if (query.trim() === "") {
+      setEmployees(originalEmployees); // Reset to original employees if search is empty
+      setNoResults(false);
       return;
     }
 
-    const filteredEmployees = employees.filter(employee =>
+    const filteredEmployees = originalEmployees.filter(employee =>
       Object.values(employee).some(field =>
-        field && field.toString().toLowerCase().includes(searchQuery.toLowerCase())
+        field && field.toString().toLowerCase().includes(query)
       )
     );
+
     setEmployees(filteredEmployees);
     setNoResults(filteredEmployees.length === 0);
   };
@@ -109,9 +85,7 @@ function EmployeePayment() {
   };
 
   return (
-    <Box
-      
-    >
+    <Box>
       {showAddEmployeeForm ? (
         <Box>
           <AddEmployee onBack={handleBack} />
@@ -121,7 +95,7 @@ function EmployeePayment() {
           sx={{
             width: '100%',
             maxWidth: '1600px',
-            backgroundColor: 'rgba(255, 255, 255, 0.7)', // Make the box slightly transparent
+            backgroundColor: 'rgba(255, 255, 255, 0.7)',
             borderRadius: 2,
             padding: 3,
           }}
@@ -131,10 +105,10 @@ function EmployeePayment() {
               label="Search"
               variant="outlined"
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              onChange={handleSearch} // Call handleSearch on input change
               sx={{
                 flexShrink: 1,
-                width: '300px', // Increased width for the search bar
+                width: '300px',
                 backgroundColor: 'rgba(255, 255, 255, 0.8)',
                 borderRadius: 1,
                 '& .MuiOutlinedInput-root': {
@@ -150,15 +124,6 @@ function EmployeePayment() {
                 },
               }}
             />
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={handleSearch}
-              sx={{ borderRadius: 2 }}
-            >
-              Search
-            </Button>
-            
           </Box>
 
           <Box sx={{ padding: 3, backgroundColor: 'white', borderRadius: 1 }}>
@@ -176,7 +141,7 @@ function EmployeePayment() {
                 <TableBody>
                   {noResults ? (
                     <TableRow>
-                      <TableCell colSpan={8} align="center">No employee found.</TableCell>
+                      <TableCell colSpan={5} align="center">No employee found.</TableCell>
                     </TableRow>
                   ) : (
                     employees.map((employee) => (
@@ -186,11 +151,10 @@ function EmployeePayment() {
                         <TableCell>{employee.position}</TableCell>
                         <TableCell>LKR {employee.salary}</TableCell>
                         <TableCell>
-                          
                           <Button
                             variant="contained"
                             color="info"
-                            onClick={() => handleAddSalary(employee._id)} // Redirect to Add Salary
+                            onClick={() => handleAddSalary(employee._id)}
                             sx={{ marginLeft: 1 }}
                           >
                             Add Salary

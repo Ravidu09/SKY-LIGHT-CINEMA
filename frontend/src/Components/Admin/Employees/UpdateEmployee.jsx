@@ -4,7 +4,7 @@ import { Box, TextField, Button, Typography, FormControl, InputLabel, Select, Me
 import { useParams, useNavigate } from 'react-router-dom';
 
 // Background image URL
-const backgroundImage = 'https://adornabride.com/cdn/shop/products/2019-08-2209.01.16_8c8cfb38-f411-4564-9dbf-2e7c43b42d91.jpg?v=1639536050&width=1426';
+const backgroundImage = 'https://adornabrid.com/cdn/shop/products/2019-08-2209.01.16_8c8cfb38-f411-4564-9dbf-2e7c43b42d91.jpg?v=1639536050&width=1426';
 const URL = "http://localhost:4001/employees";
 
 const styles = {
@@ -183,16 +183,20 @@ function UpdateEmployee() {
             onChange={handleChange}
             fullWidth
           >
-            <MenuItem value="Senior Manager">Senior Manager</MenuItem>
-            <MenuItem value="Junior Manager">Junior Manager</MenuItem>
-            <MenuItem value="Trainee">Trainee</MenuItem>
-            <MenuItem value="Software Engineer">Software Engineer</MenuItem>
-            <MenuItem value="Web Developer">Web Developer</MenuItem>
-            <MenuItem value="Jewelry Designer">Jewelry Designer</MenuItem>
-            <MenuItem value="Project Coordinator">Project Coordinator</MenuItem>
-            <MenuItem value="Marketing Executive">Marketing Executive</MenuItem>
-            <MenuItem value="Sales Representative">Sales Representative</MenuItem>
-            <MenuItem value="Photographer/Content Creator">Photographer/Content Creator</MenuItem>
+            <MenuItem value="Cinema Manager">Cinema Manager</MenuItem>
+              <MenuItem value="Assistant Manager">Assistant Manager</MenuItem>
+              <MenuItem value="Ticketing Officer">Ticketing Officer</MenuItem>
+              <MenuItem value="Customer Service Representative">Customer Service Representative</MenuItem>
+              <MenuItem value="Concessions Staff">Concessions Staff</MenuItem>
+              <MenuItem value="Projectionist">Projectionist</MenuItem>
+              <MenuItem value="Usher">Usher</MenuItem>
+              <MenuItem value="Marketing Coordinator">Marketing Coordinator</MenuItem>
+              <MenuItem value="Operations Manager">Operations Manager</MenuItem>
+              <MenuItem value="Event Coordinator">Event Coordinator</MenuItem>
+              <MenuItem value="Cleaning Staff">Cleaning Staff</MenuItem>
+              <MenuItem value="Security Officer">Security Officer</MenuItem>
+              <MenuItem value="Technical Support">Technical Support</MenuItem>
+              <MenuItem value="Sound/Lighting Technician">Sound/Lighting Technician</MenuItem>
           </Select>
         </FormControl>
 

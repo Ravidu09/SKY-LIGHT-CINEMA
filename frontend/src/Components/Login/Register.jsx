@@ -219,13 +219,13 @@ function Register() {
                                 />
                                 <FormControlLabel
                                     control={
-                                        <Checkbox
+                                        <Checkbox backgroundColor="white" color="error"
                                             checked={termsAccepted}
                                             onChange={(e) => setTermsAccepted(e.target.checked)}
                                         />
                                     }
                                     label="Accept Terms and Conditions"
-                                    sx={{ marginBottom: 2 }}
+                                    sx={{ color:'white',marginBottom: 2 }}
                                 />
                                 {errors.termsAccepted && (
                                     <Typography variant="body2" color="error" sx={{ marginBottom: 2 }}>
