@@ -21,6 +21,7 @@ function AdminDashboard() {
   const navigate = useNavigate();
   const location = useLocation();
   const { logout } = useContext(AuthContext); // Access logout function from AuthContext
+  const [fadeIn, setFadeIn] = useState(false);
 
   const [currentTab, setCurrentTab] = useState('');
   const [showSupplierListButton, setShowSupplierListButton] = useState(false);
@@ -37,6 +38,12 @@ function AdminDashboard() {
     { text: 'Feedback Management', icon: <FeedbackIcon />, path: '/admindashboard/feedback-management' },
     { text: 'Support Management', icon: <SupportAgentIcon />, path: '/admindashboard/support-management' },
   ];
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setFadeIn(true);
+    }, 100); // Delay for initial fade-in effect
+    return () => clearTimeout(timer);
+  }, []);
 
   useEffect(() => {
     const currentPath = location.pathname;
@@ -94,11 +101,14 @@ function AdminDashboard() {
         sx={{
           flexGrow: 1,
           p: 0, // No padding
+          backgroundImage: `url('https://entrepreneurship.babson.edu/wp-content/uploads/2020/10/Movie-1200-630.jpg')`, // Background image
           backgroundColor: '#f4f6f8',
           minHeight: '100vh',
           overflow: 'hidden', // Prevent scrolling
         }}
       >
+        <br></br>
+
         <Toolbar sx={{ margin: 0, padding: 0 }} /> {/* Set margin and padding to 0 */}
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: '#1976d2', padding: '10px 20px', color: 'white', height: '60px' }}>
           <Typography variant="h5">{currentTab}</Typography>
@@ -109,14 +119,174 @@ function AdminDashboard() {
               </Button>
             )}
             <Button variant="outlined" onClick={handleLogout} sx={{ marginLeft: 2, color: 'white', borderColor: 'white' }}>
-               Logout
+              Logout
             </Button>
+            
           </div>
         </Box>
+        <Typography
+              variant="h2"
+              sx={{
+                position: 'absolute',
+                color: '#FAF2F2',
+                fontWeight: 'bold',
+                textAlign: 'left',
+                fontSize: '6rem',
+                textShadow: '2px 2px 8px rgba(0, 0, 0, 0.3)',
+                background: 'rgba(255, 255, 255, 0.2)',
+                borderRadius: '10px',
+                padding: '20px',
+                backgroundClip: 'text',
+                WebkitBackgroundClip: 'text',
+                display: 'flex',
+                justifyContent: 'left',
+                alignItems: 'left',
+                transform: fadeIn ? 'translateY(0)' : 'translateY(-50px)',
+                opacity: fadeIn ? 1 : 0,
+                transition: 'transform 2s ease-out, opacity 2s ease-out',
+              }}
+            >
+              <span style={{ transition: 'transform 2s ease-out' }}>SKY LIGHT CINEMA</span>
+            </Typography>
         <Outlet /> {/* Render nested routes */}
       </Box>
     </Box>
   );
+  const recentActivities = [
+    'New user registered: John Doe',
+    'Order #12345 placed by Jane Smith',
+    'Inventory low for Item #245',
+  ];
+
+  // Example chart data
+  const data = {
+    labels: ['January', 'February', 'March', 'April', 'May', 'June'],
+    datasets: [
+      {
+        label: 'Sales',
+        data: [12, 19, 3, 5, 2, 3],
+        backgroundColor: 'rgba(75,192,192,0.2)',
+        borderColor: 'rgba(75,192,192,1)',
+        borderWidth: 1,
+      },
+    ],
+  };
+
+  const options = {
+    scales: {
+      y: { beginAtZero: true },
+    },
+  };
+
+  return (
+    <Box sx={{ p: 4 }}>
+      {/* Welcome Banner */}
+      <Card sx={{ mb: 4, backgroundColor: '#e3f2fd' }}>
+        <CardContent>
+          <Typography variant="h5" sx={{ fontWeight: 'bold' }}>
+            Welcome, Admin!
+          </Typography>
+          <Typography variant="body1">Today is {new Date().toLocaleDateString()}</Typography>
+          <Typography variant="body2" sx={{ mt: 1 }}>
+            Here's a quick overview of your platform's current status.
+          </Typography>
+        </CardContent>
+      </Card>
+
+      <Grid container spacing={3}>
+        {/* Quick Actions */}
+        <Grid item xs={12} sm={4}>
+          <Button
+            variant="contained"
+            color="primary"
+            fullWidth
+            startIcon={<FontAwesomeIcon icon={faPlus} />}
+            sx={{ mb: 3 }}
+          >
+            Add New User
+          </Button>
+          <Button
+            variant="contained"
+            color="secondary"
+            fullWidth
+            startIcon={<FontAwesomeIcon icon={faBell} />}
+          >
+            View Notifications
+          </Button>
+        </Grid>
+
+        {/* Recent Activity */}
+        <Grid item xs={12} sm={8}>
+          <Card sx={{ mb: 3 }}>
+            <CardContent>
+              <Typography variant="h6" sx={{ mb: 2 }}>
+                Recent Activity
+              </Typography>
+              <List>
+                {recentActivities.map((activity, index) => (
+                  <ListItem key={index} divider>
+                    {activity}
+                  </ListItem>
+                ))}
+              </List>
+            </CardContent>
+          </Card>
+        </Grid>
+      </Grid>
+
+      {/* Chart (Sales Analytics) */}
+      <Grid container spacing={3}>
+        <Grid item xs={12}>
+          <Card sx={{ mb: 3 }}>
+            <CardContent>
+              <Typography variant="h6" sx={{ mb: 3 }}>
+                Sales Overview
+              </Typography>
+              <Line data={data} options={options} />
+            </CardContent>
+          </Card>
+        </Grid>
+      </Grid>
+
+      {/* Other Stats (Users, Feedback, Orders) */}
+      <Grid container spacing={3}>
+        {/* Example Stat Cards */}
+        <Grid item xs={12} sm={4}>
+          <Card>
+            <CardContent>
+              <Typography variant="h6">Total Users</Typography>
+              <Typography variant="h4" sx={{ fontWeight: 'bold' }}>
+                1200
+              </Typography>
+            </CardContent>
+          </Card>
+        </Grid>
+
+        <Grid item xs={12} sm={4}>
+          <Card>
+            <CardContent>
+              <Typography variant="h6">Feedbacks</Typography>
+              <Typography variant="h4" sx={{ fontWeight: 'bold' }}>
+                75
+              </Typography>
+            </CardContent>
+          </Card>
+        </Grid>
+
+        <Grid item xs={12} sm={4}>
+          <Card>
+            <CardContent>
+              <Typography variant="h6">Orders</Typography>
+              <Typography variant="h4" sx={{ fontWeight: 'bold' }}>
+                320
+              </Typography>
+            </CardContent>
+          </Card>
+        </Grid>
+      </Grid>
+    </Box>
+  );
+
 }
 
 export default AdminDashboard;

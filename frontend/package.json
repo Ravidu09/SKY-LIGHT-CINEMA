@@ -28,7 +28,7 @@
     "react-chartjs-2": "^5.2.0",
     "react-csv": "^2.2.2",
     "react-dom": "^18.3.1",
-    "react-router-dom": "^6.26.1",
+    "react-router-dom": "^6.27.0",
     "react-star-ratings": "^2.3.0",
     "recharts": "^2.13.0",
     "swiper": "^11.1.11",

@@ -52,7 +52,7 @@ export default class Dashboard extends Component {
   // Fetch the jewellery count from the server
   fetchJewelleryCount = async () => {
     try {
-      const response = await axios.get('http://localhost:4000/jewellery');
+      const response = await axios.get('http://localhost:4001/jewellery');
       this.setState({ jewelleryCount: response.data.length });
     } catch (error) {
       console.error("Error fetching jewellery count:", error);
@@ -62,7 +62,7 @@ export default class Dashboard extends Component {
   // Fetch the gem count from the server
   fetchGemCount = async () => {
     try {
-      const response = await axios.get('http://localhost:4000/api/gems'); // Ensure this points to your gems endpoint
+      const response = await axios.get('http://localhost:4001/api/gems'); // Ensure this points to your gems endpoint
       this.setState({ gemCount: response.data.length });
     } catch (error) {
       console.error("Error fetching gem count:", error);
@@ -72,7 +72,7 @@ export default class Dashboard extends Component {
   // Fetch the user count from the server
   fetchUserCount = async () => {
     try {
-      const response = await axios.get('http://localhost:4000/users'); // Ensure this points to your users endpoint
+      const response = await axios.get('http://localhost:4001/users'); // Ensure this points to your users endpoint
       this.setState({ userCount: response.data.length });
     } catch (error) {
       console.error("Error fetching user count:", error);
@@ -82,7 +82,7 @@ export default class Dashboard extends Component {
   // Fetch the employee count from the server
   fetchEmployeeCount = async () => {
     try {
-      const response = await axios.get('http://localhost:4000/employees'); // Ensure this points to your employees endpoint
+      const response = await axios.get('http://localhost:4001/employees'); // Ensure this points to your employees endpoint
       this.setState({ employeeCount: response.data.length }); // Set the employee count based on the retrieved data
     } catch (error) {
       console.error("Error fetching employee count:", error);
@@ -92,7 +92,7 @@ export default class Dashboard extends Component {
   // Fetch the inventory count from the server
   fetchInventoryCount = async () => {
     try {
-      const response = await axios.get('http://localhost:4000/inventory'); // Ensure this points to your inventory endpoint
+      const response = await axios.get('http://localhost:4001/inventory'); // Ensure this points to your inventory endpoint
       this.setState({ inventoryCount: response.data.length }); // Set the inventory count based on the retrieved data
     } catch (error) {
       console.error("Error fetching inventory count:", error);
@@ -100,7 +100,7 @@ export default class Dashboard extends Component {
   };
   fetchSupplierCount = async () => {
     try {
-      const response = await axios.get('http://localhost:4000/api/suppliers'); // Ensure this points to your suppliers endpoint
+      const response = await axios.get('http://localhost:4001/api/suppliers'); // Ensure this points to your suppliers endpoint
       this.setState({ supplierCount: response.data.length }); // Set the supplier count based on the retrieved data
     } catch (error) {
       console.error("Error fetching supplier count:", error);
@@ -108,7 +108,7 @@ export default class Dashboard extends Component {
   };
   fetchOrderCount = async () => {
     try {
-      const response = await axios.get('http://localhost:4000/orders'); // Ensure this points to your orders endpoint
+      const response = await axios.get('http://localhost:4001/orders'); // Ensure this points to your orders endpoint
       this.setState({ orderCount: response.data.length }); // Set the order count based on the retrieved data
     } catch (error) {
       console.error("Error fetching order count:", error);
@@ -116,7 +116,7 @@ export default class Dashboard extends Component {
   };
   fetchFeedbackCount = async () => {
     try {
-      const response = await axios.get('http://localhost:4000/feedback'); // Ensure this points to your feedbacks endpoint
+      const response = await axios.get('http://localhost:4001/feedback'); // Ensure this points to your feedbacks endpoint
       this.setState({ feedbackCount: response.data.length }); // Set the feedback count based on the retrieved data
     } catch (error) {
       console.error("Error fetching feedback count:", error);
