@@ -1,4 +1,3 @@
-/* eslint-disable no-unused-vars */
 import React, { useState } from 'react';
 import axios from 'axios';
 import { Box, Button, TextField, Typography } from '@mui/material';
@@ -20,6 +19,12 @@ function AddMovie({ onBack }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError(null); // Reset error state
+
+    // Validate rate
+    if (rate > 10) {
+      setError('Rate cannot be more than 10.');
+      return; // Stop submission if the validation fails
+    }
 
     try {
       const response = await axios.post(URL, { image, name, rate, description, status });
@@ -81,8 +86,8 @@ function AddMovie({ onBack }) {
           fullWidth
           margin="normal"
         >
-        <option value="Now Showing!">Now Showing!</option>
-        <option value="Up Coming!">Up Coming!</option>
+          <option value="Now Showing!">Now Showing!</option>
+          <option value="Up Coming!">Up Coming!</option>
         </TextField>
         <Button
           type="submit"
