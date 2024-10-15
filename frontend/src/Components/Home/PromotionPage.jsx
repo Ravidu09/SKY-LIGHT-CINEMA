@@ -22,13 +22,15 @@ const fetchPromotions = async () => {
 };
 
 function PromotionPage() {
-  const [promotions, setPromotions] = useState([]);
+  const [promotions, setPromotions] = useState([]); // For storing all promotions
+  const [filteredPromotions, setFilteredPromotions] = useState([]); // For filtered search results
   const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetchPromotions().then(data => {
       setPromotions(data);
+      setFilteredPromotions(data); // Initially show all promotions
       setLoading(false);
     }).catch(error => {
       console.error("Error fetching promotions:", error);
@@ -36,20 +38,18 @@ function PromotionPage() {
     });
   }, []);
 
-  const handleSearch = (query) => {
-    const filteredPromotions = promotions.filter(item =>
+  // Handle search query changes and filter the promotions accordingly
+  const handleInputChange = (e) => {
+    const query = e.target.value;
+    setSearchQuery(query);
+
+    const filtered = promotions.filter(item =>
       Object.values(item).some(field =>
         field && field.toString().toLowerCase().includes(query.toLowerCase())
       )
     );
-    setPromotions(filteredPromotions);
-  };
 
-  // Live search while typing
-  const handleInputChange = (e) => {
-    const query = e.target.value;
-    setSearchQuery(query);
-    handleSearch(query);
+    setFilteredPromotions(filtered);
   };
 
   return (
@@ -89,7 +89,7 @@ function PromotionPage() {
             spaceBetween={20}
             slidesPerView={5}
           >
-            {promotions.map(item => (
+            {filteredPromotions.map(item => (
               <SwiperSlide key={item._id}>
                 <Card
                   sx={{

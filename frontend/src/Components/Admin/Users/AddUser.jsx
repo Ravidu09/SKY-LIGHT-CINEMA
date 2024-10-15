@@ -22,8 +22,16 @@ function AddUser({ onBack }) {
     e.preventDefault();
     setError(null); // Reset error state
 
+    // Validation for name: only letters and spaces
+    const nameValidation = /^[a-zA-Z\s]*$/;
+
     if (!userName || !name || !email || !password || !phone) {
       setError('Please fill in all fields.');
+      return;
+    }
+
+    if (!nameValidation.test(name)) {
+      setError('Name must contain only letters and spaces.');
       return;
     }
 

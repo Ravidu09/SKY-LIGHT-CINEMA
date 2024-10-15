@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import Header from '../Navbar/Navbar';
 import Footer from '../Footer/Footer';
-import { Container, Typography, CircularProgress, Card, CardMedia, CardContent, TextField, Box } from '@mui/material';
+import { Container, Typography, CircularProgress, Card, CardMedia, CardContent, TextField } from '@mui/material';
 import { Link } from 'react-router-dom';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import 'swiper/css';
@@ -44,8 +44,9 @@ function MoviePage() {
     setSearchQuery(query);
 
     const filtered = movies.filter((movie) =>
-      movie.name.toLowerCase().includes(query) ||
-      movie.status.toLowerCase().includes(query)
+      // Match only when the first letter of the name or status matches the query
+      movie.name.toLowerCase().startsWith(query) ||
+      movie.status.toLowerCase().startsWith(query)
     );
 
     setFilteredMovies(filtered);
@@ -79,7 +80,6 @@ function MoviePage() {
           <Swiper
             spaceBetween={20}
             slidesPerView={4}
-            
             pagination={{ clickable: true }}
             breakpoints={{
               320: { slidesPerView: 1 },
@@ -142,7 +142,6 @@ function MoviePage() {
           <Swiper
             spaceBetween={20}
             slidesPerView={4}
-          
             pagination={{ clickable: true }}
             breakpoints={{
               320: { slidesPerView: 1 },

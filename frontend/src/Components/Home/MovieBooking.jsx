@@ -87,6 +87,8 @@ const MovieBooking = () => {
     setSnackbarOpen(false);
   };
 
+  const isMovieAvailable = movie && movie.status === 'available'; // Check if the movie is available
+
   return (
     <div style={{ backgroundColor: '#f7f7f7', minHeight: '100vh' }}>
       <Header />
@@ -107,9 +109,6 @@ const MovieBooking = () => {
                 />
                 <CardContent>
                   <Typography variant="h5" sx={{ fontWeight: 'bold', marginBottom: 1 }}>{movie.name}</Typography>
-                  <Typography variant="body1" color="text.secondary">
-                    Rating: {movie.rate || 'N/A'}
-                  </Typography>
                 </CardContent>
               </Card>
             )}
@@ -123,89 +122,96 @@ const MovieBooking = () => {
             <Typography variant="body1" gutterBottom sx={{ marginBottom: 2 }}>
               Fill in your details below to book tickets for <strong>{movie ? movie.name : 'the movie'}</strong>.
             </Typography>
-            <form onSubmit={handleSubmit}>
-              <TextField
-                label="Number of Tickets"
-                variant="outlined"
-                type="number"
-                value={count}
-                onChange={(e) => setCount(e.target.value)}
-                margin="normal"
-                fullWidth
-                required
-                inputProps={{ min: 1 }}
-                sx={{ marginBottom: 3 }}
-              />
 
-              <Select
-                label="Show Time"
-                variant="outlined"
-                value={showTimeId}
-                onChange={(e) => setShowTimeId(e.target.value)}
-                fullWidth
-                sx={{ marginBottom: 3 }}
-              >
-                {/* Dynamically display available show times based on the selected date */}
-                {availableShowTimes.filter(time => (date === currentDate ? time > currentTime : true)).map(time => (
-                  <MenuItem key={time} value={time}>{time}</MenuItem>
-                ))}
-              </Select>
-
-              <TextField
-                label="Date"
-                variant="outlined"
-                type="date"
-                value={date}
-                onChange={(e) => setDate(e.target.value)}
-                margin="normal"
-                InputLabelProps={{ shrink: true }}
-                fullWidth
-                required
-                sx={{ marginBottom: 3 }}
-                inputProps={{
-                  min: currentDate // Set minimum date to today
-                }}
-              />
-
-              <Select
-                label="Seat Type"
-                variant="outlined"
-                value={seat}
-                onChange={(e) => setSeat(e.target.value)}
-                fullWidth
-                sx={{ marginBottom: 3 }}
-              >
-                <MenuItem value="select">Select Seat Type</MenuItem>
-                <MenuItem value="luxury">Luxury</MenuItem>
-                <MenuItem value="vip">VIP</MenuItem>
-                <MenuItem value="regular">Regular</MenuItem>
-              </Select>
-
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', marginTop: 2 }}>
-                <Button
-                  type="submit"
-                  variant="contained"
-                  color="primary"
-                  sx={{ padding: '12px 24px', fontSize: '1rem', textTransform: 'none', fontWeight: 'bold' }}
-                >
-                  Confirm Booking
-                </Button>
-                <Button
+            {!isMovieAvailable ? ( // Check if the movie is available
+              <Typography variant="body1" color="error">
+                Sorry, this movie is not available for booking.
+              </Typography>
+            ) : (
+              <form onSubmit={handleSubmit}>
+                <TextField
+                  label="Number of Tickets"
                   variant="outlined"
-                  color="secondary"
-                  sx={{ padding: '12px 24px', fontSize: '1rem', textTransform: 'none', fontWeight: 'bold' }}
-                  onClick={() => navigate(-1)}
-                >
-                  Back
-                </Button>
-              </Box>
+                  type="number"
+                  value={count}
+                  onChange={(e) => setCount(e.target.value)}
+                  margin="normal"
+                  fullWidth
+                  required
+                  inputProps={{ min: 1 }}
+                  sx={{ marginBottom: 3 }}
+                />
 
-              {error && (
-                <Typography color="error" sx={{ marginTop: 2 }}>
-                  {error}
-                </Typography>
-              )}
-            </form>
+                <Select
+                  label="Show Time"
+                  variant="outlined"
+                  value={showTimeId}
+                  onChange={(e) => setShowTimeId(e.target.value)}
+                  fullWidth
+                  sx={{ marginBottom: 3 }}
+                >
+                  {/* Dynamically display available show times based on the selected date */}
+                  {availableShowTimes.filter(time => (date === currentDate ? time > currentTime : true)).map(time => (
+                    <MenuItem key={time} value={time}>{time}</MenuItem>
+                  ))}
+                </Select>
+
+                <TextField
+                  label="Date"
+                  variant="outlined"
+                  type="date"
+                  value={date}
+                  onChange={(e) => setDate(e.target.value)}
+                  margin="normal"
+                  InputLabelProps={{ shrink: true }}
+                  fullWidth
+                  required
+                  sx={{ marginBottom: 3 }}
+                  inputProps={{
+                    min: currentDate // Set minimum date to today
+                  }}
+                />
+
+                <Select
+                  label="Seat Type"
+                  variant="outlined"
+                  value={seat}
+                  onChange={(e) => setSeat(e.target.value)}
+                  fullWidth
+                  sx={{ marginBottom: 3 }}
+                >
+                  <MenuItem value="select">Select Seat Type</MenuItem>
+                  <MenuItem value="luxury">Luxury</MenuItem>
+                  <MenuItem value="vip">VIP</MenuItem>
+                  <MenuItem value="regular">Regular</MenuItem>
+                </Select>
+
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', marginTop: 2 }}>
+                  <Button
+                    type="submit"
+                    variant="contained"
+                    color="primary"
+                    sx={{ padding: '12px 24px', fontSize: '1rem', textTransform: 'none', fontWeight: 'bold' }}
+                  >
+                    Confirm Booking
+                  </Button>
+                  <Button
+                    variant="outlined"
+                    color="secondary"
+                    sx={{ padding: '12px 24px', fontSize: '1rem', textTransform: 'none', fontWeight: 'bold' }}
+                    onClick={() => navigate(-1)}
+                  >
+                    Back
+                  </Button>
+                </Box>
+
+                {error && (
+                  <Typography color="error" sx={{ marginTop: 2 }}>
+                    {error}
+                  </Typography>
+                )}
+              </form>
+            )}
           </Grid>
         </Grid>
       </Box>

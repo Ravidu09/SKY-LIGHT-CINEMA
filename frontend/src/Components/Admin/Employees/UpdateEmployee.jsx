@@ -6,17 +6,18 @@ import { useParams, useNavigate } from 'react-router-dom';
 // Background image URL
 const backgroundImage = 'https://adornabrid.com/cdn/shop/products/2019-08-2209.01.16_8c8cfb38-f411-4564-9dbf-2e7c43b42d91.jpg?v=1639536050&width=1426';
 const URL = "http://localhost:4001/employees";
+const GET_URL = "http://localhost:4001/employees"; // Endpoint to get existing employees
 
 const styles = {
   container: {
-    position: 'relative', // Position for the pseudo-element
+    position: 'relative',
     padding: '25px',
     display: 'flex',
     flexDirection: 'column',
-    alignItems: 'center', // Center items horizontally
-    justifyContent: 'flex-start', // Align items to the top
-    height: '100vh', // Full viewport height
-    overflow: 'hidden', // Hide overflow to keep the blur within bounds
+    alignItems: 'center',
+    justifyContent: 'flex-start',
+    height: '100vh',
+    overflow: 'hidden',
   },
   backgroundImage: {
     position: 'absolute',
@@ -24,11 +25,11 @@ const styles = {
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundImage: `url(${backgroundImage})`, // Set the background image
-    backgroundSize: 'cover', // Cover the entire container
-    backgroundPosition: 'center', // Center the background image
-    filter: 'blur(3px)', // Apply blur effect
-    zIndex: 0, // Place it behind the content
+    backgroundImage: `url(${backgroundImage})`,
+    backgroundSize: 'cover',
+    backgroundPosition: 'center',
+    filter: 'blur(3px)',
+    zIndex: 0,
   },
 };
 
@@ -41,20 +42,22 @@ function UpdateEmployee() {
     position: '',
     phone: '',
     address: '',
-    salary: ''
+    salary: '',
+    oldPhone: '' // Store the old phone number for validation
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [nameError, setNameError] = useState('');
   const [emailError, setEmailError] = useState('');
   const [phoneError, setPhoneError] = useState('');
+  const [existingPhones, setExistingPhones] = useState([]); // State to hold existing phone numbers
   const navigate = useNavigate();
 
   useEffect(() => {
     const fetchEmployee = async () => {
       try {
         const response = await axios.get(`${URL}/${id}`);
-        setEmployee(response.data);
+        setEmployee({ ...response.data, oldPhone: response.data.phone }); // Store old phone for later comparison
         setLoading(false);
       } catch (error) {
         console.error("Error fetching employee:", error);
@@ -63,7 +66,18 @@ function UpdateEmployee() {
       }
     };
 
+    const fetchExistingEmployees = async () => {
+      try {
+        const response = await axios.get(GET_URL);
+        const phones = response.data.map(emp => emp.phone); // Extract phone numbers
+        setExistingPhones(phones);
+      } catch (error) {
+        console.error("Error fetching employees:", error);
+      }
+    };
+
     fetchEmployee();
+    fetchExistingEmployees();
   }, [id]);
 
   const handleChange = (e) => {
@@ -76,23 +90,11 @@ function UpdateEmployee() {
     if (name === 'phone') setPhoneError('');
   };
 
-  // Function to validate name (no numbers or special characters)
-  const validateName = (name) => {
-    const nameRegex = /^[A-Za-z\s]+$/;
-    return nameRegex.test(name);
-  };
+  const validateName = (name) => /^[A-Za-z\s]+$/.test(name);
 
-  // Function to validate email
-  const validateEmail = (email) => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email);
-  };
+  const validateEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
-  // Function to validate phone (must be exactly 10 digits and only numbers)
-  const validatePhone = (phone) => {
-    const phoneRegex = /^[0-9]{10}$/;
-    return phoneRegex.test(phone);
-  };
+  const validatePhone = (phone) => /^[0-9]{10}$/.test(phone);
 
   const handleUpdate = async () => {
     setError(null);
@@ -118,6 +120,13 @@ function UpdateEmployee() {
       return;
     }
 
+    // Check for duplicate phone numbers, excluding the current employee's old phone
+    const phoneExists = existingPhones.includes(employee.phone) && employee.phone !== employee.oldPhone; 
+    if (phoneExists) {
+      setPhoneError('This phone number is already in use');
+      return;
+    }
+
     try {
       await axios.put(`${URL}/${id}`, employee);
       alert('Employee updated successfully');
@@ -135,20 +144,20 @@ function UpdateEmployee() {
     <Box sx={styles.container}>
       <Box sx={styles.backgroundImage} />
       <Box sx={{
-        backgroundColor: 'rgba(255, 255, 255, 0.7)', // White background with transparency
+        backgroundColor: 'rgba(255, 255, 255, 0.7)',
         borderRadius: 1,
         padding: 3,
-        width: '600px', // Set width for the form
-        zIndex: 1, // Bring the form above the blurred background
-        marginTop: 5 // Added margin for space at the top
+        width: '600px',
+        zIndex: 1,
+        marginTop: 5
       }}>
-        <Typography 
-          variant="h5" 
-          gutterBottom 
-          sx={{ 
-            color: 'black', 
-            fontWeight: 'bold', // Make the text bold
-            textAlign: 'center' // Center the text
+        <Typography
+          variant="h5"
+          gutterBottom
+          sx={{
+            color: 'black',
+            fontWeight: 'bold',
+            textAlign: 'center'
           }}
         >
           Update Employee
@@ -184,19 +193,19 @@ function UpdateEmployee() {
             fullWidth
           >
             <MenuItem value="Cinema Manager">Cinema Manager</MenuItem>
-              <MenuItem value="Assistant Manager">Assistant Manager</MenuItem>
-              <MenuItem value="Ticketing Officer">Ticketing Officer</MenuItem>
-              <MenuItem value="Customer Service Representative">Customer Service Representative</MenuItem>
-              <MenuItem value="Concessions Staff">Concessions Staff</MenuItem>
-              <MenuItem value="Projectionist">Projectionist</MenuItem>
-              <MenuItem value="Usher">Usher</MenuItem>
-              <MenuItem value="Marketing Coordinator">Marketing Coordinator</MenuItem>
-              <MenuItem value="Operations Manager">Operations Manager</MenuItem>
-              <MenuItem value="Event Coordinator">Event Coordinator</MenuItem>
-              <MenuItem value="Cleaning Staff">Cleaning Staff</MenuItem>
-              <MenuItem value="Security Officer">Security Officer</MenuItem>
-              <MenuItem value="Technical Support">Technical Support</MenuItem>
-              <MenuItem value="Sound/Lighting Technician">Sound/Lighting Technician</MenuItem>
+            <MenuItem value="Assistant Manager">Assistant Manager</MenuItem>
+            <MenuItem value="Ticketing Officer">Ticketing Officer</MenuItem>
+            <MenuItem value="Customer Service Representative">Customer Service Representative</MenuItem>
+            <MenuItem value="Concessions Staff">Concessions Staff</MenuItem>
+            <MenuItem value="Projectionist">Projectionist</MenuItem>
+            <MenuItem value="Usher">Usher</MenuItem>
+            <MenuItem value="Marketing Coordinator">Marketing Coordinator</MenuItem>
+            <MenuItem value="Operations Manager">Operations Manager</MenuItem>
+            <MenuItem value="Event Coordinator">Event Coordinator</MenuItem>
+            <MenuItem value="Cleaning Staff">Cleaning Staff</MenuItem>
+            <MenuItem value="Security Officer">Security Officer</MenuItem>
+            <MenuItem value="Technical Support">Technical Support</MenuItem>
+            <MenuItem value="Sound/Lighting Technician">Sound/Lighting Technician</MenuItem>
           </Select>
         </FormControl>
 
@@ -228,13 +237,13 @@ function UpdateEmployee() {
           margin="normal"
         /><br />
         <Box sx={{ display: 'flex', justifyContent: 'center', marginTop: 4 }}>
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={handleUpdate}
-        >
-          Update Employee
-        </Button>
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={handleUpdate}
+          >
+            Update Employee
+          </Button>
         </Box>
 
         {error && (

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import {
   Box,
@@ -17,7 +17,7 @@ import {
   Typography,
   List,
 } from '@mui/material';
-import { Edit, Delete, Print, Add } from '@mui/icons-material';
+import { Edit, Delete, Print } from '@mui/icons-material';
 import { BarChartOutlined } from '@mui/icons-material';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
@@ -37,10 +37,9 @@ const fetchBookings = async () => {
 
 function BookingDetails() {
   const [bookings, setBookings] = useState([]);
+  const [originalBookings, setOriginalBookings] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [noResults, setNoResults] = useState(false);
-  const [showAddBookingForm, setShowAddBookingForm] = useState(false);
-  const [editBooking, setEditBooking] = useState(null);
   const [viewMode, setViewMode] = useState('bookings');
 
   const navigate = useNavigate();
@@ -49,6 +48,7 @@ function BookingDetails() {
     try {
       const data = await fetchBookings();
       setBookings(data);
+      setOriginalBookings(data);
       setNoResults(data.length === 0);
     } catch (error) {
       console.error("Error fetching bookings:", error);
@@ -58,6 +58,20 @@ function BookingDetails() {
   useEffect(() => {
     loadBookings();
   }, []);
+
+  useEffect(() => {
+    if (searchQuery.trim() === '') {
+      setBookings(originalBookings);
+    } else {
+      const filteredBookings = originalBookings.filter(item =>
+        Object.values(item).some(field =>
+          field && field.toString().toLowerCase().includes(searchQuery.toLowerCase())
+        )
+      );
+      setBookings(filteredBookings);
+      setNoResults(filteredBookings.length === 0);
+    }
+  }, [searchQuery, originalBookings]);
 
   const handleEdit = (id) => {
     navigate(`/admindashboard/update-booking/${id}`);
@@ -78,7 +92,7 @@ function BookingDetails() {
   const handlePDF = () => {
     if (bookings.length === 0) {
       alert("No bookings available for download.");
-      return; // Early exit if no bookings to generate PDF
+      return;
     }
 
     const doc = new jsPDF();
@@ -96,7 +110,7 @@ function BookingDetails() {
         new Date(item.date).toLocaleDateString(),
         item.seat,
       ]),
-      startY: 30, // Start Y position for the table
+      startY: 30,
       margin: { top: 20 },
       styles: {
         overflow: 'linebreak',
@@ -111,25 +125,6 @@ function BookingDetails() {
     doc.save('booking-details.pdf');
   };
 
-  useEffect(() => {
-    const filteredBookings = bookings.filter(item =>
-      Object.values(item).some(field =>
-        field && field.toString().toLowerCase().includes(searchQuery.toLowerCase())
-      )
-    );
-    setNoResults(filteredBookings.length === 0);
-    setBookings(filteredBookings);
-  }, [searchQuery]);
-
-  const handleAddBooking = () => {
-    setEditBooking(null);
-    setShowAddBookingForm(true);
-  };
-
-  const handleBack = () => {
-    setShowAddBookingForm(false);
-  };
-
   const handleViewChange = (event, newView) => {
     if (newView !== null) {
       setViewMode(newView);
@@ -139,20 +134,24 @@ function BookingDetails() {
   const renderAnalysisView = () => {
     const totalBookings = bookings.length;
 
+    // Calculate the most booked movie
     const popularMovie = bookings
       .map(item => item.movieId)
       .reduce((acc, movie) => ({ ...acc, [movie]: (acc[movie] || 0) + 1 }), {});
     const mostBookedMovie = Object.keys(popularMovie).reduce((a, b) => (popularMovie[a] > popularMovie[b] ? a : b), '');
 
+    // Calculate the most popular show time
     const popularShowTime = bookings
       .map(item => item.showTimeId)
       .reduce((acc, showTime) => ({ ...acc, [showTime]: (acc[showTime] || 0) + 1 }), {});
     const mostPopularShowTime = Object.keys(popularShowTime).reduce((a, b) => (popularShowTime[a] > popularShowTime[b] ? a : b), '');
 
+    // Count bookings by date
     const bookingByDate = bookings
       .map(item => new Date(item.date).toLocaleDateString())
       .reduce((acc, date) => ({ ...acc, [date]: (acc[date] || 0) + 1 }), {});
 
+    // Count bookings by seat type
     const seatTypeDistribution = bookings
       .map(item => item.seat)
       .reduce((acc, seat) => ({ ...acc, [seat]: (acc[seat] || 0) + 1 }), {});
@@ -240,7 +239,6 @@ function BookingDetails() {
               onChange={(e) => setSearchQuery(e.target.value)}
               sx={{ flexShrink: 1, width: '200px', backgroundColor: 'white', borderRadius: 1 }}
             />
-            
           </Box>
 
           <Box sx={{ padding: 3, backgroundColor: 'white', borderRadius: 1 }}>
@@ -292,7 +290,7 @@ function BookingDetails() {
           </Box>
         </Box>
       ) : (
-        renderAnalysisView()
+        renderAnalysisView() // Render the analysis view here
       )}
     </Box>
   );
