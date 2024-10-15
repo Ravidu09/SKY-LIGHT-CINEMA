@@ -101,7 +101,6 @@ function AdminDashboard() {
         sx={{
           flexGrow: 1,
           p: 0, // No padding
-          backgroundImage: `url('https://entrepreneurship.babson.edu/wp-content/uploads/2020/10/Movie-1200-630.jpg')`, // Background image
           backgroundColor: '#f4f6f8',
           minHeight: '100vh',
           overflow: 'hidden', // Prevent scrolling
@@ -124,30 +123,7 @@ function AdminDashboard() {
             
           </div>
         </Box>
-        <Typography
-              variant="h2"
-              sx={{
-                position: 'absolute',
-                color: '#FAF2F2',
-                fontWeight: 'bold',
-                textAlign: 'left',
-                fontSize: '6rem',
-                textShadow: '2px 2px 8px rgba(0, 0, 0, 0.3)',
-                background: 'rgba(255, 255, 255, 0.2)',
-                borderRadius: '10px',
-                padding: '20px',
-                backgroundClip: 'text',
-                WebkitBackgroundClip: 'text',
-                display: 'flex',
-                justifyContent: 'left',
-                alignItems: 'left',
-                transform: fadeIn ? 'translateY(0)' : 'translateY(-50px)',
-                opacity: fadeIn ? 1 : 0,
-                transition: 'transform 2s ease-out, opacity 2s ease-out',
-              }}
-            >
-              <span style={{ transition: 'transform 2s ease-out' }}>SKY LIGHT CINEMA</span>
-            </Typography>
+        
         <Outlet /> {/* Render nested routes */}
       </Box>
     </Box>
