@@ -1,6 +1,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 
+
 import Home from './Components/Home/Home';
 import Login from './Components/Login/Login';
 import Movie from './Components/Home/Movie';

@@ -1,12 +1,33 @@
-/* eslint-disable no-unused-vars */
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Box, Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField, Paper, IconButton } from '@mui/material';
-import { Edit, Delete, Print, Add } from '@mui/icons-material';
+import {
+  Box,
+  Button,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  TextField,
+  Paper,
+  IconButton,
+  CircularProgress,
+  Typography,
+  TablePagination,
+  Snackbar,
+  Alert,
+} from '@mui/material';
+import { Edit, Delete, Add } from '@mui/icons-material';
+import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
+import GetAppIcon from '@mui/icons-material/GetApp';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
 import AddInventory from './AddInventory';
+import AnalysisView from './AnalysisView';
 import { useNavigate } from 'react-router-dom';
+import { useDebounce } from 'use-debounce';
+import * as XLSX from 'xlsx';
 
 const URL = "http://localhost:4001/inventory";
 
@@ -25,32 +46,49 @@ function InventoryDetails() {
   const [searchQuery, setSearchQuery] = useState('');
   const [noResults, setNoResults] = useState(false);
   const [showAddInventoryForm, setShowAddInventoryForm] = useState(false);
-
+  const [showAnalysisView, setShowAnalysisView] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [debouncedSearchQuery] = useDebounce(searchQuery, 300);
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [selectedIds, setSelectedIds] = useState([]);
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState('');
+  const [snackbarSeverity, setSnackbarSeverity] = useState('success');
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetchInventory().then(data => {
-      setInventory(data);
-    }).catch(error => {
-      console.error("Error fetching Maintanance:", error);
-    });
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        const data = await fetchInventory();
+        setInventory(data);
+        setNoResults(false);
+      } catch (error) {
+        console.error("Error fetching inventory:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
   }, []);
 
   useEffect(() => {
     const handleSearch = () => {
-      if (searchQuery.trim() === "") {
+      if (debouncedSearchQuery.trim() === "") {
         fetchInventory().then(data => {
           setInventory(data);
           setNoResults(false);
         }).catch(error => {
-          console.error("Error fetching Maintanance:", error);
+          console.error("Error fetching inventory:", error);
         });
         return;
       }
 
       const filteredInventory = inventory.filter(item =>
         Object.values(item).some(field =>
-          field && field.toString().toLowerCase().startsWith(searchQuery.toLowerCase())
+          field && field.toString().toLowerCase().startsWith(debouncedSearchQuery.toLowerCase())
         )
       );
       setInventory(filteredInventory);
@@ -58,7 +96,7 @@ function InventoryDetails() {
     };
 
     handleSearch();
-  }, [searchQuery]);
+  }, [debouncedSearchQuery]);
 
   const handleEdit = (id) => {
     navigate(`/admindashboard/update-inventory/${id}`);
@@ -66,46 +104,57 @@ function InventoryDetails() {
 
   const deleteInventory = async (id) => {
     try {
-      console.log(`Attempting to delete Maintanance with ID: ${id}`);
+      console.log(`Attempting to delete item with ID: ${id}`);
       const response = await axios.delete(`${URL}/${id}`);
-      
-      console.log('Delete response:', response);
-      
       if (response.status === 200) {
-        console.log(`Successfully deleted Maintanance with ID: ${id}`);
-        setInventory(prev => {
-          const updatedList = prev.filter(item => item._id !== id);
-          console.log('Updated inventory list:', updatedList);
-          return updatedList;
-        });
+        setInventory(prev => prev.filter(item => item._id !== id));
+        setSnackbarMessage('Item deleted successfully!');
+        setSnackbarSeverity('success');
       } else {
         console.error("Unexpected response status:", response.status);
+        setSnackbarMessage('Error deleting item.');
+        setSnackbarSeverity('error');
       }
     } catch (error) {
-      console.error("Error deleting Maintanance:", error.response ? error.response.data : error.message);
+      console.error("Error deleting item:", error.response ? error.response.data : error.message);
+      setSnackbarMessage('Error deleting item.');
+      setSnackbarSeverity('error');
+    } finally {
+      setSnackbarOpen(true);
+    }
+  };
+
+  const handleBulkDelete = async () => {
+    try {
+      await Promise.all(selectedIds.map(id => axios.delete(`${URL}/${id}`)));
+      setInventory(prev => prev.filter(item => !selectedIds.includes(item._id)));
+      setSelectedIds([]);
+      setSnackbarMessage('Selected items deleted successfully!');
+      setSnackbarSeverity('success');
+    } catch (error) {
+      console.error("Error deleting items:", error.response ? error.response.data : error.message);
+      setSnackbarMessage('Error deleting items.');
+      setSnackbarSeverity('error');
+    } finally {
+      setSnackbarOpen(true);
     }
   };
 
   const handlePDF = () => {
     const doc = new jsPDF();
-
-    // Add a title and subtitle for Skylight Cinema
     doc.setFontSize(18);
     doc.text("Skylight Cinema", 10, 10);
-    
     doc.setFontSize(14);
     doc.text("Maintenance Details Report", 10, 20);
-
-    // Create the table with maintenance details
     doc.autoTable({
       head: [['ID', 'Item Name', 'Type', 'Maintenance ID', 'Cost', 'Date', 'Note']],
       body: inventory.map(item => [
-        item.InvID, 
-        item.ItemName, 
-        item.type, 
-        item.MaintananceID, 
-        item.Cost, 
-        new Date(item.Date).toLocaleDateString(), 
+        item.InvID,
+        item.ItemName,
+        item.type,
+        item.MaintananceID,
+        item.Cost,
+        new Date(item.Date).toLocaleDateString(),
         item.Note || 'No Note'
       ]),
       startY: 30,
@@ -115,13 +164,29 @@ function InventoryDetails() {
         fontSize: 10,
       },
       headStyles: {
-        fillColor: [0, 0, 0],
-        textColor: [255, 255, 255],
+        fillColor: [0, 0, 128], // Dark blue
+        textColor: [255, 255, 255], // White
       },
     });
-
-    // Save the PDF with a custom filename
     doc.save('Skylight_Cinema_Maintenance_Details.pdf');
+  };
+
+  const exportToExcel = () => {
+    const worksheet = XLSX.utils.json_to_sheet(inventory.map(item => ({
+      ID: item.InvID,
+      'Item Name': item.ItemName,
+      Type: item.type,
+      'Maintenance ID': item.MaintananceID,
+      Cost: item.Cost,
+      Date: new Date(item.Date).toLocaleDateString(),
+      Note: item.Note || 'No Note',
+    })));
+
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Inventory");
+
+    // Save to file
+    XLSX.writeFile(workbook, 'inventory_report.xlsx');
   };
 
   const handleAddInventory = () => {
@@ -132,12 +197,43 @@ function InventoryDetails() {
     setShowAddInventoryForm(false);
   };
 
+  const handleShowAnalysis = () => {
+    setShowAnalysisView(true);
+  };
+
+  const handleSelectItem = (id) => {
+    setSelectedIds(prev => {
+      if (prev.includes(id)) {
+        return prev.filter(itemId => itemId !== id);
+      } else {
+        return [...prev, id];
+      }
+    });
+  };
+
+  const handleChangePage = (event, newPage) => {
+    setPage(newPage);
+  };
+
+  const handleChangeRowsPerPage = (event) => {
+    setRowsPerPage(parseInt(event.target.value, 10));
+    setPage(0);
+  };
+
+  const toggleStatus = (id) => {
+    setInventory(prevInventory =>
+      prevInventory.map(item =>
+        item._id === id ? { ...item, status: item.status === 'Pending' ? 'Complete' : 'Pending' } : item
+      )
+    );
+  };
+
   return (
-    <Box>
+    <Box sx={{ p: 3, backgroundColor: '#e0f7fa', borderRadius: 2 }}>
       {showAddInventoryForm ? (
-        <Box>
-          <AddInventory onBack={handleBack} />
-        </Box>
+        <AddInventory onBack={handleBack} />
+      ) : showAnalysisView ? (
+        <AnalysisView inventory={inventory} onBack={() => setShowAnalysisView(false)} />
       ) : (
         <>
           <Box sx={{ display: 'flex', gap: 2, marginBottom: 2, alignItems: 'center' }}>
@@ -148,38 +244,71 @@ function InventoryDetails() {
               onChange={(e) => setSearchQuery(e.target.value)}
               sx={{
                 flexShrink: 1,
-                width: '200px',
-                backgroundColor: 'white',
+                width: '300px',
+                backgroundColor: '#ffffff',
                 borderRadius: 1,
-                '& .MuiOutlinedInput-root': {
-                  '& fieldset': {
-                    borderColor: 'grey.300',
-                  },
-                  '&:hover fieldset': {
-                    borderColor: 'primary.main',
-                  },
-                  '&.Mui-focused fieldset': {
-                    borderColor: 'primary.main',
-                  },
-                },
               }}
             />
             <Button
               variant="contained"
               color="secondary"
               onClick={handleAddInventory}
-              sx={{ borderRadius: 2, marginLeft: 'auto' }}
+              sx={{
+                borderRadius: 2,
+                '&:hover': { backgroundColor: '#c2185b' }, // Darker pink
+                backgroundColor: '#e91e63', // Pink
+              }}
               startIcon={<Add />}
             >
               Add Maintenance
             </Button>
+            <Button
+              variant="contained"
+              color="error"
+              onClick={handleBulkDelete}
+              sx={{
+                borderRadius: 2,
+                '&:hover': { backgroundColor: '#d32f2f' }, // Darker red
+                backgroundColor: '#f44336', // Red
+              }}
+              disabled={selectedIds.length === 0}
+            >
+              Delete Selected
+            </Button>
+            <Button
+              variant="contained"
+              color="info"
+              onClick={handleShowAnalysis}
+              sx={{
+                borderRadius: 2,
+                '&:hover': { backgroundColor: '#1976d2' }, // Darker blue
+                backgroundColor: '#2196f3', // Blue
+              }}
+            >
+              Show Analysis
+            </Button>
           </Box>
 
-          <Box sx={{ padding: 3, backgroundColor: 'white', borderRadius: 1 }}>
-            <TableContainer component={Paper} sx={{ border: '1px solid', borderColor: 'divider' }}>
+          {loading ? (
+            <CircularProgress />
+          ) : (
+            <TableContainer component={Paper} sx={{ backgroundColor: '#ffffff', borderRadius: 2 }}>
               <Table>
                 <TableHead>
                   <TableRow>
+                    <TableCell padding="checkbox">
+                      <input
+                        type="checkbox"
+                        onChange={(e) => {
+                          if (e.target.checked) {
+                            setSelectedIds(inventory.map(item => item._id));
+                          } else {
+                            setSelectedIds([]);
+                          }
+                        }}
+                        checked={selectedIds.length === inventory.length && inventory.length > 0}
+                      />
+                    </TableCell>
                     <TableCell>ID</TableCell>
                     <TableCell>Item Name</TableCell>
                     <TableCell>Type</TableCell>
@@ -187,50 +316,94 @@ function InventoryDetails() {
                     <TableCell>Cost</TableCell>
                     <TableCell>Date</TableCell>
                     <TableCell>Note</TableCell>
-                    <TableCell>Actions</TableCell>
+                    <TableCell>Action</TableCell>
+                    <TableCell>Status</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {noResults ? (
-                    <TableRow>
-                      <TableCell colSpan={8} align="center">No Maintenance found.</TableCell>
+                  {inventory.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map(item => (
+                    <TableRow key={item._id} sx={{ '&:hover': { backgroundColor: '#f1f8e9' } }}>
+                      <TableCell padding="checkbox">
+                        <input
+                          type="checkbox"
+                          checked={selectedIds.includes(item._id)}
+                          onChange={() => handleSelectItem(item._id)}
+                        />
+                      </TableCell>
+                      <TableCell>{item.InvID}</TableCell>
+                      <TableCell>{item.ItemName}</TableCell>
+                      <TableCell>{item.type}</TableCell>
+                      <TableCell>{item.MaintananceID}</TableCell>
+                      <TableCell>{item.Cost}</TableCell>
+                      <TableCell>{new Date(item.Date).toLocaleDateString()}</TableCell>
+                      <TableCell>{item.Note || 'No Note'}</TableCell>
+                      <TableCell>
+                        <IconButton onClick={() => handleEdit(item._id)} color="primary">
+                          <Edit />
+                        </IconButton>
+                        <IconButton onClick={() => deleteInventory(item._id)} color="error">
+                          <Delete />
+                        </IconButton>
+                      </TableCell>
+                      <TableCell>
+                        <Button variant="outlined" onClick={() => toggleStatus(item._id)}>
+                          {item.status === 'Pending' ? 'Complete' : 'Pending'}
+                        </Button>
+                      </TableCell>
                     </TableRow>
-                  ) : (
-                    inventory.map((item) => (
-                      <TableRow key={item._id}>
-                        <TableCell>{item.InvID}</TableCell>
-                        <TableCell>{item.ItemName}</TableCell>
-                        <TableCell>{item.type}</TableCell>
-                        <TableCell>{item.MaintananceID}</TableCell>
-                        <TableCell>{item.Cost}</TableCell>
-                        <TableCell>{new Date(item.Date).toLocaleDateString()}</TableCell>
-                        <TableCell>{item.Note || 'No Note'}</TableCell>
-                        <TableCell>
-                          <IconButton onClick={() => handleEdit(item._id)} sx={{ color: 'primary.main' }}>
-                            <Edit />
-                          </IconButton>
-                          <IconButton onClick={() => deleteInventory(item._id)} sx={{ color: 'error.main' }}>
-                            <Delete />
-                          </IconButton>
-                        </TableCell>
-                      </TableRow>
-                    ))
-                  )}
+                  ))}
                 </TableBody>
               </Table>
             </TableContainer>
+          )}
 
+          {noResults && !loading && (
+            <Typography variant="h6" color="error">No results found.</Typography>
+          )}
+
+          <TablePagination
+            rowsPerPageOptions={[5, 10, 25]}
+            component="div"
+            count={inventory.length}
+            rowsPerPage={rowsPerPage}
+            page={page}
+            onPageChange={handleChangePage}
+            onRowsPerPageChange={handleChangeRowsPerPage}
+          />
+
+          {/* Box for buttons at the bottom left */}
+          <Box sx={{ display: 'flex', justifyContent: 'flex-start', mt: 2 }}>
             <Button
               variant="contained"
-              color="primary"
-              onClick={handlePDF}
-              sx={{ marginTop: 2, borderRadius: 2 }}
+              color="success"
+              onClick={exportToExcel}
+              sx={{ borderRadius: 2, mr: 1, backgroundColor: '#4caf50', '&:hover': { backgroundColor: '#388e3c' } }}
+              startIcon={<GetAppIcon />}
             >
-              <Print /> Download
+              Export to Excel
+            </Button>
+            <Button
+              variant="contained"
+              color="warning"
+              onClick={handlePDF}
+              sx={{ borderRadius: 2, backgroundColor: '#ff9800', '&:hover': { backgroundColor: '#f57c00' } }}
+              startIcon={<PictureAsPdfIcon />}
+            >
+              Print PDF
             </Button>
           </Box>
         </>
       )}
+
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={6000}
+        onClose={() => setSnackbarOpen(false)}
+      >
+        <Alert onClose={() => setSnackbarOpen(false)} severity={snackbarSeverity} sx={{ width: '100%' }}>
+          {snackbarMessage}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 }
